@@ -1,0 +1,1 @@
+import {NextResponse} from 'next/server';import {requireUser,hasEntitlement} from '../../../lib/auth';export async function GET(){try{const u=await requireUser();return NextResponse.json({active:await hasEntitlement(u.email||'')})}catch{return NextResponse.json({active:false},{status:401})}}

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "RJA Job Capture",
+  "version": "4.3.0",
+  "permissions": [
+    "identity",
+    "activeTab",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": [
+    "https://*/*"
+  ],
+  "description": "Secure OAuth job capture for Remote Job Accelerator"
+}
