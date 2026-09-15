@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireUser } from '../../../../lib/auth';
 import { supabaseAdmin } from '../../../../lib/supabase';
 import { sameOrigin } from '../../../../lib/security';
@@ -54,9 +54,14 @@ export async function POST(req: Request) {
         mime === 'application/pdf' ||
         filename.toLowerCase().endsWith('.pdf')
       ) {
-        const pdf = await import('pdf-parse');
-        const parsed = await pdf.default(buf);
-        text = parsed.text;
+        const { PDFParse } = await import('pdf-parse');
+        const parser = new PDFParse({ data: buf });
+        try {
+          const parsed = await parser.getText();
+          text = parsed.text;
+        } finally {
+          await parser.destroy().catch(() => {});
+        }
       } else if (
         mime.includes('wordprocessingml') ||
         filename.toLowerCase().endsWith('.docx')
