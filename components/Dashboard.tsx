@@ -11,11 +11,18 @@ import AnalyticsOverview from './dashboard/AnalyticsOverview';
 type Job = any;
 type App = any;
 
-const steps = ['Evidence', 'Job', 'Match', 'Tailor', 'Interview', 'Outreach', 'Pipeline'];
-const statuses = ['saved', 'applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn'];
+const steps = [
+  'Profile',
+  'Job Search',
+  'Job Matching',
+  'Resume Tailoring',
+  'Interview Prep',
+  'Outreach',
+  'Pipeline & Apply',
+];
 
 export default function Dashboard({ email }: { email: string }) {
-  const [step, setStep] = useState('Evidence');
+  const [step, setStep] = useState('Profile');
   const [resume, setResume] = useState('');
   const [jobUrl, setJobUrl] = useState('');
   const [jobText, setJobText] = useState('');
@@ -27,6 +34,7 @@ export default function Dashboard({ email }: { email: string }) {
   const [apps, setApps] = useState<App[]>([]);
   const [jobs, setJobs] = useState<SavedJob[]>([]);
   const [interviews, setInterviews] = useState<any[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [pro, setPro] = useState(false);
@@ -41,6 +49,7 @@ export default function Dashboard({ email }: { email: string }) {
         const x = await r.json();
         if (r.ok) {
           setPro(!!x.entitled);
+          setUserProfile(x.profile || { email });
           setResume(x.profile?.resume_text || '');
           setFileName(x.profile?.resume_filename || '');
           setApps(x.applications || []);
@@ -50,7 +59,7 @@ export default function Dashboard({ email }: { email: string }) {
         }
       })
       .catch(() => setNotice('Could not load your workspace. Refresh to retry.'));
-  }, []);
+  }, [email]);
 
   // Keyboard shortcut listener
   useEffect(() => {
@@ -103,9 +112,9 @@ export default function Dashboard({ email }: { email: string }) {
       filename: fileName || 'master-resume.txt',
       mime: 'text/plain',
     });
-    if (!j) return;
-    setStep('Job');
-    setNotice('Evidence Vault saved. Your source of truth is ready.');
+    if (!j) return false;
+    setNotice('Evidence Vault saved. Your verified source of truth is ready.');
+    return true;
   };
 
   const uploadFile = async (file: File) => {
@@ -130,64 +139,84 @@ export default function Dashboard({ email }: { email: string }) {
   const ingest = async () => {
     if (!pro) {
       setShowPaywall(true);
-      return;
+      return false;
     }
     if (jobUrl) {
       const j = await call('/api/jobs/ingest', { url: jobUrl });
-      if (!j) return;
+      if (!j) return false;
       setJobText(j.text);
       setJob({ url: j.url, title: j.title, company: j.company, id: j.job_id || null });
     } else if (jobText.trim()) {
       setJob({ url: null, title: 'Target Role', company: 'Target Company', id: null });
     } else {
       setNotice('Please enter a job URL or paste the job description.');
-      return;
+      return false;
     }
-    setStep('Match');
+    setNotice('Job listing captured and ready for fit matching.');
+    return true;
   };
 
   const runMatch = async () => {
     const j = await call('/api/ai/job-match', { job: jobText, resume, url: job?.url });
-    if (!j) return;
+    if (!j) return false;
     setMatch(j);
-    if (j.job_id && job) {
+    if (j.job_id) {
       setJob((prev: any) => ({ ...prev, id: j.job_id }));
+      // Automatically refresh saved jobs
+      const newJobRecord: SavedJob = {
+        id: j.job_id,
+        title: job?.title || 'Target Role',
+        company: job?.company || 'Target Company',
+        url: job?.url || jobUrl,
+        description: jobText,
+        match: j,
+        created_at: new Date().toISOString(),
+      };
+      setJobs((prev) => [newJobRecord, ...prev.filter((x) => x.id !== j.job_id)]);
     }
-    setStep('Tailor');
+    return true;
   };
 
   const runTailor = async () => {
     const j = await call('/api/ai/resume-tailor', { job: jobText, resume, job_id: match?.job_id || job?.id });
-    if (!j) return;
+    if (!j) return false;
     setTailor(j);
     setNotice('100% ATS-ready resume generated!');
+    return true;
   };
 
   const runCover = async () => {
-    const j = await call('/api/ai/cover-letter', { job: jobText, resume, job_id: match?.job_id || job?.id });
-    if (!j) return;
+    const j = await call('/api/ai/cover-letter', {
+      job: jobText,
+      resume,
+      job_id: match?.job_id || job?.id,
+      tailored_resume: tailor,
+    });
+    if (!j) return false;
     setCover(j);
-    setNotice('Tailored cover letter created!');
+    setNotice('Role-aligned cover letter created!');
+    return true;
   };
 
   const runInterview = async () => {
     const j = await call('/api/ai/interview', { job: jobText, resume, job_id: match?.job_id || job?.id });
-    if (!j) return;
+    if (!j) return false;
     setInterview(j);
     setNotice('Interview rehearsal coach prepared!');
+    return true;
   };
 
-  const addApp = async () => {
+  const addApp = async (statusOverride = 'ready_to_apply') => {
     const r = await call('/api/applications', {
       company: job?.company || 'Target company',
       role: job?.title || 'Target role',
       job_url: job?.url || jobUrl,
-      status: 'saved',
+      status: statusOverride,
       job_id: match?.job_id || job?.id,
     });
     if (!r) return;
-    setApps((a) => [r.application, ...a]);
-    setNotice('Opportunity added to your pipeline tracker.');
+    setApps((a) => [r.application, ...a.filter((x) => x.id !== r.application.id)]);
+    setNotice(`Added to application pipeline as "${statusOverride.replace(/_/g, ' ').toUpperCase()}".`);
   };
 
   const updateAppStatus = async (id: string, status: string) => {
@@ -230,7 +259,7 @@ export default function Dashboard({ email }: { email: string }) {
     setCover(j.cover_letter ? (j.cover_letter.letter ? j.cover_letter : { letter: j.cover_letter }) : null);
     const matchedInt = interviews.find((int: any) => int.job_id === j.id);
     setInterview(matchedInt?.plan || null);
-    setStep(j.tailored_resume ? 'Tailor' : j.match ? 'Match' : 'Job');
+    setStep(j.tailored_resume ? 'Resume Tailoring' : j.match ? 'Job Matching' : 'Job Search');
     setNotice(`Switched active workspace to ${j.title || 'selected opportunity'}.`);
   };
 
@@ -240,7 +269,7 @@ export default function Dashboard({ email }: { email: string }) {
     if (target) {
       selectOpportunity(target);
     } else {
-      setStep('Job');
+      setStep('Job Search');
     }
   };
 
@@ -252,7 +281,7 @@ export default function Dashboard({ email }: { email: string }) {
     setTailor(null);
     setCover(null);
     setInterview(null);
-    setStep('Job');
+    setStep('Job Search');
     setNotice('Ready to analyze a new target role.');
   };
 
@@ -268,9 +297,63 @@ export default function Dashboard({ email }: { email: string }) {
   const score = useMemo(() => (typeof match?.score === 'number' ? match.score : null), [match]);
   const saved = resume.length >= 80;
 
+  // Continuous Guided Workflow Navigation Helpers
+  const currentStepIndex = steps.indexOf(step);
+  const canGoBack = currentStepIndex > 0;
+  const canGoNext = currentStepIndex < steps.length - 1;
+
+  const goPrevious = () => {
+    if (canGoBack) setStep(steps[currentStepIndex - 1]);
+  };
+
+  const goNext = async () => {
+    if (step === 'Profile') {
+      if (!saved) {
+        setNotice('Please paste or upload your resume evidence before proceeding.');
+        return;
+      }
+      await saveEvidence();
+      setStep('Job Search');
+    } else if (step === 'Job Search') {
+      if (!jobText.trim() && !jobUrl.trim()) {
+        setNotice('Please enter a job URL or paste the job description.');
+        return;
+      }
+      if (!job) {
+        const ok = await ingest();
+        if (ok) setStep('Job Matching');
+      } else {
+        setStep('Job Matching');
+      }
+    } else if (step === 'Job Matching') {
+      if (!match) {
+        const ok = await runMatch();
+        if (ok) setStep('Resume Tailoring');
+      } else {
+        setStep('Resume Tailoring');
+      }
+    } else if (step === 'Resume Tailoring') {
+      if (!tailor) {
+        const ok = await runTailor();
+        if (ok) setStep('Interview Prep');
+      } else {
+        setStep('Interview Prep');
+      }
+    } else if (step === 'Interview Prep') {
+      if (!interview) {
+        const ok = await runInterview();
+        if (ok) setStep('Outreach');
+      } else {
+        setStep('Outreach');
+      }
+    } else if (step === 'Outreach') {
+      setStep('Pipeline & Apply');
+    }
+  };
+
   return (
     <main className="shell">
-      {/* Sidebar */}
+      {/* Sidebar Navigation */}
       <aside className={'sidebar ' + (mobileMenu ? 'open' : '')}>
         <div className="brand">
           <span className="brandmark">R</span>
@@ -280,19 +363,22 @@ export default function Dashboard({ email }: { email: string }) {
           </div>
         </div>
         <div className="workspace-label">CAREER OPERATING SYSTEM</div>
-        {steps.map((s, i) => (
-          <button
-            key={s}
-            className={step === s ? 'nav active' : 'nav'}
-            onClick={() => {
-              setStep(s);
-              setMobileMenu(false);
-            }}
-          >
-            <span>{String(i + 1).padStart(2, '0')}</span>
-            {s}
-          </button>
-        ))}
+        {steps.map((s, i) => {
+          const isDone = steps.indexOf(step) > i;
+          return (
+            <button
+              key={s}
+              className={step === s ? 'nav active' : 'nav'}
+              onClick={() => {
+                setStep(s);
+                setMobileMenu(false);
+              }}
+            >
+              <span>{isDone ? '✓' : String(i + 1).padStart(2, '0')}</span>
+              {s}
+            </button>
+          );
+        })}
         <div className="sidebar-bottom">
           <div className="user-chip">
             <div className="avatar">{email[0]?.toUpperCase()}</div>
@@ -319,7 +405,9 @@ export default function Dashboard({ email }: { email: string }) {
           <div>
             <div className="kicker">REMOTE JOB ACCELERATOR · V4.3 PRO</div>
             <h1>Executive Command Center</h1>
-            <p className="top-sub">One evidence vault. One pipeline. Every remote application decision in one unified platform.</p>
+            <p className="top-sub">
+              Profile → Job Discovery → Fit Matching → ATS Resume & Cover Letter → Interview Rehearsal → Direct Apply.
+            </p>
           </div>
           <div className="top-actions">
             <button className="icon-btn" onClick={() => setShowSettings(true)} title="Settings (Esc to close)">
@@ -351,18 +439,23 @@ export default function Dashboard({ email }: { email: string }) {
           onNewJob={startNewOpportunity}
         />
 
-        {/* Stepper Progress Bar */}
+        {/* Interactive Guided Stepper Progress Bar */}
         <div className="progress">
-          {steps.map((s, i) => (
-            <button
-              key={s}
-              onClick={() => setStep(s)}
-              className={(steps.indexOf(step) >= i ? 'done ' : '') + (step === s ? 'current' : '')}
-            >
-              <span>{i + 1}</span>
-              <label>{s}</label>
-            </button>
-          ))}
+          {steps.map((s, i) => {
+            const isDone = steps.indexOf(step) > i;
+            const isCurrent = step === s;
+            return (
+              <button
+                key={s}
+                onClick={() => setStep(s)}
+                className={(isDone ? 'done ' : '') + (isCurrent ? 'current' : '')}
+                title={`Jump to ${s}`}
+              >
+                <span>{isDone ? '✓' : i + 1}</span>
+                <label>{s}</label>
+              </button>
+            );
+          })}
         </div>
 
         {notice && (
@@ -373,10 +466,10 @@ export default function Dashboard({ email }: { email: string }) {
           </div>
         )}
 
-        {/* STEP 1: Evidence Vault */}
-        {step === 'Evidence' && (
+        {/* STEP 1: Profile & Evidence Vault */}
+        {step === 'Profile' && (
           <Card
-            title="Build your Evidence Vault"
+            title="Profile & Master Evidence Vault"
             sub="Your verified career evidence is the only source RJA uses for factual claims. Keep this master record richer than any single resume."
           >
             <div className="vault-grid">
@@ -423,10 +516,10 @@ export default function Dashboard({ email }: { email: string }) {
           </Card>
         )}
 
-        {/* STEP 2: Job Ingestion */}
-        {step === 'Job' && (
+        {/* STEP 2: Job Search & Discovery */}
+        {step === 'Job Search' && (
           <Card
-            title="Bring in the target role"
+            title="Job Search & Ingestion"
             sub="Paste a job description or import a public listing. RJA preserves the original posting so every analysis and resume decision remains auditable."
           >
             <div className="job-source-cards">
@@ -473,10 +566,10 @@ export default function Dashboard({ email }: { email: string }) {
           </Card>
         )}
 
-        {/* STEP 3: Fit Intelligence */}
-        {step === 'Match' && (
+        {/* STEP 3: Fit Intelligence & Matching */}
+        {step === 'Job Matching' && (
           <Card
-            title="Fit intelligence & Gap analysis"
+            title="Fit Intelligence & Gap Analysis"
             sub="Understand exactly how your verified evidence matches the role requirements: signals, evidence mappings, confidence, and gaps."
           >
             <div className="split">
@@ -513,11 +606,11 @@ export default function Dashboard({ email }: { email: string }) {
           </Card>
         )}
 
-        {/* STEP 4: 100% ATS Resume Studio */}
-        {step === 'Tailor' && (
+        {/* STEP 4: 100% ATS Resume & Cover Letter Studio */}
+        {step === 'Resume Tailoring' && (
           <Card
-            title="100% ATS Ready Resume Studio Pro"
-            sub="Create a role-aligned, ATS-optimized resume and cover letter preserving every verified factual claim. Universal parser compatibility guaranteed."
+            title="100% ATS Ready Resume & Cover Letter Studio"
+            sub="Create a role-aligned, ATS-optimized resume and matching cover letter preserving every verified factual claim. Universal parser compatibility guaranteed."
           >
             <AtsResumeStudio
               tailor={tailor}
@@ -526,6 +619,7 @@ export default function Dashboard({ email }: { email: string }) {
               onRunTailor={runTailor}
               onRunCover={runCover}
               onNotice={setNotice}
+              onSaveToPipeline={() => addApp('ready_to_apply')}
             />
             <div className="actionbar">
               <div className="micro">
@@ -533,7 +627,7 @@ export default function Dashboard({ email }: { email: string }) {
               </div>
               <div className="button-group">
                 <button className="secondary" disabled={busy || !tailor} onClick={runCover}>
-                  {busy ? 'Writing…' : '＋ Cover letter'}
+                  {busy ? 'Writing…' : '＋ Tailored Cover Letter'}
                 </button>
                 <button className="primary" disabled={busy} onClick={runTailor}>
                   {busy ? 'Tailoring…' : 'Generate ATS tailored resume →'}
@@ -543,8 +637,8 @@ export default function Dashboard({ email }: { email: string }) {
           </Card>
         )}
 
-        {/* STEP 5: Interactive Interview Coach */}
-        {step === 'Interview' && (
+        {/* STEP 5: Interactive Interview Simulator */}
+        {step === 'Interview Prep' && (
           <Card
             title="Interview Simulator & STAR Answer Coach"
             sub="Practice role-specific questions grounded in the job requirements and your evidence. Receive real-time STAR coaching on your practice answers."
@@ -581,18 +675,21 @@ export default function Dashboard({ email }: { email: string }) {
           </Card>
         )}
 
-        {/* STEP 7: Pipeline Kanban Tracker */}
-        {step === 'Pipeline' && (
+        {/* STEP 7: Pipeline Kanban Tracker & Direct Apply */}
+        {step === 'Pipeline & Apply' && (
           <Card
             title="Application Pipeline & Career CRM"
-            sub="Track every application across stages from Saved to Offer. Log notes, monitor response velocity, and manage your job search funnel."
+            sub="Track every application across stages from Selected to Offer. Open complete company dossiers, execute 1-click web apply, or send verified email applications."
           >
             <KanbanTracker
               applications={apps}
+              jobs={jobs}
+              interviews={interviews}
+              userProfile={userProfile}
               onUpdateStatus={updateAppStatus}
               onUpdateNotes={updateAppNotes}
               onSelectJob={selectJobById}
-              onAddCurrentOpportunity={addApp}
+              onAddCurrentOpportunity={() => addApp('selected')}
               hasActiveJob={!!jobText}
               activeJobTitle={job?.title}
             />
@@ -603,6 +700,35 @@ export default function Dashboard({ email }: { email: string }) {
             />
           </Card>
         )}
+
+        {/* Continuous Guided Journey Bar */}
+        <div className="journey-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', padding: '14px 18px', background: '#0a1014', border: '1px solid #1c282e', borderRadius: '10px' }}>
+          <button
+            className="secondary"
+            disabled={!canGoBack || busy}
+            onClick={goPrevious}
+            style={{ fontSize: '11px', padding: '8px 16px' }}
+          >
+            ← Previous: {canGoBack ? steps[currentStepIndex - 1] : 'Start'}
+          </button>
+
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '9px', color: '#68767d', letterSpacing: '.08em', textTransform: 'uppercase', display: 'block' }}>
+              STEP {currentStepIndex + 1} OF {steps.length}
+            </span>
+            <strong style={{ fontSize: '12px', color: '#9af5cf' }}>{step}</strong>
+            {job?.title && <small style={{ color: '#8898a0', marginLeft: '6px' }}>· {job.title} at {job.company}</small>}
+          </div>
+
+          <button
+            className="primary"
+            disabled={busy}
+            onClick={goNext}
+            style={{ fontSize: '11px', padding: '8px 16px' }}
+          >
+            {canGoNext ? `Continue to ${steps[currentStepIndex + 1]} →` : 'View Tracked Applications →'}
+          </button>
+        </div>
 
         <footer>Private workspace · Evidence remains yours · AI proposes, you decide · v4.3 PRO</footer>
       </section>

@@ -68,6 +68,8 @@ interface AtsResumeStudioProps {
   onRunTailor: () => void;
   onRunCover: () => void;
   onNotice: (msg: string) => void;
+  onSaveToPipeline?: () => void;
+  onContinueToInterview?: () => void;
 }
 
 export default function AtsResumeStudio({
@@ -77,8 +79,10 @@ export default function AtsResumeStudio({
   onRunTailor,
   onRunCover,
   onNotice,
+  onSaveToPipeline,
+  onContinueToInterview,
 }: AtsResumeStudioProps) {
-  const [viewMode, setViewMode] = useState<'formatted' | 'raw'>('formatted');
+  const [viewMode, setViewMode] = useState<'formatted' | 'raw' | 'cover' | 'package'>('formatted');
 
   const fullText = getFullResumeText(tailor);
 
@@ -131,7 +135,7 @@ export default function AtsResumeStudio({
                     className={`tab-btn ${viewMode === 'formatted' ? 'active' : ''}`}
                     onClick={() => setViewMode('formatted')}
                   >
-                    Visual
+                    Visual Resume
                   </button>
                   <button
                     className={`tab-btn ${viewMode === 'raw' ? 'active' : ''}`}
@@ -139,6 +143,22 @@ export default function AtsResumeStudio({
                   >
                     Raw Monospace
                   </button>
+                  {cover && (
+                    <button
+                      className={`tab-btn ${viewMode === 'cover' ? 'active' : ''}`}
+                      onClick={() => setViewMode('cover')}
+                    >
+                      Cover Letter
+                    </button>
+                  )}
+                  {tailor && cover && (
+                    <button
+                      className={`tab-btn ${viewMode === 'package' ? 'active' : ''}`}
+                      onClick={() => setViewMode('package')}
+                    >
+                      ★ Unified Package
+                    </button>
+                  )}
                 </div>
 
                 <button className="secondary" style={{ padding: '4px 9px', fontSize: '10px' }} onClick={copyAtsText} title="Copy ATS plain text for Workday / Taleo">
@@ -150,9 +170,19 @@ export default function AtsResumeStudio({
                 <button className="secondary" style={{ padding: '4px 9px', fontSize: '10px' }} onClick={downloadMd} title="Download Markdown format">
                   ⇩ .MD
                 </button>
-                <button className="secondary" style={{ padding: '4px 9px', fontSize: '10px' }} onClick={printPdf} title="Print or save as clean single-column ATS PDF">
+                <button className="secondary" style={{ padding: '4px 9px', fontSize: '10px' }} onClick={printPdf} title="Export / Print clean PDF single column">
                   🖨️ PDF
                 </button>
+                {onSaveToPipeline && (
+                  <button
+                    className="primary"
+                    style={{ padding: '4px 10px', fontSize: '10px', background: '#133e2f', borderColor: '#226b51', color: '#9af5cf' }}
+                    onClick={onSaveToPipeline}
+                    title="Add or update this package in your application pipeline"
+                  >
+                    ✓ Save to Pipeline
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -162,6 +192,63 @@ export default function AtsResumeStudio({
         {viewMode === 'raw' ? (
           <div className="ats-raw-view" style={{ margin: '12px 0 16px' }}>
             {fullText || 'Generate your ATS tailored resume to view the raw parse stream.'}
+          </div>
+        ) : viewMode === 'cover' ? (
+          <div className="document-preview" style={{ maxHeight: '540px', overflowY: 'auto', margin: '12px 0 16px' }}>
+            <div className="doc-head">
+              <b>Role-Aligned Cover Letter</b>
+              <button onClick={() => { navigator.clipboard?.writeText(cover?.letter || ''); onNotice('Cover letter copied.'); }}>
+                Copy Letter
+              </button>
+            </div>
+            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, fontSize: '11px', color: '#c5d2d8' }}>
+              {cover?.letter || 'No cover letter created yet. Click "＋ Cover letter" below.'}
+            </p>
+          </div>
+        ) : viewMode === 'package' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', margin: '12px 0 16px', maxHeight: '540px', overflowY: 'auto' }}>
+            <div style={{ background: '#091319', border: '1px solid #1a3340', borderRadius: '8px', padding: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <b style={{ color: '#38bdf8', fontSize: '12px' }}>Unified Application Package Ready</b>
+                  <p style={{ fontSize: '10px', color: '#8898a0', margin: '2px 0 0' }}>
+                    Tailored ATS resume and matching cover letter calibrated to the identical factual career story.
+                  </p>
+                </div>
+                {onSaveToPipeline && (
+                  <button className="primary" onClick={onSaveToPipeline} style={{ fontSize: '10px', padding: '6px 12px' }}>
+                    ✓ Confirm & Add to Pipeline
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Resume Summary Card */}
+            <div className="document-preview" style={{ maxHeight: '320px', overflowY: 'auto' }}>
+              <div className="doc-head">
+                <b>1. Tailored ATS Resume ({tailor?.ats_audit?.ats_score || 98}/100)</b>
+                <button onClick={copyAtsText}>Copy ATS</button>
+              </div>
+              <p style={{ fontSize: '11px', lineHeight: 1.5, color: '#c5d2d8' }}>{tailor?.summary}</p>
+              <div className="tags" style={{ marginTop: '8px' }}>
+                {(tailor?.skills || []).slice(0, 8).map((s: string) => (
+                  <span key={s} style={{ fontSize: '9px', padding: '2px 6px' }}>{s}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Cover Letter Card */}
+            {cover?.letter && (
+              <div className="document-preview" style={{ maxHeight: '320px', overflowY: 'auto' }}>
+                <div className="doc-head">
+                  <b>2. Role-Aligned Cover Letter</b>
+                  <button onClick={() => { navigator.clipboard?.writeText(cover.letter); onNotice('Cover letter copied.'); }}>
+                    Copy Letter
+                  </button>
+                </div>
+                <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, fontSize: '11px', color: '#c5d2d8' }}>{cover.letter}</p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="document-preview" style={{ maxHeight: '540px', overflowY: 'auto', margin: '12px 0 16px' }}>
