@@ -3,5 +3,5 @@ const required=['app/api/ai/job-match/route.ts','app/api/ai/resume-tailor/route.
 for(const f of required)assert(fs.existsSync(f),f+' missing');
 const pkg=JSON.parse(fs.readFileSync('package.json'));assert(pkg.version==='4.3.0');assert(pkg.dependencies['@supabase/ssr']);assert(pkg.dependencies['jose']);assert(pkg.dependencies['pdf-parse']);assert(pkg.dependencies['mammoth']);
 const schema=fs.readFileSync('api/schema.sql','utf8');for(const s of ['rate_limits','consume_rate_limit','extension_oauth_codes'])assert(schema.includes(s));
-const mw=fs.readFileSync('middleware.ts','utf8');for(const h of ['Content-Security-Policy','X-Frame-Options','Strict-Transport-Security'])assert(mw.includes(h));
+const mwFile=fs.existsSync('proxy.ts')?'proxy.ts':'middleware.ts';const mw=fs.readFileSync(mwFile,'utf8');for(const h of ['Content-Security-Policy','X-Frame-Options','Strict-Transport-Security'])assert(mw.includes(h));
 console.log('RJA v4.3 customer-ready smoke checks passed');
