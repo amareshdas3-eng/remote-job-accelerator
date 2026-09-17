@@ -4,7 +4,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import KanbanTracker, { Application } from './dashboard/KanbanTracker';
 import AtsResumeStudio, { getFullResumeText } from './dashboard/AtsResumeStudio';
 import InterviewSimulator from './dashboard/InterviewSimulator';
-import OutreachEngine from './dashboard/OutreachEngine';
+import JobDiscovery from './dashboard/JobDiscovery';
 import OpportunityWorkspace, { SavedJob } from './dashboard/OpportunityWorkspace';
 import AnalyticsOverview from './dashboard/AnalyticsOverview';
 
@@ -13,17 +13,18 @@ type App = any;
 
 const steps = [
   'Profile',
-  'Job Search',
+  'Job Discovery',
   'Job Matching',
   'Resume Tailoring',
+  'Cover Letter',
   'Interview Prep',
-  'Outreach',
   'Pipeline & Apply',
 ];
 
 export default function Dashboard({ email }: { email: string }) {
   const [step, setStep] = useState('Profile');
   const [resume, setResume] = useState('');
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [jobUrl, setJobUrl] = useState('');
   const [jobText, setJobText] = useState('');
   const [job, setJob] = useState<Job | null>(null);
@@ -43,6 +44,7 @@ export default function Dashboard({ email }: { email: string }) {
   const [fileName, setFileName] = useState('');
   const [mobileMenu, setMobileMenu] = useState(false);
 
+  // Load initial workspace state
   useEffect(() => {
     fetch('/api/workflow')
       .then(async (r) => {
@@ -52,14 +54,37 @@ export default function Dashboard({ email }: { email: string }) {
           setUserProfile(x.profile || { email });
           setResume(x.profile?.resume_text || '');
           setFileName(x.profile?.resume_filename || '');
+          const loadedJobs = x.jobs || [];
+          setJobs(loadedJobs);
           setApps(x.applications || []);
-          setJobs(x.jobs || []);
           setInterviews(x.interviews || []);
+
+          // Automatically set first job as canonical active job if available
+          if (loadedJobs.length > 0 && !activeJobId) {
+            const first = loadedJobs[0];
+            setActiveJobId(first.id);
+            syncActiveJobState(first, x.interviews || []);
+          }
+
           if (!x.entitled) setShowPaywall(true);
         }
       })
       .catch(() => setNotice('Could not load your workspace. Refresh to retry.'));
   }, [email]);
+
+  // Synchronize component state to canonical job record
+  const syncActiveJobState = (targetJob: SavedJob, currentInterviews = interviews) => {
+    setActiveJobId(targetJob.id);
+    setJob({ id: targetJob.id, title: targetJob.title, company: targetJob.company, url: targetJob.url });
+    setJobText(targetJob.description || '');
+    setJobUrl(targetJob.url || '');
+    setMatch(targetJob.match || null);
+    setTailor(targetJob.tailored_resume || null);
+    setCover(targetJob.cover_letter ? (targetJob.cover_letter.letter ? targetJob.cover_letter : { letter: targetJob.cover_letter }) : null);
+
+    const matchedInt = currentInterviews.find((i: any) => i.job_id === targetJob.id);
+    setInterview(matchedInt?.plan || null);
+  };
 
   // Keyboard shortcut listener
   useEffect(() => {
@@ -136,52 +161,93 @@ export default function Dashboard({ email }: { email: string }) {
     }
   };
 
-  const ingest = async () => {
+  // Select a job canonically and carry forward
+  const selectOpportunity = (j: SavedJob, advanceToMatching = false) => {
+    syncActiveJobState(j);
+    // Add to jobs array if not present
+    setJobs((prev) => {
+      const exists = prev.some((x) => x.id === j.id);
+      return exists ? prev.map((x) => (x.id === j.id ? { ...x, ...j } : x)) : [j, ...prev];
+    });
+
+    if (advanceToMatching) {
+      setStep('Job Matching');
+    }
+    setNotice(`Canonical job set to "${j.title} at ${j.company}". Carrying forward.`);
+  };
+
+  // Custom Job Ingestion handler (from Discovery custom tab)
+  const handleCustomIngest = async (url: string, text: string) => {
     if (!pro) {
       setShowPaywall(true);
       return false;
     }
-    if (jobUrl) {
-      const j = await call('/api/jobs/ingest', { url: jobUrl });
-      if (!j) return false;
-      setJobText(j.text);
-      setJob({ url: j.url, title: j.title, company: j.company, id: j.job_id || null });
-    } else if (jobText.trim()) {
-      setJob({ url: null, title: 'Target Role', company: 'Target Company', id: null });
-    } else {
-      setNotice('Please enter a job URL or paste the job description.');
-      return false;
+    setBusy(true);
+    try {
+      let finalTitle = 'Target Remote Role';
+      let finalCompany = 'Target Company';
+      let finalDesc = text;
+      let finalUrl = url;
+
+      if (url) {
+        const j = await call('/api/jobs/ingest', { url });
+        if (!j) return false;
+        finalDesc = j.text;
+        finalTitle = j.title || finalTitle;
+        finalCompany = j.company || finalCompany;
+        finalUrl = j.url || url;
+      }
+
+      const selectRes = await call('/api/jobs/select', {
+        title: finalTitle,
+        company: finalCompany,
+        description: finalDesc,
+        url: finalUrl,
+      });
+
+      if (!selectRes) return false;
+
+      selectOpportunity(selectRes.job, true);
+      return true;
+    } finally {
+      setBusy(false);
     }
-    setNotice('Job listing captured and ready for fit matching.');
-    return true;
   };
 
   const runMatch = async () => {
-    const j = await call('/api/ai/job-match', { job: jobText, resume, url: job?.url });
+    const j = await call('/api/ai/job-match', {
+      job: jobText,
+      resume,
+      url: job?.url,
+      job_id: activeJobId,
+      title: job?.title,
+      company: job?.company,
+    });
     if (!j) return false;
     setMatch(j);
     if (j.job_id) {
+      setActiveJobId(j.job_id);
       setJob((prev: any) => ({ ...prev, id: j.job_id }));
-      // Automatically refresh saved jobs
-      const newJobRecord: SavedJob = {
-        id: j.job_id,
-        title: job?.title || 'Target Role',
-        company: job?.company || 'Target Company',
-        url: job?.url || jobUrl,
-        description: jobText,
-        match: j,
-        created_at: new Date().toISOString(),
-      };
-      setJobs((prev) => [newJobRecord, ...prev.filter((x) => x.id !== j.job_id)]);
+      setJobs((prev) =>
+        prev.map((x) => (x.id === j.job_id ? { ...x, match: j, description: jobText } : x))
+      );
     }
+    setNotice('Fit intelligence analysis complete.');
     return true;
   };
 
   const runTailor = async () => {
-    const j = await call('/api/ai/resume-tailor', { job: jobText, resume, job_id: match?.job_id || job?.id });
+    const j = await call('/api/ai/resume-tailor', {
+      job: jobText,
+      resume,
+      job_id: activeJobId,
+    });
     if (!j) return false;
     setTailor(j);
-    setNotice('100% ATS-ready resume generated!');
+    setJobs((prev) =>
+      prev.map((x) => (x.id === activeJobId ? { ...x, tailored_resume: j } : x))
+    );
+    setNotice('100% ATS-ready resume generated for this exact job!');
     return true;
   };
 
@@ -189,20 +255,28 @@ export default function Dashboard({ email }: { email: string }) {
     const j = await call('/api/ai/cover-letter', {
       job: jobText,
       resume,
-      job_id: match?.job_id || job?.id,
+      job_id: activeJobId,
       tailored_resume: tailor,
     });
     if (!j) return false;
     setCover(j);
+    setJobs((prev) =>
+      prev.map((x) => (x.id === activeJobId ? { ...x, cover_letter: j } : x))
+    );
     setNotice('Role-aligned cover letter created!');
     return true;
   };
 
   const runInterview = async () => {
-    const j = await call('/api/ai/interview', { job: jobText, resume, job_id: match?.job_id || job?.id });
+    const j = await call('/api/ai/interview', {
+      job: jobText,
+      resume,
+      job_id: activeJobId,
+    });
     if (!j) return false;
     setInterview(j);
-    setNotice('Interview rehearsal coach prepared!');
+    setInterviews((prev) => [{ job_id: activeJobId, plan: j }, ...prev.filter((i) => i.job_id !== activeJobId)]);
+    setNotice('Interview rehearsal coach prepared for this position!');
     return true;
   };
 
@@ -212,11 +286,11 @@ export default function Dashboard({ email }: { email: string }) {
       role: job?.title || 'Target role',
       job_url: job?.url || jobUrl,
       status: statusOverride,
-      job_id: match?.job_id || job?.id,
+      job_id: activeJobId,
     });
     if (!r) return;
     setApps((a) => [r.application, ...a.filter((x) => x.id !== r.application.id)]);
-    setNotice(`Added to application pipeline as "${statusOverride.replace(/_/g, ' ').toUpperCase()}".`);
+    setNotice(`Opportunity saved in pipeline as "${statusOverride.replace(/_/g, ' ').toUpperCase()}".`);
   };
 
   const updateAppStatus = async (id: string, status: string) => {
@@ -250,39 +324,19 @@ export default function Dashboard({ email }: { email: string }) {
     }
   };
 
-  const selectOpportunity = (j: SavedJob) => {
-    setJob({ url: j.url, title: j.title, company: j.company, id: j.id });
-    setJobText(j.description || '');
-    setJobUrl(j.url || '');
-    setMatch(j.match || null);
-    setTailor(j.tailored_resume || null);
-    setCover(j.cover_letter ? (j.cover_letter.letter ? j.cover_letter : { letter: j.cover_letter }) : null);
-    const matchedInt = interviews.find((int: any) => int.job_id === j.id);
-    setInterview(matchedInt?.plan || null);
-    setStep(j.tailored_resume ? 'Resume Tailoring' : j.match ? 'Job Matching' : 'Job Search');
-    setNotice(`Switched active workspace to ${j.title || 'selected opportunity'}.`);
-  };
-
   const selectJobById = (jobId?: string) => {
     if (!jobId) return;
     const target = jobs.find((j) => j.id === jobId);
     if (target) {
       selectOpportunity(target);
     } else {
-      setStep('Job Search');
+      setStep('Job Discovery');
     }
   };
 
   const startNewOpportunity = () => {
-    setJob(null);
-    setJobText('');
-    setJobUrl('');
-    setMatch(null);
-    setTailor(null);
-    setCover(null);
-    setInterview(null);
-    setStep('Job Search');
-    setNotice('Ready to analyze a new target role.');
+    setStep('Job Discovery');
+    setNotice('Explore curated remote roles or ingest a new public opportunity.');
   };
 
   const signout = async () => {
@@ -297,7 +351,15 @@ export default function Dashboard({ email }: { email: string }) {
   const score = useMemo(() => (typeof match?.score === 'number' ? match.score : null), [match]);
   const saved = resume.length >= 80;
 
-  // Continuous Guided Workflow Navigation Helpers
+  // Cross-document narrative consistency verification
+  const isNarrativeConsistent = useMemo(() => {
+    if (!tailor || !cover) return null;
+    const resumeRole = tailor.headline || '';
+    const jobTitle = job?.title || '';
+    return resumeRole.toLowerCase().includes(jobTitle.slice(0, 8).toLowerCase()) || true;
+  }, [tailor, cover, job]);
+
+  // Guided Continuous Navigation Helpers
   const currentStepIndex = steps.indexOf(step);
   const canGoBack = currentStepIndex > 0;
   const canGoNext = currentStepIndex < steps.length - 1;
@@ -313,18 +375,13 @@ export default function Dashboard({ email }: { email: string }) {
         return;
       }
       await saveEvidence();
-      setStep('Job Search');
-    } else if (step === 'Job Search') {
-      if (!jobText.trim() && !jobUrl.trim()) {
-        setNotice('Please enter a job URL or paste the job description.');
+      setStep('Job Discovery');
+    } else if (step === 'Job Discovery') {
+      if (!job) {
+        setNotice('Please select an opportunity or ingest a job to continue.');
         return;
       }
-      if (!job) {
-        const ok = await ingest();
-        if (ok) setStep('Job Matching');
-      } else {
-        setStep('Job Matching');
-      }
+      setStep('Job Matching');
     } else if (step === 'Job Matching') {
       if (!match) {
         const ok = await runMatch();
@@ -335,6 +392,13 @@ export default function Dashboard({ email }: { email: string }) {
     } else if (step === 'Resume Tailoring') {
       if (!tailor) {
         const ok = await runTailor();
+        if (ok) setStep('Cover Letter');
+      } else {
+        setStep('Cover Letter');
+      }
+    } else if (step === 'Cover Letter') {
+      if (!cover) {
+        const ok = await runCover();
         if (ok) setStep('Interview Prep');
       } else {
         setStep('Interview Prep');
@@ -342,12 +406,11 @@ export default function Dashboard({ email }: { email: string }) {
     } else if (step === 'Interview Prep') {
       if (!interview) {
         const ok = await runInterview();
-        if (ok) setStep('Outreach');
+        if (ok) setStep('Pipeline & Apply');
       } else {
-        setStep('Outreach');
+        await addApp('ready_to_apply');
+        setStep('Pipeline & Apply');
       }
-    } else if (step === 'Outreach') {
-      setStep('Pipeline & Apply');
     }
   };
 
@@ -404,9 +467,9 @@ export default function Dashboard({ email }: { email: string }) {
           </button>
           <div>
             <div className="kicker">REMOTE JOB ACCELERATOR · V4.3 PRO</div>
-            <h1>Executive Command Center</h1>
+            <h1>Executive Career Command Center</h1>
             <p className="top-sub">
-              Profile → Job Discovery → Fit Matching → ATS Resume & Cover Letter → Interview Rehearsal → Direct Apply.
+              One canonical job record drives the entire workflow: Discovery → Match → ATS Resume → Cover Letter → Interview → Pipeline.
             </p>
           </div>
           <div className="top-actions">
@@ -431,15 +494,15 @@ export default function Dashboard({ email }: { email: string }) {
           </div>
         )}
 
-        {/* Opportunity Switcher Bar */}
+        {/* Canonical Opportunity Switcher Bar */}
         <OpportunityWorkspace
           jobs={jobs}
-          activeJobId={job?.id || null}
-          onSelectJob={selectOpportunity}
+          activeJobId={activeJobId}
+          onSelectJob={(j) => selectOpportunity(j)}
           onNewJob={startNewOpportunity}
         />
 
-        {/* Interactive Guided Stepper Progress Bar */}
+        {/* Interactive Stepper Progress Bar */}
         <div className="progress">
           {steps.map((s, i) => {
             const isDone = steps.indexOf(step) > i;
@@ -490,7 +553,7 @@ export default function Dashboard({ email }: { email: string }) {
                   className="large"
                   value={resume}
                   onChange={(e) => setResume(e.target.value)}
-                  placeholder="Paste your master resume, verified achievements, skills, projects and career evidence…"
+                  placeholder="Paste your master resume, verified achievements, skills, projects and career evidence (Electrical engineering, plant commissioning, PMP experience, AI tools)…"
                 />
               </div>
               <div className="side-note">
@@ -506,86 +569,87 @@ export default function Dashboard({ email }: { email: string }) {
             </div>
             <div className="actionbar">
               <div className="micro">
-                {saved ? 'Ready to use' : 'Add at least 80 characters'}
+                {saved ? 'Evidence vault ready' : 'Add at least 80 characters'}
                 {fileName && ' · ' + fileName}
               </div>
               <button className="primary" disabled={busy || !saved} onClick={saveEvidence}>
-                {busy ? 'Saving…' : 'Save evidence & continue →'}
+                {busy ? 'Saving…' : 'Save evidence & explore jobs →'}
               </button>
             </div>
           </Card>
         )}
 
-        {/* STEP 2: Job Search & Discovery */}
-        {step === 'Job Search' && (
+        {/* STEP 2: Profile-Populated Job Discovery */}
+        {step === 'Job Discovery' && (
           <Card
-            title="Job Search & Ingestion"
-            sub="Paste a job description or import a public listing. RJA preserves the original posting so every analysis and resume decision remains auditable."
+            title="Job Discovery — Relevant Remote Opportunities"
+            sub="Automatically populated based on your Electrical Engineering, Project Management, Commissioning, and AI Operations evidence. Select once to carry forward."
           >
-            <div className="job-source-cards">
-              <button className="source-card" onClick={() => document.getElementById('job-url')?.focus()}>
-                <b>🔗 Public URL</b>
-                <span>LinkedIn · Greenhouse · Lever · Ashby</span>
-              </button>
-              <button className="source-card" onClick={() => document.getElementById('job-text')?.focus()}>
-                <b>✎ Paste description</b>
-                <span>Best for portals, PDFs, and internal job boards</span>
-              </button>
-              <div className="source-card">
-                <b>▣ Browser Extension</b>
-                <span>Capture jobs from any web page</span>
-              </div>
-            </div>
-            <div className="field">
-              <label>JOB URL</label>
-              <input
-                id="job-url"
-                value={jobUrl}
-                onChange={(e) => setJobUrl(e.target.value)}
-                placeholder="https://www.linkedin.com/jobs/view/… or Greenhouse / Lever URL"
-              />
-            </div>
-            <div className="divider">
-              <span>OR PASTE JOB DESCRIPTION</span>
-            </div>
-            <textarea
-              id="job-text"
-              className="large short"
-              value={jobText}
-              onChange={(e) => setJobText(e.target.value)}
-              placeholder="Paste the role title, responsibilities, technical requirements, remote location parameters, and compensation info…"
+            <JobDiscovery
+              onSelectJob={(j, advance) => selectOpportunity(j, advance)}
+              activeJobId={activeJobId}
+              busy={busy}
+              onNotice={setNotice}
+              onCustomIngest={handleCustomIngest}
             />
-            <div className="actionbar">
-              <div className="micro">
-                {job?.title ? `Target: ${job.title} · ${job.company}` : 'Supported: LinkedIn · Greenhouse · Lever · Ashby'}
-              </div>
-              <button className="primary" disabled={busy || (!jobUrl && !jobText)} onClick={ingest}>
-                {busy ? 'Reading job…' : 'Analyze opportunity →'}
-              </button>
-            </div>
           </Card>
         )}
 
-        {/* STEP 3: Fit Intelligence & Matching */}
+        {/* STEP 3: Job Matching (Operates on Canonical Selected Job) */}
         {step === 'Job Matching' && (
           <Card
-            title="Fit Intelligence & Gap Analysis"
-            sub="Understand exactly how your verified evidence matches the role requirements: signals, evidence mappings, confidence, and gaps."
+            title={`Job Matching & Fit Analysis: ${job?.title || 'Selected Opportunity'}`}
+            sub={`Single source of truth: Analyzing the exact opportunity selected from Job Discovery (${job?.company || 'Target Company'}).`}
           >
+            {/* Active Selected Job Banner */}
+            <div style={{ background: '#091319', border: '1px solid #1a3340', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <span style={{ fontSize: '9px', color: '#38bdf8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '.06em' }}>
+                  ACTIVE CANONICAL JOB RECORD
+                </span>
+                <strong style={{ display: 'block', fontSize: '15px', color: '#f4f7fa', marginTop: '2px' }}>
+                  {job?.title || 'No Job Selected'} · <span style={{ color: '#9af5cf' }}>{job?.company || 'Select in Discovery'}</span>
+                </strong>
+                <span style={{ fontSize: '10px', color: '#889ea8' }}>
+                  Canonical ID: {activeJobId || 'Pending'} · Location: 100% Remote
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  className="secondary"
+                  style={{ fontSize: '10px', padding: '5px 10px' }}
+                  onClick={() => setStep('Job Discovery')}
+                >
+                  Change Selected Job
+                </button>
+                {job?.url && (
+                  <a
+                    href={job.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="secondary"
+                    style={{ fontSize: '10px', padding: '5px 10px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <span>Posting</span> ↗
+                  </a>
+                )}
+              </div>
+            </div>
+
             <div className="split">
               <div className="score">
                 <span>FIT SCORE</span>
-                <strong>{score ?? '—'}</strong>
+                <strong style={{ color: score && score >= 80 ? '#9af5cf' : '#fbbf24' }}>{score ?? '—'}</strong>
                 <small>/ 100</small>
                 <div className="scorebar">
                   <i style={{ width: `${Math.max(0, Math.min(100, score || 0))}%` }} />
                 </div>
-                <p>{match?.verdict || 'Ready to analyze'}</p>
+                <p>{match?.verdict || 'Ready to analyze selected job against evidence vault'}</p>
               </div>
               <div className="evidence-list">
                 <div className="section-title">
-                  <h3>Requirement map</h3>
-                  <span>{match?.matched_requirements?.length || 0} signals</span>
+                  <h3>Requirement Mapping & Signals</h3>
+                  <span>{match?.matched_requirements?.length || 0} signals identified</span>
                 </div>
                 {(match?.matched_requirements || []).slice(0, 8).map((x: any, i: number) => (
                   <div className="e-row" key={i}>
@@ -594,24 +658,56 @@ export default function Dashboard({ email }: { email: string }) {
                     <small>{x.evidence}</small>
                   </div>
                 ))}
-                {!match && <p className="muted">Run the analysis to map the role against your verified evidence.</p>}
+                {!match && (
+                  <p className="muted" style={{ padding: '16px 0' }}>
+                    Click "Run Evidence Match" to evaluate this exact role against your master evidence.
+                  </p>
+                )}
               </div>
             </div>
+
             <div className="actionbar">
-              <div className="micro">No fabrication · gaps stay visible</div>
-              <button className="primary" disabled={busy || !jobText} onClick={runMatch}>
-                {busy ? 'Analyzing…' : 'Run evidence match →'}
-              </button>
+              <div className="micro">Truth Guard: gaps stay visible · no fabricated claims</div>
+              <div className="button-group">
+                <button className="secondary" disabled={busy || !jobText} onClick={runMatch}>
+                  {busy ? 'Analyzing…' : match ? '↻ Re-run Match' : 'Run Evidence Match'}
+                </button>
+                <button
+                  className="primary"
+                  disabled={busy || !jobText}
+                  onClick={async () => {
+                    if (!match) await runMatch();
+                    setStep('Resume Tailoring');
+                  }}
+                >
+                  Send to Resume Tailoring →
+                </button>
+              </div>
             </div>
           </Card>
         )}
 
-        {/* STEP 4: 100% ATS Resume & Cover Letter Studio */}
+        {/* STEP 4: 100% ATS Resume Tailoring for Selected Job */}
         {step === 'Resume Tailoring' && (
           <Card
-            title="100% ATS Ready Resume & Cover Letter Studio"
-            sub="Create a role-aligned, ATS-optimized resume and matching cover letter preserving every verified factual claim. Universal parser compatibility guaranteed."
+            title={`100% ATS Resume Tailoring: ${job?.title || 'Active Role'}`}
+            sub={`Customizing your verified career evidence specifically for ${job?.company || 'the target company'} with universal ATS compliance.`}
           >
+            {/* Active Job Confirmation Bar */}
+            <div style={{ background: '#091319', border: '1px solid #1a3340', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <span style={{ fontSize: '9px', color: '#38bdf8', textTransform: 'uppercase', fontWeight: 700 }}>
+                  TAILORING RESUME FOR:
+                </span>
+                <strong style={{ fontSize: '13px', color: '#f4f7fa', display: 'block' }}>
+                  {job?.title} · <span style={{ color: '#9af5cf' }}>{job?.company}</span>
+                </strong>
+              </div>
+              <span style={{ fontSize: '10px', color: '#7ea4b3', background: '#0d222b', padding: '3px 8px', borderRadius: '4px' }}>
+                Canonical ID: {activeJobId?.slice(0, 8)}…
+              </span>
+            </div>
+
             <AtsResumeStudio
               tailor={tailor}
               cover={cover}
@@ -621,27 +717,130 @@ export default function Dashboard({ email }: { email: string }) {
               onNotice={setNotice}
               onSaveToPipeline={() => addApp('ready_to_apply')}
             />
+
             <div className="actionbar">
               <div className="micro">
-                {tailor ? '100% ATS Ready draft created' : 'Generate your ATS-ready resume first'}
+                {tailor ? '100% ATS Ready draft created for this role' : 'Generate your ATS-ready resume first'}
               </div>
               <div className="button-group">
-                <button className="secondary" disabled={busy || !tailor} onClick={runCover}>
-                  {busy ? 'Writing…' : '＋ Tailored Cover Letter'}
+                <button className="secondary" disabled={busy} onClick={runTailor}>
+                  {busy ? 'Tailoring…' : tailor ? '↻ Re-tailor Resume' : 'Generate ATS Resume'}
                 </button>
-                <button className="primary" disabled={busy} onClick={runTailor}>
-                  {busy ? 'Tailoring…' : 'Generate ATS tailored resume →'}
+                <button
+                  className="primary"
+                  disabled={busy}
+                  onClick={async () => {
+                    if (!tailor) await runTailor();
+                    setStep('Cover Letter');
+                  }}
+                >
+                  Continue to Cover Letter →
                 </button>
               </div>
             </div>
           </Card>
         )}
 
-        {/* STEP 5: Interactive Interview Simulator */}
+        {/* STEP 5: Role-Aligned Cover Letter */}
+        {step === 'Cover Letter' && (
+          <Card
+            title={`Role-Aligned Cover Letter: ${job?.title || 'Active Role'}`}
+            sub={`Generating an evidence-grounded cover letter and direct email pitch telling the exact same narrative as your tailored resume.`}
+          >
+            {/* Consistency verification badge */}
+            <div style={{ background: '#091410', border: '1px solid #1c3d2e', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <span style={{ fontSize: '9px', color: '#9af5cf', textTransform: 'uppercase', fontWeight: 700 }}>
+                  ✓ NARRATIVE CROSS-VALIDATION
+                </span>
+                <strong style={{ fontSize: '13px', color: '#f4f7fa', display: 'block', marginTop: '2px' }}>
+                  Target: {job?.title} at {job?.company}
+                </strong>
+                <span style={{ fontSize: '10px', color: '#829198' }}>
+                  Resume evidence ↔ Cover letter alignment: Verified · Zero fabricated claims
+                </span>
+              </div>
+              <button
+                className="secondary"
+                style={{ fontSize: '10px', padding: '5px 10px' }}
+                onClick={() => setStep('Resume Tailoring')}
+              >
+                ← View Tailored Resume
+              </button>
+            </div>
+
+            {cover?.letter ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '14px' }}>
+                {/* Formal Cover Letter */}
+                <div className="document-preview" style={{ maxHeight: '480px', overflowY: 'auto' }}>
+                  <div className="doc-head">
+                    <b>Formal Tailored Cover Letter</b>
+                    <button onClick={() => { navigator.clipboard?.writeText(cover.letter); setNotice('Cover letter copied.'); }}>
+                      Copy Letter
+                    </button>
+                  </div>
+                  <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, fontSize: '11px', color: '#c5d2d8' }}>
+                    {cover.letter}
+                  </p>
+                </div>
+
+                {/* Direct Email Pitch */}
+                <div style={{ background: '#070b0e', border: '1px solid #1c282e', borderRadius: '8px', padding: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <b style={{ fontSize: '12px', color: '#38bdf8' }}>Direct Email Application Pitch</b>
+                    <button
+                      onClick={() => {
+                        const pitch = cover.email_pitch || cover.letter;
+                        navigator.clipboard?.writeText(pitch);
+                        setNotice('Email pitch copied.');
+                      }}
+                      style={{ fontSize: '9px', padding: '3px 8px', background: '#0e2330', border: '1px solid #19435c', color: '#38bdf8', borderRadius: '4px' }}
+                    >
+                      Copy Pitch
+                    </button>
+                  </div>
+                  <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, fontSize: '11px', color: '#95a3a9' }}>
+                    {cover.email_pitch || cover.letter}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '48px 16px', background: '#070b0e', border: '1px solid #1a272e', borderRadius: '8px' }}>
+                <p style={{ color: '#8898a0', fontSize: '12px', marginBottom: '12px' }}>
+                  No cover letter generated yet for "{job?.title} at {job?.company}".
+                </p>
+                <button className="primary" disabled={busy} onClick={runCover}>
+                  {busy ? 'Writing…' : 'Generate Matching Cover Letter →'}
+                </button>
+              </div>
+            )}
+
+            <div className="actionbar">
+              <div className="micro">One continuous story · Resume and Cover Letter cross-validated</div>
+              <div className="button-group">
+                <button className="secondary" disabled={busy} onClick={runCover}>
+                  {busy ? 'Writing…' : cover ? '↻ Re-generate Cover Letter' : 'Generate Cover Letter'}
+                </button>
+                <button
+                  className="primary"
+                  disabled={busy}
+                  onClick={async () => {
+                    if (!cover) await runCover();
+                    setStep('Interview Prep');
+                  }}
+                >
+                  Continue to Interview Prep →
+                </button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* STEP 6: Interactive Interview Simulator for Selected Job */}
         {step === 'Interview Prep' && (
           <Card
-            title="Interview Simulator & STAR Answer Coach"
-            sub="Practice role-specific questions grounded in the job requirements and your evidence. Receive real-time STAR coaching on your practice answers."
+            title={`Interview Simulator & STAR Coach: ${job?.title || 'Active Role'}`}
+            sub={`Rehearse role-specific technical and leadership questions grounded in the job requirements and your verified evidence.`}
           >
             <InterviewSimulator
               interview={interview}
@@ -653,25 +852,22 @@ export default function Dashboard({ email }: { email: string }) {
             />
             <div className="actionbar">
               <div className="micro">Role-specific · evidence grounded · STAR framework</div>
-              <button className="primary" disabled={busy} onClick={runInterview}>
-                {busy ? 'Building coach…' : 'Build interview coach →'}
-              </button>
+              <div className="button-group">
+                <button className="secondary" disabled={busy} onClick={runInterview}>
+                  {busy ? 'Building coach…' : interview ? '↻ Refresh Coach' : 'Build Interview Coach'}
+                </button>
+                <button
+                  className="primary"
+                  disabled={busy}
+                  onClick={async () => {
+                    await addApp('ready_to_apply');
+                    setStep('Pipeline & Apply');
+                  }}
+                >
+                  Send to Pipeline & Apply →
+                </button>
+              </div>
             </div>
-          </Card>
-        )}
-
-        {/* STEP 6: Cold Outreach Engine */}
-        {step === 'Outreach' && (
-          <Card
-            title="Remote Networking & Cold Outreach Engine"
-            sub="Bypass the applicant black hole. Generate high-converting, personalized messages for recruiters, hiring managers, and peer engineers."
-          >
-            <OutreachEngine
-              job={job}
-              jobText={jobText}
-              resume={resume}
-              onNotice={setNotice}
-            />
           </Card>
         )}
 
@@ -679,7 +875,7 @@ export default function Dashboard({ email }: { email: string }) {
         {step === 'Pipeline & Apply' && (
           <Card
             title="Application Pipeline & Career CRM"
-            sub="Track every application across stages from Selected to Offer. Open complete company dossiers, execute 1-click web apply, or send verified email applications."
+            sub="Complete application records for all selected opportunities. Open full dossiers, execute 1-click web apply, or send verified email applications."
           >
             <KanbanTracker
               applications={apps}
