@@ -7,6 +7,8 @@ import InterviewSimulator from './dashboard/InterviewSimulator';
 import JobDiscovery from './dashboard/JobDiscovery';
 import OpportunityWorkspace, { SavedJob } from './dashboard/OpportunityWorkspace';
 import AnalyticsOverview from './dashboard/AnalyticsOverview';
+import StructuredProfile from './dashboard/StructuredProfile';
+import ActiveJobWorkspace from './dashboard/ActiveJobWorkspace';
 
 type Job = any;
 type App = any;
@@ -131,9 +133,11 @@ export default function Dashboard({ email }: { email: string }) {
     }
   };
 
-  const saveEvidence = async () => {
+  const saveEvidence = async (newText?: string) => {
+    const textToSave = typeof newText === 'string' ? newText : resume;
+    if (typeof newText === 'string') setResume(newText);
     const j = await call('/api/resume/upload', {
-      text: resume,
+      text: textToSave,
       filename: fileName || 'master-resume.txt',
       mime: 'text/plain',
     });
@@ -535,48 +539,39 @@ export default function Dashboard({ email }: { email: string }) {
             title="Profile & Master Evidence Vault"
             sub="Your verified career evidence is the only source RJA uses for factual claims. Keep this master record richer than any single resume."
           >
-            <div className="vault-grid">
-              <div>
-                <div className="upload-drop">
-                  <input
-                    id="resume-file"
-                    type="file"
-                    accept=".pdf,.docx,.txt"
-                    onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0])}
-                  />
-                  <label htmlFor="resume-file">
-                    <b>↑ Import PDF, DOCX or TXT</b>
-                    <span>{busy ? 'Extracting…' : 'Up to 5 MB · text is extracted locally on the server'}</span>
-                  </label>
-                </div>
-                <textarea
-                  className="large"
-                  value={resume}
-                  onChange={(e) => setResume(e.target.value)}
-                  placeholder="Paste your master resume, verified achievements, skills, projects and career evidence (Electrical engineering, plant commissioning, PMP experience, AI tools)…"
-                />
-              </div>
-              <div className="side-note">
-                <div className="metric">
-                  <strong>{resume.length.toLocaleString()}</strong>
-                  <span>characters captured</span>
-                </div>
-                <div className="check">✓ Evidence-first generation</div>
-                <div className="check">✓ No fabricated claims</div>
-                <div className="check">✓ Reusable across applications</div>
-                <div className="check">✓ Export/delete controls</div>
-              </div>
-            </div>
-            <div className="actionbar">
-              <div className="micro">
-                {saved ? 'Evidence vault ready' : 'Add at least 80 characters'}
-                {fileName && ' · ' + fileName}
-              </div>
-              <button className="primary" disabled={busy || !saved} onClick={saveEvidence}>
-                {busy ? 'Saving…' : 'Save evidence & explore jobs →'}
-              </button>
-            </div>
+            <StructuredProfile
+              resumeText={resume}
+              fileName={fileName}
+              busy={busy}
+              onSaveEvidence={async (newText) => {
+                const ok = await saveEvidence(newText);
+                return !!ok;
+              }}
+              onUploadFile={async (file) => {
+                await uploadFile(file);
+                return true;
+              }}
+              onNotice={setNotice}
+              onContinueToDiscovery={() => setStep('Job Discovery')}
+            />
           </Card>
+        )}
+
+        {/* Active Canonical Job Workspace Header (Visible across all opportunity workflow steps) */}
+        {step !== 'Profile' && (
+          <ActiveJobWorkspace
+            activeJobId={activeJobId}
+            job={job}
+            jobDescription={jobText}
+            currentStep={step}
+            onNavigateStep={(s) => setStep(s)}
+            onChangeSelectedJob={() => setStep('Job Discovery')}
+            hasMatch={!!match}
+            hasTailoredResume={!!tailor}
+            hasCoverLetter={!!cover}
+            hasInterviewPlan={!!interview}
+            hasApplication={apps.some((a) => a.job_id === activeJobId)}
+          />
         )}
 
         {/* STEP 2: Profile-Populated Job Discovery */}
@@ -592,6 +587,23 @@ export default function Dashboard({ email }: { email: string }) {
               onNotice={setNotice}
               onCustomIngest={handleCustomIngest}
             />
+            <div className="actionbar" style={{ marginTop: '16px' }}>
+              <div className="micro">
+                {activeJobId ? `Active selection: ${job?.title} at ${job?.company}` : 'Select a role to carry forward'}
+              </div>
+              <div className="button-group">
+                <button className="secondary" onClick={() => setStep('Profile')}>
+                  ← Back to Profile
+                </button>
+                <button
+                  className="primary"
+                  disabled={!activeJobId}
+                  onClick={() => setStep('Job Matching')}
+                >
+                  Continue to Job Matching →
+                </button>
+              </div>
+            </div>
           </Card>
         )}
 
@@ -669,6 +681,9 @@ export default function Dashboard({ email }: { email: string }) {
             <div className="actionbar">
               <div className="micro">Truth Guard: gaps stay visible · no fabricated claims</div>
               <div className="button-group">
+                <button className="secondary" onClick={() => setStep('Job Discovery')}>
+                  ← Back to Discovery
+                </button>
                 <button className="secondary" disabled={busy || !jobText} onClick={runMatch}>
                   {busy ? 'Analyzing…' : match ? '↻ Re-run Match' : 'Run Evidence Match'}
                 </button>
@@ -723,6 +738,9 @@ export default function Dashboard({ email }: { email: string }) {
                 {tailor ? '100% ATS Ready draft created for this role' : 'Generate your ATS-ready resume first'}
               </div>
               <div className="button-group">
+                <button className="secondary" onClick={() => setStep('Job Matching')}>
+                  ← Back to Match
+                </button>
                 <button className="secondary" disabled={busy} onClick={runTailor}>
                   {busy ? 'Tailoring…' : tailor ? '↻ Re-tailor Resume' : 'Generate ATS Resume'}
                 </button>
@@ -818,6 +836,9 @@ export default function Dashboard({ email }: { email: string }) {
             <div className="actionbar">
               <div className="micro">One continuous story · Resume and Cover Letter cross-validated</div>
               <div className="button-group">
+                <button className="secondary" onClick={() => setStep('Resume Tailoring')}>
+                  ← Back to Resume
+                </button>
                 <button className="secondary" disabled={busy} onClick={runCover}>
                   {busy ? 'Writing…' : cover ? '↻ Re-generate Cover Letter' : 'Generate Cover Letter'}
                 </button>
@@ -853,6 +874,9 @@ export default function Dashboard({ email }: { email: string }) {
             <div className="actionbar">
               <div className="micro">Role-specific · evidence grounded · STAR framework</div>
               <div className="button-group">
+                <button className="secondary" onClick={() => setStep('Cover Letter')}>
+                  ← Back to Cover Letter
+                </button>
                 <button className="secondary" disabled={busy} onClick={runInterview}>
                   {busy ? 'Building coach…' : interview ? '↻ Refresh Coach' : 'Build Interview Coach'}
                 </button>
@@ -894,6 +918,17 @@ export default function Dashboard({ email }: { email: string }) {
               jobsCount={jobs.length}
               evidenceLength={resume.length}
             />
+            <div className="actionbar" style={{ marginTop: '16px' }}>
+              <div className="micro">Manage all selected opportunities and active application packages</div>
+              <div className="button-group">
+                <button className="secondary" onClick={() => setStep('Interview Prep')}>
+                  ← Back to Interview Coach
+                </button>
+                <button className="primary" onClick={() => setStep('Job Discovery')}>
+                  ＋ Discover More Remote Jobs
+                </button>
+              </div>
+            </div>
           </Card>
         )}
 

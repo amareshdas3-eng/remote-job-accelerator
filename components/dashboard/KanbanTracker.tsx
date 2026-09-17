@@ -30,11 +30,13 @@ interface KanbanTrackerProps {
 
 export const STAGES = [
   { id: 'selected', label: 'Selected / Target', color: '#68767d', bg: '#10171a' },
-  { id: 'ready_to_apply', label: 'Ready to Apply', color: '#38bdf8', bg: '#082f49' },
+  { id: 'in_progress', label: 'In Progress', color: '#a78bfa', bg: '#1c142e' },
+  { id: 'ready_to_apply', label: 'Application Ready', color: '#38bdf8', bg: '#082f49' },
   { id: 'applied', label: 'Applied', color: '#818cf8', bg: '#1e1b4b' },
   { id: 'follow_up', label: 'Follow-Up Needed', color: '#fbbf24', bg: '#451a03' },
   { id: 'interview', label: 'Interviewing', color: '#34d399', bg: '#064e3b' },
   { id: 'offer', label: 'Offer Received', color: '#a7f3d0', bg: '#065f46' },
+  { id: 'closed', label: 'Closed / Archived', color: '#475569', bg: '#0f172a' },
 ];
 
 export default function KanbanTracker({
@@ -495,6 +497,58 @@ export default function KanbanTracker({
               {/* TAB 1: Role & Match */}
               {dossierTab === 'overview' && (
                 <div>
+                  {/* Application Readiness Validation Checklist (Section 24) */}
+                  <div style={{ background: '#0a141b', border: '1px solid #1c394d', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <b style={{ fontSize: '11px', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                        Application Package Readiness Checklist
+                      </b>
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontWeight: 700,
+                          background: (activeDossierApp as any)?.hasTailoredResume && (activeDossierApp as any)?.hasCoverLetter ? '#0e2b1f' : '#2b1b08',
+                          color: (activeDossierApp as any)?.hasTailoredResume && (activeDossierApp as any)?.hasCoverLetter ? '#9af5cf' : '#fbbf24',
+                        }}
+                      >
+                        {(activeDossierApp as any)?.hasTailoredResume && (activeDossierApp as any)?.hasCoverLetter ? 'Ready to Apply' : 'Incomplete'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '6px', fontSize: '10px', color: '#cbd5e1' }}>
+                      <div>{selectedApp.role ? '☑' : '☐'} Job title verified</div>
+                      <div>{selectedApp.company ? '☑' : '☐'} Company verified</div>
+                      <div>{(activeDossierApp as any)?.jobData?.description ? '☑' : '☐'} Job description recorded</div>
+                      <div>{(activeDossierApp as any)?.jobData?.match ? '☑' : '☐'} Match analysis completed</div>
+                      <div>{(activeDossierApp as any)?.hasTailoredResume ? '☑' : '☐'} 100% ATS resume generated</div>
+                      <div>{(activeDossierApp as any)?.hasCoverLetter ? '☑' : '☐'} Role-aligned cover letter</div>
+                      <div>{selectedApp.job_url ? '☑' : '☐'} Application portal identified</div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
+                      {selectedApp.job_url && (
+                        <a
+                          href={selectedApp.job_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="primary"
+                          style={{ fontSize: '10px', padding: '5px 12px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          <span>Apply Now on Portal</span> ↗
+                        </a>
+                      )}
+                      <button
+                        className="secondary"
+                        style={{ fontSize: '10px', padding: '5px 10px' }}
+                        onClick={() => setDossierTab('apply')}
+                      >
+                        Open Quick-Fill Helper →
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Fit score & verdict banner */}
                   <div style={{ display: 'flex', gap: '16px', background: '#090e11', border: '1px solid #1c282e', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
                     <div style={{ textAlign: 'center', minWidth: '90px' }}>
