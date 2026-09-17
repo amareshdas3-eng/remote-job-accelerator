@@ -17,3 +17,20 @@ revoke all on function consume_rate_limit(text,timestamptz,integer) from public;
 
 -- v4.3 additive migration for existing deployments
 alter table jobs add column if not exists cover_letter jsonb;
+alter table jobs add column if not exists company_website text;
+alter table jobs add column if not exists application_url text;
+alter table jobs add column if not exists remote_status text default '100% Remote';
+alter table jobs add column if not exists location text;
+alter table jobs add column if not exists salary text;
+alter table jobs add column if not exists employment_type text;
+alter table jobs add column if not exists source text;
+alter table jobs add column if not exists posted_date text;
+alter table jobs add column if not exists discovered_date timestamptz default now();
+alter table jobs add column if not exists metadata jsonb;
+
+alter table applications add column if not exists route text;
+alter table applications add column if not exists route_details jsonb;
+alter table applications add column if not exists applied_at timestamptz;
+alter table applications add column if not exists next_action text;
+alter table applications add column if not exists next_action_date timestamptz;
+

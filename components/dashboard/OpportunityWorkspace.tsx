@@ -4,8 +4,18 @@ export interface SavedJob {
   id: string;
   title?: string;
   company?: string;
+  company_website?: string;
   url?: string;
+  application_url?: string;
   description?: string;
+  remote_status?: string;
+  location?: string;
+  salary?: string;
+  employment_type?: string;
+  source?: string;
+  posted_date?: string;
+  discovered_date?: string;
+  metadata?: any;
   match?: any;
   tailored_resume?: any;
   cover_letter?: any;

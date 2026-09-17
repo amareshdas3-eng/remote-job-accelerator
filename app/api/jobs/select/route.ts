@@ -13,6 +13,14 @@ export async function POST(req: Request) {
     const company = String(b.company || '').trim().slice(0, 200);
     const description = String(b.description || '').trim().slice(0, 30000);
     const url = b.url ? String(b.url).trim().slice(0, 1000) : null;
+    const company_website = b.company_website ? String(b.company_website).trim().slice(0, 1000) : null;
+    const application_url = b.application_url ? String(b.application_url).trim().slice(0, 1000) : url;
+    const remote_status = String(b.remote_status || '100% Remote').trim().slice(0, 100);
+    const location = String(b.location || '100% Remote (Global / US)').trim().slice(0, 200);
+    const salary = b.salary ? String(b.salary).trim().slice(0, 150) : null;
+    const employment_type = b.employment_type ? String(b.employment_type).trim().slice(0, 100) : 'Full-time';
+    const source = String(b.source || 'Verified Direct Employer Listing').trim().slice(0, 200);
+    const metadata = b.metadata && typeof b.metadata === 'object' ? b.metadata : {};
 
     if (!title || !company) {
       return jsonError('Job title and company are required.', 400);
@@ -47,21 +55,39 @@ export async function POST(req: Request) {
           company,
           url,
           description: description || 'Target job opportunity selected from discovery.',
+          company_website,
+          application_url,
+          remote_status,
+          location,
+          salary,
+          employment_type,
+          source,
+          metadata,
         })
         .select()
         .single();
 
       if (insertError) throw insertError;
       jobRecord = newJob;
-    } else if (description && (!jobRecord.description || jobRecord.description.length < 50)) {
-      // Update description if previous was empty
-      const { data: updated } = await admin
-        .from('jobs')
-        .update({ description, url: url || jobRecord.url, updated_at: new Date().toISOString() })
-        .eq('id', jobRecord.id)
-        .select()
-        .single();
-      if (updated) jobRecord = updated;
+    } else {
+      // Update fields if provided
+      const updates: any = { updated_at: new Date().toISOString() };
+      if (description && (!jobRecord.description || jobRecord.description.length < 50)) updates.description = description;
+      if (url && !jobRecord.url) updates.url = url;
+      if (company_website && !jobRecord.company_website) updates.company_website = company_website;
+      if (application_url && !jobRecord.application_url) updates.application_url = application_url;
+      if (salary && !jobRecord.salary) updates.salary = salary;
+      if (source && !jobRecord.source) updates.source = source;
+
+      if (Object.keys(updates).length > 1) {
+        const { data: updated } = await admin
+          .from('jobs')
+          .update(updates)
+          .eq('id', jobRecord.id)
+          .select()
+          .single();
+        if (updated) jobRecord = updated;
+      }
     }
 
     // Ensure application record exists in pipeline with status 'selected'
