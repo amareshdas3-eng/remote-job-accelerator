@@ -2,8 +2,14 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 export async function proxy(req: NextRequest) {
+  const requestId = req.headers.get('x-request-id') || crypto.randomUUID();
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-request-id', requestId);
+
   let res = NextResponse.next({
-    request: req,
+    request: {
+      headers: requestHeaders,
+    },
   });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,7 +24,9 @@ export async function proxy(req: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
           res = NextResponse.next({
-            request: req,
+            request: {
+              headers: requestHeaders,
+            },
           });
           cookiesToSet.forEach(({ name, value, options }) =>
             res.cookies.set(name, value, options)
@@ -31,6 +39,7 @@ export async function proxy(req: NextRequest) {
   }
 
   const h = res.headers;
+  h.set('x-request-id', requestId);
   h.set('X-Content-Type-Options', 'nosniff');
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   h.set('X-Frame-Options', 'DENY');

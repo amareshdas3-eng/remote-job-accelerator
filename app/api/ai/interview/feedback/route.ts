@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   try {
     const u = await requirePro();
     if (!sameOrigin(req)) return NextResponse.json({ error: 'INVALID_ORIGIN' }, { status: 403 });
-    if (!rate('feedback:' + u.id)) return NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 });
+    if (!(await rate('feedback:' + u.id))) return NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 });
 
     const b = await req.json();
     const question = String(b.question || '').slice(0, 2000);

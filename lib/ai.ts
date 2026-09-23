@@ -68,13 +68,19 @@ function extractResponseText(data: any): string {
   );
 }
 
+import { logger } from './logger.ts';
+
 export async function ai(system: string, user: string): Promise<string> {
   if (!process.env.AI_API_KEY) {
     throw new Error('AI provider is not configured: AI_API_KEY is missing');
   }
 
+  // Bound inputs for token/cost control
+  const cleanSystem = (system || '').slice(0, 8000).trim();
+  const cleanUser = (user || '').slice(0, 25000).trim();
+
   // 1. Check in-memory prompt cache
-  const cacheKey = getCacheKey(system, user);
+  const cacheKey = getCacheKey(cleanSystem, cleanUser);
   const cached = promptCache.get(cacheKey);
   if (cached && cached.expires > Date.now()) {
     return cached.text;
@@ -96,12 +102,14 @@ export async function ai(system: string, user: string): Promise<string> {
 
   const maxAttempts = 3;
   let lastError = '';
+  const overallStartTime = Date.now();
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     for (const model of modelPool) {
       await throttle();
+      const callStartTime = Date.now();
 
-      // Strategy 1: Try Interactions API
+      // Strategy 1: Try Interactions API with 15s timeout
       try {
         const interactionsUrl =
           process.env.AI_API_URL ||
@@ -109,10 +117,14 @@ export async function ai(system: string, user: string): Promise<string> {
 
         const body: Record<string, any> = {
           model,
-          input: user,
+          input: cleanUser,
+          generation_config: {
+            max_output_tokens: 4096,
+            temperature: 0.2,
+          },
         };
-        if (system && system.trim()) {
-          body.system_instruction = system.trim();
+        if (cleanSystem) {
+          body.system_instruction = cleanSystem;
         }
 
         const response = await fetch(interactionsUrl, {
@@ -123,6 +135,7 @@ export async function ai(system: string, user: string): Promise<string> {
             'Api-Revision': '2026-05-20',
           },
           body: JSON.stringify(body),
+          signal: AbortSignal.timeout(15000),
         });
 
         if (response.ok) {
@@ -130,6 +143,13 @@ export async function ai(system: string, user: string): Promise<string> {
           const text = extractResponseText(data);
           if (text) {
             promptCache.set(cacheKey, { text, expires: Date.now() + CACHE_TTL_MS });
+            logger.ai('generation_success', {
+              model,
+              durationMs: Date.now() - callStartTime,
+              attempt,
+              success: true,
+              channel: 'interactions',
+            });
             return text;
           }
         }
@@ -137,30 +157,46 @@ export async function ai(system: string, user: string): Promise<string> {
         const errText = await response.text();
         lastError = `Model ${model} [${response.status}]: ${errText}`;
 
-        // If rate-limited (429), high-demand/capacity (503), server error (500/502/504), or unavailable (404), cascade to next model
-        if (!response.ok) {
-          console.warn(`[AI Failover] ${model} interactions returned status ${response.status}. Automatically cascading to next model...`);
-          // Continue to fallback endpoint or next model
-        }
+        logger.ai('model_status_warn', {
+          model,
+          durationMs: Date.now() - callStartTime,
+          attempt,
+          status: response.status,
+          success: false,
+          channel: 'interactions',
+        });
       } catch (err: any) {
         lastError = `Interactions error (${model}): ${err.message}`;
-        console.warn(`[AI Failover] ${model} interactions threw exception (${err.message}). Cascading...`);
+        logger.ai('model_exception_warn', {
+          model,
+          durationMs: Date.now() - callStartTime,
+          attempt,
+          success: false,
+          errorMsg: err.message,
+          channel: 'interactions',
+        }, err);
       }
 
-      // Strategy 2: Fallback to generateContent API endpoint for this model
+      // Strategy 2: Fallback to generateContent API endpoint for this model with 15s timeout
       try {
+        const genCallStartTime = Date.now();
         const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const genBody: Record<string, any> = {
-          contents: [{ parts: [{ text: user }] }],
+          contents: [{ parts: [{ text: cleanUser }] }],
+          generationConfig: {
+            maxOutputTokens: 4096,
+            temperature: 0.2,
+          },
         };
-        if (system && system.trim()) {
-          genBody.systemInstruction = { parts: [{ text: system.trim() }] };
+        if (cleanSystem) {
+          genBody.systemInstruction = { parts: [{ text: cleanSystem }] };
         }
 
         const genResponse = await fetch(generateUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(genBody),
+          signal: AbortSignal.timeout(15000),
         });
 
         if (genResponse.ok) {
@@ -168,6 +204,13 @@ export async function ai(system: string, user: string): Promise<string> {
           const genText = extractResponseText(genData);
           if (genText) {
             promptCache.set(cacheKey, { text: genText, expires: Date.now() + CACHE_TTL_MS });
+            logger.ai('generation_success', {
+              model,
+              durationMs: Date.now() - genCallStartTime,
+              attempt,
+              success: true,
+              channel: 'generateContent',
+            });
             return genText;
           }
         }
@@ -175,20 +218,33 @@ export async function ai(system: string, user: string): Promise<string> {
         const genErrText = await genResponse.text();
         lastError = `generateContent ${model} [${genResponse.status}]: ${genErrText}`;
 
-        if (!genResponse.ok) {
-          console.warn(`[AI Failover] ${model} generateContent returned ${genResponse.status}. Cascading to next model...`);
-          continue;
-        }
+        logger.ai('generateContent_warn', {
+          model,
+          durationMs: Date.now() - genCallStartTime,
+          attempt,
+          status: genResponse.status,
+          success: false,
+          channel: 'generateContent',
+        });
       } catch (genErr: any) {
         lastError = `generateContent error (${model}): ${genErr.message}`;
-        console.warn(`[AI Failover] ${model} generateContent threw exception (${genErr.message}). Cascading...`);
+        logger.ai('generateContent_exception_warn', {
+          model,
+          durationMs: Date.now() - callStartTime,
+          attempt,
+          success: false,
+          errorMsg: genErr.message,
+          channel: 'generateContent',
+        }, genErr);
       }
     }
 
-    // If all models in the pool were rate-limited on this attempt, back off before next attempt
+    // If all models in the pool were rate-limited or busy, apply exponential backoff with jitter
     if (attempt < maxAttempts) {
-      const waitMs = parseRetryDelayMs(lastError, attempt * 1500);
-      console.warn(`[AI Retry] All candidate models busy. Backing off for ${waitMs}ms before attempt ${attempt + 1}...`);
+      const baseDelay = parseRetryDelayMs(lastError, attempt * 1200);
+      const jitter = Math.floor(Math.random() * 300);
+      const waitMs = Math.min(baseDelay + jitter, 5000);
+      logger.warn('AI_RETRY_BACKOFF', { attempt, waitMs, lastError });
       await new Promise((res) => setTimeout(res, waitMs));
     }
   }

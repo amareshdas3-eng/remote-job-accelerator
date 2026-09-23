@@ -9,11 +9,23 @@ export async function POST(req: Request) {
   try {
     const u = await requirePro();
     if (!sameOrigin(req)) return NextResponse.json({ error: 'INVALID_ORIGIN' }, { status: 403 });
-    if (!rate('match:' + u.id)) return NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 });
+    if (!(await rate('match:' + u.id))) return NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 });
 
     const b = await req.json();
-    const resume = String(b.resume || '').slice(0, 30000);
+    let resume = String(b.resume || '').slice(0, 30000);
     const job = String(b.job || '').slice(0, 30000);
+
+    const admin = supabaseAdmin();
+    if (!resume) {
+      const { data: p } = await admin.from('profiles').select('resume_text, structured_profile').eq('id', u.id).maybeSingle();
+      if (p?.structured_profile) {
+        const { formatStructuredProfileText } = await import('../../../../lib/profile');
+        resume = formatStructuredProfileText(p.structured_profile);
+      } else if (p?.resume_text) {
+        resume = p.resume_text.slice(0, 30000);
+      }
+    }
+
     if (!job || !resume) {
       return NextResponse.json({ error: 'Job and resume evidence are required.' }, { status: 400 });
     }
@@ -23,7 +35,6 @@ export async function POST(req: Request) {
       'Analyze this job against this resume.\nJOB:\n' + job + '\nRESUME EVIDENCE:\n' + resume
     );
     const result = safeJson(raw);
-    const admin = supabaseAdmin();
 
     let finalJobId = b.job_id || null;
 

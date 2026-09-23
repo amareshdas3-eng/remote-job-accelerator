@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react';
 import { SavedJob } from './OpportunityWorkspace';
 import { getFullResumeText } from './AtsResumeStudio';
+import { detectApplicationRoute, extractApplicationEmail } from '../../lib/jobs/routeDetector';
 
 export interface Application {
   id: string;
@@ -11,6 +12,10 @@ export interface Application {
   status: string;
   notes?: string;
   job_id?: string;
+  route?: string;
+  route_details?: any;
+  applied_at?: string;
+  next_action?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -53,11 +58,20 @@ export default function KanbanTracker({
 }: KanbanTrackerProps) {
   const [search, setSearch] = useState('');
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
-  const [dossierTab, setDossierTab] = useState<'overview' | 'resume' | 'cover' | 'apply' | 'email' | 'interview' | 'timeline'>('overview');
+  const [dossierTab, setDossierTab] = useState<'overview' | 'resume' | 'cover' | 'apply' | 'email' | 'interview' | 'timeline' | 'offer'>('overview');
   const [editNotes, setEditNotes] = useState('');
   const [recruiterEmail, setRecruiterEmail] = useState('');
   const [saving, setSaving] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  // Executive Offer Evaluator State
+  const [offerBase, setOfferBase] = useState<number>(0);
+  const [offerBonus, setOfferBonus] = useState<number>(0);
+  const [offerEquity, setOfferEquity] = useState<number>(0);
+  const [offerSignon, setOfferSignon] = useState<number>(0);
+  const [offerDeadline, setOfferDeadline] = useState<string>('');
+  const [offerNotes, setOfferNotes] = useState<string>('');
+  const [savingOffer, setSavingOffer] = useState(false);
 
   // Link each application with its full SavedJob and Interview record
   const enrichedApps = useMemo(() => {
@@ -71,6 +85,30 @@ export default function KanbanTracker({
       if (mappedStatus === 'screening') mappedStatus = 'interview';
       if (!STAGES.some((s) => s.id === mappedStatus)) mappedStatus = 'selected';
 
+      // Application Route Detection
+      const urlForRoute = app.job_url || (linkedJob as any)?.url || (linkedJob as any)?.job_url || '';
+      const detectedRoute = (app as any).route_details || detectApplicationRoute(urlForRoute, (linkedJob as any)?.application_url, (linkedJob as any)?.description);
+
+      // 5-Day Follow-Up Calculation for Applied status
+      let followUpInfo: { text: string; isOverdue: boolean } | null = null;
+      if (mappedStatus === 'applied') {
+        const applyDateStr = (app as any).applied_at || app.updated_at || app.created_at;
+        if (applyDateStr) {
+          const appliedDate = new Date(applyDateStr);
+          const now = new Date();
+          const diffMs = now.getTime() - appliedDate.getTime();
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          const dueInDays = 5 - diffDays;
+          if (dueInDays <= 0) {
+            followUpInfo = { text: `🚨 Follow-up Due (${Math.abs(dueInDays)}d overdue)`, isOverdue: true };
+          } else {
+            followUpInfo = { text: `⏳ Follow-up in ${dueInDays}d`, isOverdue: false };
+          }
+        } else {
+          followUpInfo = { text: '⏳ 5-day Follow-up window', isOverdue: false };
+        }
+      }
+
       return {
         ...app,
         displayStatus: mappedStatus,
@@ -80,6 +118,8 @@ export default function KanbanTracker({
         hasTailoredResume: !!linkedJob?.tailored_resume,
         hasCoverLetter: !!linkedJob?.cover_letter,
         hasInterviewPlan: !!linkedInterview?.plan,
+        detectedRoute,
+        followUpInfo,
       };
     });
   }, [applications, jobs, interviews]);
@@ -110,10 +150,26 @@ export default function KanbanTracker({
     return enrichedApps.find((a) => a.id === selectedApp.id) || selectedApp;
   }, [selectedApp, enrichedApps]);
 
-  const openDossier = (app: Application, tab: 'overview' | 'resume' | 'cover' | 'apply' | 'email' | 'interview' | 'timeline' = 'overview') => {
+  const openDossier = (app: Application, tab: 'overview' | 'resume' | 'cover' | 'apply' | 'email' | 'interview' | 'timeline' | 'offer' = 'overview') => {
     setSelectedApp(app);
     setDossierTab(tab);
     setEditNotes(app.notes || '');
+
+    const existingOffer = (app as any).route_details?.offer || {};
+    setOfferBase(existingOffer.base_salary || 0);
+    setOfferBonus(existingOffer.bonus || 0);
+    setOfferEquity(existingOffer.equity || 0);
+    setOfferSignon(existingOffer.signon || 0);
+    setOfferDeadline(existingOffer.deadline || '');
+    setOfferNotes(existingOffer.notes || '');
+
+    // Auto-detect verified recipient email from route_details or posting instructions
+    const linkedJob = jobs.find((j) => j.id === app.job_id);
+    const desc = (linkedJob as any)?.description || (app as any)?.notes || '';
+    const appUrl = app.job_url || (linkedJob as any)?.application_url || (linkedJob as any)?.url || '';
+    const route = (app as any).route_details || detectApplicationRoute(appUrl, (linkedJob as any)?.application_url, desc);
+    const detectedEmail = route?.emailRecipient || extractApplicationEmail(appUrl, (linkedJob as any)?.application_url, desc) || '';
+    setRecruiterEmail(detectedEmail);
   };
 
   const copyToClipboard = async (text: string, fieldKey: string) => {
@@ -277,8 +333,43 @@ export default function KanbanTracker({
                         )}
                       </div>
 
+                      {/* Route & Follow-Up Badges */}
+                      <div style={{ display: 'flex', gap: '4px', margin: '4px 0 2px', flexWrap: 'wrap' }}>
+                        {(app as any).detectedRoute && (
+                          <span
+                            style={{
+                              fontSize: '8px',
+                              fontWeight: 700,
+                              padding: '1px 5px',
+                              borderRadius: '4px',
+                              background: '#0e1e28',
+                              color: '#38bdf8',
+                              border: '1px solid #164e63',
+                            }}
+                            title={`Detected Route: ${(app as any).detectedRoute.platform}`}
+                          >
+                            ⚡ {(app as any).detectedRoute.platform}
+                          </span>
+                        )}
+                        {(app as any).followUpInfo && (
+                          <span
+                            style={{
+                              fontSize: '8px',
+                              fontWeight: 700,
+                              padding: '1px 5px',
+                              borderRadius: '4px',
+                              background: (app as any).followUpInfo.isOverdue ? '#451a03' : '#1e1b4b',
+                              color: (app as any).followUpInfo.isOverdue ? '#fbbf24' : '#c7d2fe',
+                              border: `1px solid ${(app as any).followUpInfo.isOverdue ? '#92400e' : '#4338ca'}`,
+                            }}
+                          >
+                            {(app as any).followUpInfo.text}
+                          </span>
+                        )}
+                      </div>
+
                       {/* Document Readiness Badges */}
-                      <div style={{ display: 'flex', gap: '4px', margin: '8px 0 6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '4px', margin: '6px 0', flexWrap: 'wrap' }}>
                         <span
                           style={{
                             fontSize: '8px',
@@ -469,6 +560,7 @@ export default function KanbanTracker({
                   { id: 'email', label: '5. Apply by Email' },
                   { id: 'interview', label: '6. Interview Prep' },
                   { id: 'timeline', label: '7. Notes & Timeline' },
+                  { id: 'offer', label: '8. Offer & Negotiation' },
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -911,106 +1003,255 @@ export default function KanbanTracker({
               )}
 
               {/* TAB 5: Apply by Email Workflow */}
-              {dossierTab === 'email' && (
-                <div>
-                  <div style={{ background: '#090e11', border: '1px solid #1c282e', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
-                    <b style={{ fontSize: '13px', color: '#f4f7fa', display: 'block' }}>Direct Recruiter Email Application</b>
-                    <p style={{ fontSize: '11px', color: '#8898a0', margin: '2px 0 12px' }}>
-                      Where jobs accept applications via email, launch a pre-filled email directly from your verified client.
-                    </p>
+              {dossierTab === 'email' && (() => {
+                const emailSubject = `Application: ${selectedApp.role} – ${(activeDossierApp as any)?.jobData?.tailored_resume?.contact_info?.name || userProfile?.full_name || 'Candidate'}`;
+                const emailBody =
+                  (activeDossierApp as any)?.jobData?.cover_letter?.email_pitch ||
+                  (activeDossierApp as any)?.jobData?.cover_letter?.letter ||
+                  `Dear Hiring Team at ${selectedApp.company},\n\nI am writing to express my strong interest in the ${selectedApp.role} opportunity. Based on my proven background, I am confident in my ability to deliver immediate value to your engineering and product goals.\n\nAttached please find my tailored ATS-formatted resume and cover letter detailing my verified experience.\n\nBest regards,\n${(activeDossierApp as any)?.jobData?.tailored_resume?.contact_info?.name || userProfile?.full_name || 'Candidate'}`;
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div>
-                        <label style={{ fontSize: '9px', color: '#68767d', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
-                          RECIPIENT (Recruiter or Careers Email)
-                        </label>
-                        <input
-                          type="email"
-                          placeholder="e.g. careers@company.com or recruiter@company.com"
-                          value={recruiterEmail}
-                          onChange={(e) => setRecruiterEmail(e.target.value)}
-                          style={{ width: '100%', padding: '8px 10px', fontSize: '11px', background: '#060a0d', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
-                        />
-                      </div>
+                const openEmailClient = () => {
+                  if (!recruiterEmail) {
+                    alert('No recipient email detected. Please enter a Recipient Email address or use Tab 4: Direct Web Apply.');
+                    return;
+                  }
+                  const mailto = `mailto:${encodeURIComponent(recruiterEmail)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                  window.location.href = mailto;
+                };
 
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                          <label style={{ fontSize: '9px', color: '#68767d', textTransform: 'uppercase' }}>SUBJECT LINE</label>
+                const openGmailWeb = () => {
+                  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recruiterEmail)}&su=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                  window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+                };
+
+                const openOutlookWeb = () => {
+                  const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(recruiterEmail)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                  window.open(outlookUrl, '_blank', 'noopener,noreferrer');
+                };
+
+                const copyFullEmailPackage = () => {
+                  const fullText = `TO: ${recruiterEmail || '[Recipient Email]'}\nSUBJECT: ${emailSubject}\n\n${emailBody}`;
+                  copyToClipboard(fullText, 'full_email_package');
+                };
+
+                return (
+                  <div>
+                    {/* Routing Guidance Notice: If this is an ATS Web Portal */}
+                    {selectedApp.route && selectedApp.route !== 'email' && (
+                      <div style={{ background: '#0d1926', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '12px 14px', marginBottom: '14px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ fontSize: '11px', fontWeight: 700, color: '#60a5fa', textTransform: 'uppercase' }}>
+                                ℹ️ Application Method: Web Portal ({selectedApp.route.toUpperCase()})
+                              </span>
+                            </div>
+                            <p style={{ fontSize: '11px', color: '#93c5fd', margin: '4px 0 0', lineHeight: 1.5 }}>
+                              This company processes applications via their web portal. There is no official submission email. For official application submission, use <b>Tab 4: Direct Web Apply</b>. Use this email tab only if you have a verified contact to reach out directly.
+                            </p>
+                          </div>
                           <button
-                            onClick={() => {
-                              const sub = `Application: ${selectedApp.role} – ${(activeDossierApp as any)?.jobData?.tailored_resume?.contact_info?.name || userProfile?.full_name || 'Candidate'}`;
-                              copyToClipboard(sub, 'email_sub');
-                            }}
-                            style={{ fontSize: '8px', padding: '1px 5px', background: '#121e18', border: '1px solid #1e3d2f', color: '#9af5cf', borderRadius: '4px' }}
+                            onClick={() => setDossierTab('apply')}
+                            style={{ fontSize: '10px', padding: '6px 10px', background: '#1d4ed8', border: 'none', color: '#ffffff', borderRadius: '5px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 600 }}
                           >
-                            {copiedField === 'email_sub' ? '✓ Copied' : 'Copy'}
+                            Go to Web Apply ↗
                           </button>
                         </div>
-                        <input
-                          readOnly
-                          value={`Application: ${selectedApp.role} – ${(activeDossierApp as any)?.jobData?.tailored_resume?.contact_info?.name || userProfile?.full_name || 'Candidate'}`}
-                          style={{ width: '100%', padding: '8px 10px', fontSize: '11px', background: '#060a0d', border: '1px solid #1c282e', borderRadius: '6px', color: '#9af5cf' }}
-                        />
                       </div>
+                    )}
 
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                          <label style={{ fontSize: '9px', color: '#68767d', textTransform: 'uppercase' }}>PERSONALIZED APPLICATION EMAIL BODY</label>
-                          <button
-                            onClick={() => {
-                              const body = (activeDossierApp as any)?.jobData?.cover_letter?.email_pitch || (activeDossierApp as any)?.jobData?.cover_letter?.letter || '';
-                              copyToClipboard(body, 'email_body');
-                            }}
-                            style={{ fontSize: '8px', padding: '1px 5px', background: '#121e18', border: '1px solid #1e3d2f', color: '#9af5cf', borderRadius: '4px' }}
-                          >
-                            {copiedField === 'email_body' ? '✓ Copied' : 'Copy Body'}
-                          </button>
+                    <div style={{ background: '#090e11', border: '1px solid #1c282e', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <b style={{ fontSize: '13px', color: '#f4f7fa' }}>Direct Recruiter Email Application</b>
+                        {recruiterEmail ? (
+                          <span style={{ fontSize: '9px', color: '#9af5cf', background: '#0e241b', border: '1px solid #1c4d37', padding: '2px 8px', borderRadius: '12px' }}>
+                            ✓ Apply via email: {recruiterEmail}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '9px', color: '#94a3b8', background: '#12191d', border: '1px solid #1c282e', padding: '2px 8px', borderRadius: '12px' }}>
+                            No email in posting
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ fontSize: '11px', color: '#8898a0', margin: '4px 0 12px' }}>
+                        {recruiterEmail
+                          ? `Application email detected from posting instructions. Verified recipient: ${recruiterEmail}`
+                          : 'Where jobs accept applications via email, RJA automatically extracts the recipient address. You can also enter a direct contact address below.'}
+                      </p>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {/* Recruiter / Application Email Input */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <label style={{ fontSize: '9px', color: '#68767d', textTransform: 'uppercase', fontWeight: 600 }}>
+                              RECIPIENT EMAIL (Application Email / Hiring Email)
+                            </label>
+                            {recruiterEmail ? (
+                              <button
+                                onClick={() => setRecruiterEmail('')}
+                                style={{ fontSize: '9px', color: '#8898a0', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                              >
+                                Clear
+                              </button>
+                            ) : null}
+                          </div>
+                          <input
+                            type="email"
+                            placeholder="e.g. jobs@company.com or hr@company.com"
+                            value={recruiterEmail}
+                            onChange={(e) => setRecruiterEmail(e.target.value)}
+                            style={{ width: '100%', padding: '8px 10px', fontSize: '11px', background: '#060a0d', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
+                          />
+                          <span style={{ fontSize: '9px', color: '#68767d', display: 'block', marginTop: '4px' }}>
+                            {recruiterEmail
+                              ? '✓ Recruiter email extracted from job instructions and ready to pass to your email client.'
+                              : 'Notice: RJA does not invent email addresses. If this is a portal job, apply through Tab 4: Direct Web Apply.'}
+                          </span>
                         </div>
-                        <textarea
-                          readOnly
-                          rows={8}
-                          value={
-                            (activeDossierApp as any)?.jobData?.cover_letter?.email_pitch ||
-                            (activeDossierApp as any)?.jobData?.cover_letter?.letter ||
-                            `Dear Hiring Team at ${selectedApp.company},\n\nI am writing to express my strong interest in the ${selectedApp.role} opportunity. Based on my proven background, I am confident in my ability to deliver immediate value to your engineering and product goals.\n\nAttached please find my tailored ATS-formatted resume and cover letter detailing my verified experience.\n\nBest regards,\n${(activeDossierApp as any)?.jobData?.tailored_resume?.contact_info?.name || userProfile?.full_name || 'Candidate'}`
-                          }
-                          style={{ width: '100%', padding: '8px 10px', fontSize: '11px', lineHeight: 1.6, background: '#060a0d', border: '1px solid #1c282e', borderRadius: '6px', color: '#c5d2d8' }}
-                        />
-                      </div>
 
-                      {/* Attachments checklist */}
-                      <div style={{ background: '#070b0e', border: '1px dashed #1c282e', borderRadius: '6px', padding: '10px' }}>
-                        <span style={{ fontSize: '9px', color: '#9af5cf', fontWeight: 600, textTransform: 'uppercase' }}>Attachment Checklist</span>
-                        <div style={{ display: 'flex', gap: '12px', marginTop: '6px' }}>
-                          <label style={{ fontSize: '10px', color: '#8898a0', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <input type="checkbox" defaultChecked /> Tailored ATS Resume (.txt / .pdf)
-                          </label>
-                          <label style={{ fontSize: '10px', color: '#8898a0', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <input type="checkbox" defaultChecked /> Role-Aligned Cover Letter
-                          </label>
+                        {/* Subject line */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <label style={{ fontSize: '9px', color: '#68767d', textTransform: 'uppercase' }}>SUBJECT LINE</label>
+                            <button
+                              onClick={() => copyToClipboard(emailSubject, 'email_sub')}
+                              style={{ fontSize: '8px', padding: '1px 5px', background: '#121e18', border: '1px solid #1e3d2f', color: '#9af5cf', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              {copiedField === 'email_sub' ? '✓ Copied' : 'Copy'}
+                            </button>
+                          </div>
+                          <input
+                            readOnly
+                            value={emailSubject}
+                            style={{ width: '100%', padding: '8px 10px', fontSize: '11px', background: '#060a0d', border: '1px solid #1c282e', borderRadius: '6px', color: '#9af5cf' }}
+                          />
                         </div>
-                      </div>
 
-                      {/* Launch Mailto Action */}
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
-                        <a
-                          href={`mailto:${encodeURIComponent(recruiterEmail)}?subject=${encodeURIComponent(
-                            `Application: ${selectedApp.role} – ${(activeDossierApp as any)?.jobData?.tailored_resume?.contact_info?.name || userProfile?.full_name || 'Candidate'}`
-                          )}&body=${encodeURIComponent(
-                            (activeDossierApp as any)?.jobData?.cover_letter?.email_pitch ||
-                            (activeDossierApp as any)?.jobData?.cover_letter?.letter ||
-                            ''
-                          )}`}
-                          className="primary"
-                          style={{ padding: '8px 16px', fontSize: '11px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                        >
-                          <span>✉ Open in Email Client</span>
-                        </a>
+                        {/* Email Body */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <label style={{ fontSize: '9px', color: '#68767d', textTransform: 'uppercase' }}>PERSONALIZED APPLICATION EMAIL BODY</label>
+                            <button
+                              onClick={() => copyToClipboard(emailBody, 'email_body')}
+                              style={{ fontSize: '8px', padding: '1px 5px', background: '#121e18', border: '1px solid #1e3d2f', color: '#9af5cf', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              {copiedField === 'email_body' ? '✓ Copied' : 'Copy Body'}
+                            </button>
+                          </div>
+                          <textarea
+                            readOnly
+                            rows={8}
+                            value={emailBody}
+                            style={{ width: '100%', padding: '8px 10px', fontSize: '11px', lineHeight: 1.6, background: '#060a0d', border: '1px solid #1c282e', borderRadius: '6px', color: '#c5d2d8' }}
+                          />
+                        </div>
+
+                        {/* Attachments checklist */}
+                        <div style={{ background: '#070b0e', border: '1px dashed #1c282e', borderRadius: '6px', padding: '10px' }}>
+                          <span style={{ fontSize: '9px', color: '#9af5cf', fontWeight: 600, textTransform: 'uppercase' }}>Attachment Checklist</span>
+                          <div style={{ display: 'flex', gap: '12px', marginTop: '6px' }}>
+                            <label style={{ fontSize: '10px', color: '#8898a0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <input type="checkbox" defaultChecked /> Tailored ATS Resume (.txt / .pdf)
+                            </label>
+                            <label style={{ fontSize: '10px', color: '#8898a0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <input type="checkbox" defaultChecked /> Role-Aligned Cover Letter
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Launch Action Bar */}
+                        <div>
+                          <label style={{ fontSize: '9px', color: '#68767d', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                            OPEN IN EMAIL CLIENT & INSTANT DISPATCH
+                          </label>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                            {/* Primary Open in Email Client (passes recipient directly to mailto:) */}
+                            <button
+                              onClick={openEmailClient}
+                              className="primary"
+                              style={{
+                                padding: '8px 16px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                cursor: 'pointer'
+                              }}
+                              title="Launches mailto: with recipient, subject, and tailored body"
+                            >
+                              <span>✉ Open in Email Client</span>
+                            </button>
+
+                            {/* Gmail Web Launcher */}
+                            <button
+                              onClick={openGmailWeb}
+                              style={{
+                                padding: '8px 14px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                background: '#ea4335',
+                                border: 'none',
+                                color: '#ffffff',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                              title="Opens Gmail compose in a new browser tab with recipient, subject, and pitch ready"
+                            >
+                              <span>Gmail (Web)</span>
+                            </button>
+
+                            {/* Outlook Web Launcher */}
+                            <button
+                              onClick={openOutlookWeb}
+                              style={{
+                                padding: '8px 14px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                background: '#0078d4',
+                                border: 'none',
+                                color: '#ffffff',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                              title="Opens Outlook 365/Live compose in a new browser tab"
+                            >
+                              <span>Outlook (Web)</span>
+                            </button>
+
+                            {/* 1-Click Copy Complete Package */}
+                            <button
+                              onClick={copyFullEmailPackage}
+                              style={{
+                                padding: '8px 14px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                background: copiedField === 'full_email_package' ? '#122c1f' : '#0e1814',
+                                border: copiedField === 'full_email_package' ? '1px solid #10b981' : '1px solid #1c4d37',
+                                color: copiedField === 'full_email_package' ? '#10b981' : '#9af5cf',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                              title="Copies recipient, subject line, and full body to your clipboard"
+                            >
+                              <span>{copiedField === 'full_email_package' ? '✓ Copied Package' : '📋 Copy Package'}</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* TAB 6: Interview Prep */}
               {dossierTab === 'interview' && (
@@ -1104,6 +1345,183 @@ export default function KanbanTracker({
                           <strong style={{ display: 'block', fontSize: '11px', color: '#f4f7fa' }}>Application Form Completed & Submitted</strong>
                         </div>
                       )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 8: Executive Offer Evaluator & Negotiation Strategy */}
+              {dossierTab === 'offer' && (
+                <div>
+                  <div style={{ background: '#07130e', border: '1px solid #1b4d37', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <div>
+                        <span style={{ fontSize: '9px', color: '#6ee7b7', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 800 }}>
+                          EXECUTIVE OFFER EVALUATOR
+                        </span>
+                        <h3 style={{ fontSize: '15px', color: '#f4f7fa', margin: '2px 0 0' }}>
+                          Total Compensation & Negotiation Strategy
+                        </h3>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: '9px', color: '#94a3b8' }}>First-Year Total Comp</span>
+                        <div style={{ fontSize: '20px', fontWeight: 800, color: '#34d399', fontFamily: 'Space Grotesk' }}>
+                          ${((Number(offerBase) || 0) + (Number(offerBonus) || 0) + (Number(offerEquity) || 0) + (Number(offerSignon) || 0)).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginTop: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                          Base Salary ($/yr)
+                        </label>
+                        <input
+                          type="number"
+                          value={offerBase || ''}
+                          onChange={(e) => setOfferBase(Number(e.target.value))}
+                          placeholder="e.g. 165000"
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '11px', background: '#0a1014', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                          Target Bonus ($/yr)
+                        </label>
+                        <input
+                          type="number"
+                          value={offerBonus || ''}
+                          onChange={(e) => setOfferBonus(Number(e.target.value))}
+                          placeholder="e.g. 25000"
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '11px', background: '#0a1014', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                          Annual Equity / RSUs ($/yr)
+                        </label>
+                        <input
+                          type="number"
+                          value={offerEquity || ''}
+                          onChange={(e) => setOfferEquity(Number(e.target.value))}
+                          placeholder="e.g. 40000"
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '11px', background: '#0a1014', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                          Sign-On / Relocation ($)
+                        </label>
+                        <input
+                          type="number"
+                          value={offerSignon || ''}
+                          onChange={(e) => setOfferSignon(Number(e.target.value))}
+                          placeholder="e.g. 15000"
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '11px', background: '#0a1014', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '10px', marginTop: '10px' }}>
+                      <div>
+                        <label style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                          Offer Expiration Deadline
+                        </label>
+                        <input
+                          type="date"
+                          value={offerDeadline}
+                          onChange={(e) => setOfferDeadline(e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '11px', background: '#0a1014', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                          Perks / Benefits / Remote Stipend
+                        </label>
+                        <input
+                          type="text"
+                          value={offerNotes}
+                          onChange={(e) => setOfferNotes(e.target.value)}
+                          placeholder="e.g. $2k home office budget, 401k 4% match, unlimited PTO"
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '11px', background: '#0a1014', border: '1px solid #1c282e', borderRadius: '6px', color: '#f4f7fa' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+                      <button
+                        className="primary"
+                        disabled={savingOffer}
+                        onClick={async () => {
+                          if (!selectedApp) return;
+                          setSavingOffer(true);
+                          try {
+                            const offerDetails = {
+                              base_salary: Number(offerBase) || 0,
+                              bonus: Number(offerBonus) || 0,
+                              equity: Number(offerEquity) || 0,
+                              signon: Number(offerSignon) || 0,
+                              total_comp: (Number(offerBase) || 0) + (Number(offerBonus) || 0) + (Number(offerEquity) || 0) + (Number(offerSignon) || 0),
+                              deadline: offerDeadline,
+                              notes: offerNotes,
+                              updated_at: new Date().toISOString(),
+                            };
+                            const res = await fetch('/api/applications', {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                id: selectedApp.id,
+                                status: 'offer',
+                                offer_details: offerDetails,
+                              }),
+                            });
+                            if (res.ok) {
+                              await onUpdateStatus(selectedApp.id, 'offer');
+                              alert('Executive offer details and total compensation saved!');
+                            }
+                          } catch {
+                            alert('Failed to save offer details.');
+                          } finally {
+                            setSavingOffer(false);
+                          }
+                        }}
+                        style={{ fontSize: '11px', padding: '6px 14px' }}
+                      >
+                        {savingOffer ? 'Saving…' : 'Save Offer & Move to Offer Received'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Strategic Negotiation Levers */}
+                  <div style={{ background: '#090e11', border: '1px solid #1c282e', borderRadius: '8px', padding: '14px' }}>
+                    <span style={{ fontSize: '9px', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 800 }}>
+                      TACTICAL COUNTER-OFFER TALKING POINTS
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+                      <div style={{ background: '#0e161a', padding: '10px', borderRadius: '6px', borderLeft: '3px solid #38bdf8' }}>
+                        <strong style={{ fontSize: '11px', color: '#f4f7fa', display: 'block' }}>
+                          1. Base Salary Calibration Lever
+                        </strong>
+                        <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0', lineHeight: 1.4 }}>
+                          &ldquo;I am thrilled by the role and team mission at {selectedApp.company}. Based on verified remote benchmarks for senior roles with direct business impact, I am targeting ${((Number(offerBase) || 150000) * 1.1).toFixed(0)} to bring this package in line with market parity.&rdquo;
+                        </p>
+                      </div>
+                      <div style={{ background: '#0e161a', padding: '10px', borderRadius: '6px', borderLeft: '3px solid #34d399' }}>
+                        <strong style={{ fontSize: '11px', color: '#f4f7fa', display: 'block' }}>
+                          2. Sign-On Bridge Lever (Non-Recurring Budget)
+                        </strong>
+                        <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0', lineHeight: 1.4 }}>
+                          &ldquo;If base salary flexibility is constrained by internal banding, can we bridge the difference with a one-time sign-on bonus of ${(Number(offerSignon) || 10000) + 10000} to account for forfeited year-end compensation?&rdquo;
+                        </p>
+                      </div>
+                      <div style={{ background: '#0e161a', padding: '10px', borderRadius: '6px', borderLeft: '3px solid #a78bfa' }}>
+                        <strong style={{ fontSize: '11px', color: '#f4f7fa', display: 'block' }}>
+                          3. Fast-Track Performance Review / Equity Grant
+                        </strong>
+                        <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0', lineHeight: 1.4 }}>
+                          &ldquo;Would the hiring team be open to putting a formal 6-month performance evaluation and compensation review milestone in the offer letter tied to agreed key results?&rdquo;
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

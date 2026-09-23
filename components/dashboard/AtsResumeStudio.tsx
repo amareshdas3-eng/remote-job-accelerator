@@ -70,6 +70,7 @@ interface AtsResumeStudioProps {
   onNotice: (msg: string) => void;
   onSaveToPipeline?: () => void;
   onContinueToInterview?: () => void;
+  onUpdateTailor?: (updatedTailor: any) => void;
 }
 
 export default function AtsResumeStudio({
@@ -81,8 +82,10 @@ export default function AtsResumeStudio({
   onNotice,
   onSaveToPipeline,
   onContinueToInterview,
+  onUpdateTailor,
 }: AtsResumeStudioProps) {
-  const [viewMode, setViewMode] = useState<'formatted' | 'raw' | 'cover' | 'package'>('formatted');
+  const [viewMode, setViewMode] = useState<'formatted' | 'interactive' | 'raw' | 'cover' | 'package'>('formatted');
+  const [editingBullets, setEditingBullets] = useState<{ [key: string]: string }>({});
 
   const fullText = getFullResumeText(tailor);
 
@@ -136,6 +139,12 @@ export default function AtsResumeStudio({
                     onClick={() => setViewMode('formatted')}
                   >
                     Visual Resume
+                  </button>
+                  <button
+                    className={`tab-btn ${viewMode === 'interactive' ? 'active' : ''}`}
+                    onClick={() => setViewMode('interactive')}
+                  >
+                    Interactive Bullets
                   </button>
                   <button
                     className={`tab-btn ${viewMode === 'raw' ? 'active' : ''}`}
@@ -192,6 +201,103 @@ export default function AtsResumeStudio({
         {viewMode === 'raw' ? (
           <div className="ats-raw-view" style={{ margin: '12px 0 16px' }}>
             {fullText || 'Generate your ATS tailored resume to view the raw parse stream.'}
+          </div>
+        ) : viewMode === 'interactive' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', margin: '12px 0 16px', maxHeight: '540px', overflowY: 'auto' }}>
+            <div style={{ background: '#091319', border: '1px solid #1a384e', borderRadius: '8px', padding: '12px' }}>
+              <b style={{ color: '#38bdf8', fontSize: '12px' }}>Interactive Bullet Studio & Impact Analyzer</b>
+              <p style={{ fontSize: '10px', color: '#8898a0', margin: '2px 0 0' }}>
+                Fine-tune each achievement bullet. High-impact ATS bullets should lead with a strong action verb and contain quantified metrics (%, $, numbers).
+              </p>
+            </div>
+
+            {Array.isArray(tailor?.experience) && tailor.experience.length > 0 ? (
+              tailor.experience.map((exp: any, expIdx: number) => {
+                const role = exp.role || exp.title || 'Role';
+                const company = exp.company || exp.organization || '';
+                const bullets = exp.bullets || exp.highlights || [];
+
+                return (
+                  <div key={expIdx} style={{ background: '#070c0f', border: '1px solid #182730', borderRadius: '8px', padding: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <b style={{ fontSize: '12px', color: '#f4f7fa' }}>{role} · <span style={{ color: '#9af5cf' }}>{company}</span></b>
+                      <span style={{ fontSize: '10px', color: '#7ea4b3' }}>{exp.period}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {Array.isArray(bullets) && bullets.map((b: string, bIdx: number) => {
+                        const key = `${expIdx}_${bIdx}`;
+                        const currentVal = editingBullets[key] !== undefined ? editingBullets[key] : b;
+                        const hasMetric = /\d+|%|\$|\bx\b|\bX\b/i.test(currentVal);
+                        const hasActionVerb = /^(Led|Architected|Engineered|Optimized|Automated|Delivered|Spearheaded|Built|Designed|Implemented|Scaled|Reduced|Increased|Managed|Directed|Orchestrated|Transformed|Accelerated|Executed)/i.test(currentVal.trim());
+
+                        return (
+                          <div key={bIdx} style={{ background: '#050a0d', border: '1px solid #14222a', borderRadius: '6px', padding: '8px 10px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <span
+                                  style={{
+                                    fontSize: '9px',
+                                    fontWeight: 700,
+                                    padding: '1px 5px',
+                                    borderRadius: '3px',
+                                    background: hasActionVerb ? '#0e2b1f' : '#2b1e0a',
+                                    color: hasActionVerb ? '#9af5cf' : '#fbbf24',
+                                  }}
+                                >
+                                  {hasActionVerb ? '✓ Action Verb' : '○ Weak Verb'}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: '9px',
+                                    fontWeight: 700,
+                                    padding: '1px 5px',
+                                    borderRadius: '3px',
+                                    background: hasMetric ? '#0e2b1f' : '#2b1e0a',
+                                    color: hasMetric ? '#9af5cf' : '#fbbf24',
+                                  }}
+                                >
+                                  {hasMetric ? '✓ Quantified Metric' : '○ Needs Metric'}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard?.writeText(currentVal);
+                                  onNotice('Bullet copied.');
+                                }}
+                                style={{ fontSize: '9px', padding: '1px 6px', background: '#0e2330', border: '1px solid #19435c', color: '#38bdf8', borderRadius: '4px', cursor: 'pointer' }}
+                              >
+                                Copy
+                              </button>
+                            </div>
+                            <textarea
+                              rows={2}
+                              value={currentVal}
+                              onChange={(e) => {
+                                const nextVal = e.target.value;
+                                setEditingBullets((prev) => ({ ...prev, [key]: nextVal }));
+                                if (onUpdateTailor) {
+                                  const updatedExp = [...tailor.experience];
+                                  const updatedBullets = [...(updatedExp[expIdx].bullets || [])];
+                                  updatedBullets[bIdx] = nextVal;
+                                  updatedExp[expIdx] = { ...updatedExp[expIdx], bullets: updatedBullets };
+                                  onUpdateTailor({ ...tailor, experience: updatedExp });
+                                }
+                              }}
+                              style={{ width: '100%', fontSize: '11px', lineHeight: 1.5, background: 'transparent', border: 'none', color: '#cbd5e1', resize: 'vertical' }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p style={{ color: '#74838b', fontSize: '11px', textAlign: 'center', padding: '30px' }}>
+                No experience bullets to edit yet. Generate your tailored ATS resume first.
+              </p>
+            )}
           </div>
         ) : viewMode === 'cover' ? (
           <div className="document-preview" style={{ maxHeight: '540px', overflowY: 'auto', margin: '12px 0 16px' }}>

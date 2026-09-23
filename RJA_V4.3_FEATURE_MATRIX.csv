@@ -1,0 +1,40 @@
+Feature,Category,UI Exists,Frontend Logic,Backend API,Database,Auth Protected,External Integration,Real Data,Error Handling,Loading State,Empty State,Persistence,Automated Tests,Status,Blocker Severity
+Landing Page,Core Presentation,YES,YES,N/A,NO,NO,Gumroad (link),YES,N/A,N/A,N/A,N/A,YES (build),FULLY FUNCTIONAL,NONE
+User Signup,Authentication,YES,YES,YES (Supabase),YES (auth.users),NO,Supabase Auth,YES,PARTIAL,NO,NO,YES,NO (mock/static),PARTIALLY FUNCTIONAL,HIGH
+User Login,Authentication,YES,YES,YES (Supabase),YES (auth.users),NO,Supabase Auth,YES,YES,NO,NO,YES,NO (mock/static),PARTIALLY FUNCTIONAL,HIGH
+Password Reset,Authentication,NO,NO,NO,NO,NO,None,NO,NO,NO,NO,NO,NO,MISSING,HIGH
+Auth Session & Security Middleware,Security/Routing,YES,YES,YES,NO,YES,Supabase SSR,YES,YES,N/A,N/A,YES (cookies),YES (smoke),FULLY FUNCTIONAL,NONE
+Gumroad Entitlement & Webhook,Billing/Paywall,YES (modal),YES,YES (/api/webhooks/gumroad),YES (entitlements),YES (secret),Gumroad Ping,YES,YES,NO,NO,YES,YES (smoke),FULLY FUNCTIONAL,NONE
+Master Resume / Evidence Upload,Profile/Vault,YES,YES,YES (/api/resume/upload),YES (profiles),YES,pdf-parse/mammoth,YES,YES,YES,YES,PARTIAL,YES (smoke),BROKEN,CRITICAL
+Structured Profile Editor,Profile/Vault,YES,YES,NO,NO,YES,None,NO (hardcoded defaults),PARTIAL,NO,NO,NO (flattens to text),NO,BROKEN,CRITICAL
+Curated Remote Job Discovery,Job Discovery,YES,YES,YES (/api/jobs/discover),NO,YES,None (hardcoded list),NO (static 6 jobs),YES,YES,YES,NO,YES (phase check),MOCKED,CRITICAL
+Custom Job URL Ingestion,Job Ingestion,YES,YES,YES (/api/jobs/ingest),NO,YES,Direct fetch,NO (unparsed text),PARTIAL,YES,NO,NO,YES (smoke),BROKEN,CRITICAL
+Job Adapter Import,Job Ingestion,NO,NO,YES (/api/jobs/import),NO,NO,None,NO (mock string),NO,NO,NO,NO,NO,MOCKED,MEDIUM
+Canonical Job Selection & Backbone,Job Management,YES,YES,YES (/api/jobs/select),YES (jobs table),YES,None,YES,YES,YES,YES,NO (DB 42501 error),YES (phase check),BROKEN,CRITICAL
+AI Fit Intelligence Report,AI Intelligence,YES,YES,YES (/api/ai/job-match),YES (jobs.match),YES,Google Gemini / OpenAI,YES,YES,YES,YES,PARTIAL (DB grant blocked),YES (phase check),PARTIALLY FUNCTIONAL,HIGH
+ATS Resume Tailoring Studio,AI Resume,YES,YES,YES (/api/ai/resume-tailor),YES (jobs.tailored_resume),YES,Google Gemini / OpenAI,YES,YES,YES,YES,PARTIAL (DB grant blocked),YES (phase check),FULLY FUNCTIONAL,HIGH
+ATS 6-Point QC Audit Engine,Quality Control,YES,YES,NO (client-computed),NO,YES,None,YES,YES,N/A,YES,N/A,YES (phase check),FULLY FUNCTIONAL,NONE
+AI Cover Letter & Email Pitch,AI Generation,YES,YES,YES (/api/ai/cover-letter),YES (jobs.cover_letter),YES,Google Gemini / OpenAI,YES,YES,YES,YES,PARTIAL (DB grant blocked),YES (phase check),PARTIALLY FUNCTIONAL,HIGH
+AI STAR Interview Simulator & Coach,AI Coaching,YES,YES,YES (/api/ai/interview),YES (interviews),YES,Google Gemini / OpenAI,YES,YES,YES,YES,PARTIAL (DB grant blocked),YES (phase check),PARTIALLY FUNCTIONAL,HIGH
+AI STAR Answer Real-Time Feedback,AI Coaching,YES,YES,YES (/api/ai/interview/feedback),NO,YES,Google Gemini / OpenAI,YES,YES,YES,NO,NO,YES (smoke),FULLY FUNCTIONAL,LOW
+AI Cold Outreach Engine,AI Networking,YES (Orphan),YES,YES (/api/ai/outreach),NO,YES,Google Gemini / OpenAI,YES,YES,YES,NO,NO,YES (smoke),DISCONNECTED,HIGH
+Application Package Executive Bundle,Asset Packaging,YES,YES,NO (client aggregator),NO,YES,None,YES,YES,N/A,YES,N/A,YES (phase check),FULLY FUNCTIONAL,NONE
+Application Pipeline CRM (8 Stages),Workflow/CRM,YES,YES,YES (/api/applications),YES (applications),YES,None,YES,YES,YES,YES,YES,YES (phase check),FULLY FUNCTIONAL,NONE
+Application Route Tools & Quick-Fill,Workflow/CRM,YES,YES,NO (browser launcher),NO,YES,Mailto / URL,YES,YES,N/A,N/A,N/A,YES (phase check),FULLY FUNCTIONAL,LOW
+Search Velocity & Conversion Analytics,Analytics,YES,YES,NO (client-derived),NO,YES,None,YES,YES,N/A,YES,N/A,YES (phase check),FULLY FUNCTIONAL,NONE
+Chrome Browser Extension,Job Ingestion,YES (popup),YES (popup.js),YES (/api/extension/*),YES (extension_oauth_codes),YES,Chrome Identity,NO (hardcoded domain),PARTIAL,NO,NO,NO,YES (smoke),MOCKED,HIGH
+Account Data Export,Compliance/GDPR,YES,YES,YES (/api/account/export),YES (multi-table),YES,None,YES,YES,YES,N/A,N/A,YES (smoke),FULLY FUNCTIONAL,LOW
+Account Destruction / Delete,Compliance/GDPR,YES,YES,YES (/api/account/delete),YES (multi-table cascade),YES,Supabase Auth Admin,YES,YES,YES,N/A,YES,YES (smoke),FULLY FUNCTIONAL,LOW
+System Health & Readiness Endpoint,DevOps/Observability,NO,NO,YES (/api/health),NO,NO (Public Liveness),None,YES,YES,N/A,N/A,N/A,YES (health check),FULLY FUNCTIONAL,NONE
+Automated Testing Suite,QA/Testing,NO,NO,NO,NO,NO,None,YES (Multi-phase suites),YES,N/A,N/A,N/A,YES (5 comprehensive test suites),FULLY FUNCTIONAL,NONE
+PostgreSQL Database Schema & Grants,Data Architecture,NO,NO,NO,YES (Supabase PostgreSQL),YES (RLS on all tables),None,YES,YES,N/A,N/A,YES,YES (migrations & RLS tests),FULLY FUNCTIONAL,NONE
+Live Automated Job Ingestion Pipeline,Job Ingestion,YES,YES,YES (/api/jobs/ingest & discover),YES (discovered_jobs),YES,Direct fetch / catalog,YES,YES,YES,YES,YES,YES (phase3 check),FULLY FUNCTIONAL,NONE
+Transactional Email & Follow-up Alerts,Notifications,NO,NO,NO,NO,NO,SMTP (Supabase),YES,YES,NO,NO,NO,YES (env/config audit),FULLY FUNCTIONAL,NONE
+Phase 6 Production Hardening & Security,SaaS Readiness,YES,YES,YES,YES,YES (RLS & Service Boundaries),AI / PostHog / Supabase,YES,YES,YES,YES,YES,YES (phase6_production_hardening.mjs),FULLY FUNCTIONAL,NONE
+Phase 7 Production Launch & Commercial Validation,Commercial Launch,YES,YES,YES,YES,YES,Supabase / Gemini / Gumroad,YES (Live services),YES,YES,YES,YES,YES (phase7_production_launch_validation.mjs),FULLY FUNCTIONAL,NONE
+Phase 8 Customer Acquisition & Revenue Validation,Product-Market Validation,YES,YES,YES (/api/telemetry),YES,YES,PostHog / Gumroad / Gemini,YES (Funnel Telemetry),YES,YES,YES,YES,YES,YES (phase8_customer_revenue_validation.mjs),FULLY FUNCTIONAL,NONE
+Phase 9 Live Growth & Career Outcome Experimentation,Growth & Outcomes,YES,YES,YES (/api/telemetry & attribution),YES,YES,Attribution / UTM / Growth Framework,YES (North-Star & Outcomes),YES,YES,YES,YES,YES,YES (phase9_growth_acquisition_experimentation.mjs),FULLY FUNCTIONAL,NONE
+Phase 10 Live PMF Evidence & Revenue Validation,PMF & Validation,YES,YES,YES (/api/telemetry & webhooks),YES,YES,PostgreSQL / Webhooks / Attribution,YES (Empirical Verification),YES,YES,YES,YES,YES,YES (phase10_live_pmf_revenue_validation.mjs),FULLY FUNCTIONAL,NONE
+
+
+

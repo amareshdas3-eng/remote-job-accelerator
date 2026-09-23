@@ -1,0 +1,127 @@
+[
+  {
+    "id": "bench-001",
+    "domain": "Software Engineering",
+    "job": {
+      "title": "Senior Full-Stack Engineer",
+      "company": "Supabase & Next.js SaaS Inc",
+      "requirements": ["TypeScript", "Next.js", "React", "PostgreSQL", "Node.js", "GraphQL"],
+      "description": "Looking for a Senior Full-Stack Engineer to scale our remote collaboration platform. Must have 5+ years of experience with React, Next.js, Node.js, and PostgreSQL. GraphQL experience is a strong plus.",
+      "remote_status": "100% Remote",
+      "salary": "$140,000 - $175,000"
+    },
+    "candidate": {
+      "headline": "Senior Full-Stack Engineer with 6 years building high-scale React/Node applications",
+      "skills": ["TypeScript", "JavaScript", "React", "Next.js", "Node.js", "PostgreSQL", "Docker", "REST APIs"],
+      "experience": "Lead Full-Stack Developer at TechCo (2021-Present): Architected multi-tenant SaaS dashboards using Next.js App Router and PostgreSQL.",
+      "evidence": "Engineered real-time notification engine reducing latency by 45%. Scaled PostgreSQL read replicas handling 2M daily queries."
+    },
+    "expectedEvaluation": {
+      "minFitScore": 75,
+      "maxFitScore": 95,
+      "expectedStrengths": ["React", "Next.js", "PostgreSQL", "Node.js"],
+      "expectedGaps": ["GraphQL"],
+      "targetKeywords": ["Next.js", "PostgreSQL", "TypeScript", "Multi-tenant", "SaaS"]
+    }
+  },
+  {
+    "id": "bench-002",
+    "domain": "Cloud & DevOps",
+    "job": {
+      "title": "Staff Platform DevOps Engineer",
+      "company": "CloudScale Global",
+      "requirements": ["Kubernetes", "Terraform", "AWS", "CI/CD", "Prometheus", "Golang"],
+      "description": "Seeking a Staff DevOps Engineer to lead our infrastructure platform. Required: deep Kubernetes cluster management, multi-region AWS architectures, infrastructure-as-code with Terraform, and Prometheus/Grafana observability.",
+      "remote_status": "100% Remote",
+      "salary": "$160,000 - $195,000"
+    },
+    "candidate": {
+      "headline": "Senior Cloud Infrastructure Engineer with 7 years in Kubernetes and AWS automation",
+      "skills": ["AWS", "Kubernetes", "Docker", "Terraform", "GitHub Actions", "Python", "Prometheus", "Grafana"],
+      "experience": "Senior DevOps Engineer at InfraCloud (2020-Present): Automated zero-downtime EKS deployments managing 500+ microservice pods across 3 AWS regions.",
+      "evidence": "Cut cloud spend by $120k/year through automated spot instance provisioning. Built Prometheus alerting reducing MTTR by 60%."
+    },
+    "expectedEvaluation": {
+      "minFitScore": 80,
+      "maxFitScore": 96,
+      "expectedStrengths": ["Kubernetes", "AWS", "Terraform", "Prometheus"],
+      "expectedGaps": ["Golang"],
+      "targetKeywords": ["Kubernetes", "Terraform", "AWS", "Prometheus", "Zero-downtime"]
+    }
+  },
+  {
+    "id": "bench-003",
+    "domain": "Product Design",
+    "job": {
+      "title": "Lead Product Designer",
+      "company": "DesignFirst Labs",
+      "requirements": ["Figma", "Design Systems", "User Research", "Prototyping", "B2B SaaS"],
+      "description": "Lead the end-to-end design of our flagship enterprise analytics tool. We value candidates with demonstrated expertise in Figma component architectures, conducting user interviews, and crafting accessible B2B data interfaces.",
+      "remote_status": "100% Remote",
+      "salary": "$135,000 - $165,000"
+    },
+    "candidate": {
+      "headline": "Lead UI/UX & Product Designer specializing in complex B2B SaaS enterprise workflows",
+      "skills": ["Figma", "Design Systems", "User Research", "Wireframing", "Interaction Design", "Prototyping", "B2B SaaS", "WCAG 2.1 AA"],
+      "experience": "Senior Product Designer at EnterpriseDash (2021-Present): Created unified design system used by 40+ engineers across 6 products.",
+      "evidence": "Redesigned onboarding flow increasing trial activation from 22% to 41%. Conducted 60+ user interviews synthesizing customer journey insights."
+    },
+    "expectedEvaluation": {
+      "minFitScore": 85,
+      "maxFitScore": 98,
+      "expectedStrengths": ["Figma", "Design Systems", "User Research", "Prototyping"],
+      "expectedGaps": [],
+      "targetKeywords": ["Figma", "Design System", "User Research", "B2B", "Activation"]
+    }
+  },
+  {
+    "id": "bench-004",
+    "domain": "AI & Machine Learning",
+    "job": {
+      "title": "AI Solutions Engineer",
+      "company": "Generative Systems",
+      "requirements": ["Python", "LangChain / LlamaIndex", "Vector Databases", "Prompt Engineering", "FastAPI"],
+      "description": "Build high-reliability generative AI pipelines and agents for enterprise customers. Must have hands-on experience building RAG workflows, evaluating model outputs, and deploying FastAPI microservices.",
+      "remote_status": "100% Remote",
+      "salary": "$150,000 - $185,000"
+    },
+    "candidate": {
+      "headline": "AI & Software Engineer with focus on enterprise RAG and LLM applications",
+      "skills": ["Python", "FastAPI", "OpenAI API", "Vector Databases", "Pinecone", "ChromaDB", "Prompt Engineering", "LangChain", "Docker"],
+      "experience": "AI Engineer at AI Startups Co (2022-Present): Built production semantic search engines and multi-turn conversational agents with vector indexing.",
+      "evidence": "Implemented hybrid RAG pipeline with dense embeddings achieving 94% answer retrieval accuracy across 500k internal technical documents."
+    },
+    "expectedEvaluation": {
+      "minFitScore": 85,
+      "maxFitScore": 98,
+      "expectedStrengths": ["Python", "Vector Databases", "FastAPI", "Prompt Engineering"],
+      "expectedGaps": [],
+      "targetKeywords": ["RAG", "Vector Databases", "FastAPI", "Python", "Embeddings"]
+    }
+  },
+  {
+    "id": "bench-005",
+    "domain": "Product Management",
+    "job": {
+      "title": "Principal Product Manager - Growth",
+      "company": "Remote Growth Co",
+      "requirements": ["Product-Led Growth", "SQL", "A/B Testing", "Experimentation", "Pricing & Packaging"],
+      "description": "Drive self-serve adoption and conversion for our remote collaboration platform. We are seeking a data-driven PM who writes their own SQL, designs rigorous A/B tests, and optimizes freemium-to-paid funnels.",
+      "remote_status": "100% Remote",
+      "salary": "$155,000 - $190,000"
+    },
+    "candidate": {
+      "headline": "Data-driven Growth Product Manager with 6 years scaling self-serve SaaS products",
+      "skills": ["Product-Led Growth", "SQL", "A/B Testing", "Experimentation", "Mixpanel", "Amplitude", "Funnel Optimization", "User Onboarding"],
+      "experience": "Senior Growth PM at SaaSScale (2021-Present): Owned activation and expansion funnels across web and mobile surfaces.",
+      "evidence": "Ran 45+ experimentation cycles lifting free-to-paid conversion by 3.2 percentage points and driving $1.8M ARR growth."
+    },
+    "expectedEvaluation": {
+      "minFitScore": 82,
+      "maxFitScore": 96,
+      "expectedStrengths": ["Product-Led Growth", "SQL", "A/B Testing", "Experimentation"],
+      "expectedGaps": ["Pricing & Packaging"],
+      "targetKeywords": ["Product-Led Growth", "SQL", "A/B Testing", "Experimentation", "Conversion"]
+    }
+  }
+]

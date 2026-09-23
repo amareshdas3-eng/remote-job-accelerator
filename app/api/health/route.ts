@@ -1,28 +1,34 @@
 import { NextResponse } from 'next/server';
-import { requireUser, hasEntitlement } from '../../../lib/auth';
+import { supabaseServer } from '../../../lib/supabase';
 
 export async function GET() {
+  const dbConfigured = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const aiConfigured = !!process.env.AI_API_KEY;
+
+  let authUser: { authenticated: boolean; email?: string } = { authenticated: false };
+
   try {
-    const u = await requireUser();
+    const s = await supabaseServer();
+    const { data: { user } } = await s.auth.getUser();
+    if (user) {
+      authUser = {
+        authenticated: true,
+        email: user.email,
+      };
+    }
+  } catch {}
 
-    const email = (u.email || '').toLowerCase();
-    const entitled = await hasEntitlement(email);
-
-    return NextResponse.json({
-      authenticated: true,
-      emailPresent: !!u.email,
-      emailLength: email.length,
-      entitled,
-    });
-  } catch (e: any) {
-    return NextResponse.json(
-      {
-        authenticated: false,
-        error: e.message === 'UNAUTHENTICATED'
-          ? 'UNAUTHENTICATED'
-          : 'WORKSPACE_LOAD_FAILED',
-      },
-      { status: e.message === 'UNAUTHENTICATED' ? 401 : 500 }
-    );
-  }
+  return NextResponse.json({
+    status: 'ok',
+    version: '4.3.0',
+    timestamp: new Date().toISOString(),
+    services: {
+      database: dbConfigured ? 'configured' : 'unconfigured',
+      ai: aiConfigured ? 'configured' : 'unconfigured',
+    },
+    auth: authUser,
+  }, {
+    status: 200,
+    headers: { 'Cache-Control': 'no-store' }
+  });
 }

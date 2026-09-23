@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface StructuredProfileData {
   full_name?: string;
@@ -38,6 +38,7 @@ interface StructuredProfileProps {
   resumeText: string;
   fileName: string;
   busy: boolean;
+  initialProfile?: StructuredProfileData | null;
   onSaveEvidence: (newText: string, structured?: any) => Promise<boolean>;
   onUploadFile: (file: File) => Promise<boolean>;
   onNotice: (msg: string) => void;
@@ -142,14 +143,40 @@ export default function StructuredProfile({
   resumeText,
   fileName,
   busy,
+  initialProfile,
   onSaveEvidence,
   onUploadFile,
   onNotice,
   onContinueToDiscovery,
 }: StructuredProfileProps) {
   const [tab, setTab] = useState<'structured' | 'raw_vault'>('structured');
-  const [profile, setProfile] = useState<StructuredProfileData>(DEFAULT_ELECTRICAL_PROFILE);
+  const [profile, setProfile] = useState<StructuredProfileData>(() => {
+    if (initialProfile && typeof initialProfile === 'object' && Object.keys(initialProfile).length > 0) {
+      return {
+        ...DEFAULT_ELECTRICAL_PROFILE,
+        ...initialProfile,
+        remote_preferences: {
+          ...DEFAULT_ELECTRICAL_PROFILE.remote_preferences,
+          ...(initialProfile.remote_preferences || {}),
+        },
+      };
+    }
+    return DEFAULT_ELECTRICAL_PROFILE;
+  });
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (initialProfile && typeof initialProfile === 'object' && Object.keys(initialProfile).length > 0) {
+      setProfile((prev) => ({
+        ...prev,
+        ...initialProfile,
+        remote_preferences: {
+          ...(prev.remote_preferences || {}),
+          ...(initialProfile.remote_preferences || {}),
+        },
+      }));
+    }
+  }, [initialProfile]);
 
   // Character and evidence health
   const evidenceLength = (resumeText || '').length;

@@ -23,11 +23,21 @@ export async function POST(req: Request) {
 
     const contentType = req.headers.get('content-type') || '';
 
+    let structuredProfile: any = null;
+
     if (contentType.includes('application/json')) {
       const body = await req.json();
       text = String(body?.text || '');
       filename = String(body?.filename || filename).slice(0, 180);
       mime = String(body?.mime || mime);
+      if (body?.structured_profile) {
+        const { validateStructuredProfile, embedStructuredProfileInText } = await import('../../../../lib/profile');
+        const val = validateStructuredProfile(body.structured_profile);
+        if (val.success && val.data) {
+          structuredProfile = val.data;
+          text = embedStructuredProfileInText(text, structuredProfile);
+        }
+      }
     } else if (contentType.includes('multipart/form-data')) {
       const f = await req.formData();
       const file = f.get('file');
@@ -91,13 +101,23 @@ export async function POST(req: Request) {
 
     const a = supabaseAdmin();
 
-    const { error } = await a.from('profiles').upsert({
+    const upsertData: Record<string, any> = {
       id: u.id,
       resume_text: text,
       resume_filename: filename,
       resume_mime: mime,
       updated_at: new Date().toISOString()
-    });
+    };
+    if (structuredProfile) {
+      upsertData.structured_profile = structuredProfile;
+    }
+
+    let { error } = await a.from('profiles').upsert(upsertData);
+    if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('structured_profile'))) {
+      delete upsertData.structured_profile;
+      const retry = await a.from('profiles').upsert(upsertData);
+      error = retry.error;
+    }
 
     if (error) throw error;
 
@@ -105,7 +125,9 @@ export async function POST(req: Request) {
       {
         saved: true,
         filename,
-        characters: text.length
+        text,
+        characters: text.length,
+        structured_profile: structuredProfile || null
       },
       {
         headers: {

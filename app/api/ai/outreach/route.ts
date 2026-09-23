@@ -3,6 +3,7 @@ import { requirePro } from '../../../../lib/auth';
 import { ai, safeJson } from '../../../../lib/ai';
 import { rate } from '../../../../lib/rate';
 import { sameOrigin } from '../../../../lib/security';
+import { supabaseAdmin } from '../../../../lib/supabase';
 
 const OUTREACH_SYSTEM_PROMPT = `You are an elite executive career agent specializing in remote job search networking, cold outreach, and hiring manager conversions.
 Generate highly personalized, professional, and respectful networking messages for the candidate reaching out about a remote role.
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
   try {
     const u = await requirePro();
     if (!sameOrigin(req)) return NextResponse.json({ error: 'INVALID_ORIGIN' }, { status: 403 });
-    if (!rate('outreach:' + u.id)) return NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 });
+    if (!(await rate('outreach:' + u.id))) return NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 });
 
     const b = await req.json();
     const role = String(b.job_title || 'Target Role').slice(0, 200);
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
     const job = String(b.job_description || '').slice(0, 10000);
     const resume = String(b.resume || '').slice(0, 10000);
     const recipient = String(b.recipient_type || 'recruiter'); // 'recruiter' | 'hiring_manager' | 'peer'
+    const jobId = b.job_id ? String(b.job_id).trim() : null;
 
     const raw = await ai(
       OUTREACH_SYSTEM_PROMPT,
@@ -45,6 +47,26 @@ export async function POST(req: Request) {
     );
 
     const result = safeJson(raw);
+
+    if (jobId) {
+      const admin = supabaseAdmin();
+      const { data: existingJob } = await admin
+        .from('jobs')
+        .select('metadata')
+        .eq('id', jobId)
+        .eq('user_id', u.id)
+        .maybeSingle();
+
+      const existingMeta = existingJob?.metadata && typeof existingJob.metadata === 'object' ? existingJob.metadata : {};
+      const updatedMeta = { ...existingMeta, outreach: result };
+
+      await admin
+        .from('jobs')
+        .update({ metadata: updatedMeta, updated_at: new Date().toISOString() })
+        .eq('id', jobId)
+        .eq('user_id', u.id);
+    }
+
     return NextResponse.json(result);
   } catch (e: any) {
     const status = e.message === 'PRO_REQUIRED' ? 402 : e.message === 'UNAUTHENTICATED' ? 401 : 500;

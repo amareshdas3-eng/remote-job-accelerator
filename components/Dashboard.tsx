@@ -7,6 +7,9 @@ import OpportunityWorkspace, { SavedJob } from './dashboard/OpportunityWorkspace
 import AnalyticsOverview from './dashboard/AnalyticsOverview';
 import StructuredProfile from './dashboard/StructuredProfile';
 import UnifiedJobWorkspace from './dashboard/UnifiedJobWorkspace';
+import OnboardingGuide from './dashboard/OnboardingGuide';
+import { trackEvent } from '../lib/analytics';
+import { appendAttributionParams } from '../lib/attribution';
 
 const MAIN_STEPS = [
   'Profile',
@@ -55,7 +58,11 @@ export default function Dashboard({ email }: { email: string }) {
             setActiveJobId(loadedJobs[0].id);
           }
 
-          if (!x.entitled) setShowPaywall(true);
+          // Track onboarding telemetry
+          trackEvent('landing_view', { email, hasProfile: !!x.profile?.resume_text, jobsCount: loadedJobs.length });
+          if (x.profile?.resume_text) {
+            trackEvent('profile_completed', { email, length: x.profile.resume_text.length });
+          }
         }
       })
       .catch(() => setNotice('Could not load your workspace. Refresh to retry.'));
@@ -122,16 +129,31 @@ export default function Dashboard({ email }: { email: string }) {
     }
   };
 
-  const saveEvidence = async (newText?: string) => {
+  const saveEvidence = async (newText?: string, structured?: any) => {
     const textToSave = typeof newText === 'string' ? newText : resume;
     if (typeof newText === 'string') setResume(newText);
-    const j = await call('/api/resume/upload', {
+    if (structured) {
+      setUserProfile((prev: any) => ({
+        ...(prev || {}),
+        structured_profile: structured,
+        full_name: structured.full_name || prev?.full_name,
+        headline: structured.headline || prev?.headline,
+      }));
+    }
+
+    const payload: Record<string, any> = {
       text: textToSave,
       filename: fileName || 'master-resume.txt',
       mime: 'text/plain',
-    });
+    };
+    if (structured) {
+      payload.structured_profile = structured;
+    }
+
+    const j = await call('/api/resume/upload', payload);
     if (!j) return false;
-    setNotice('Evidence Vault saved. Your verified source of truth is ready.');
+
+    setNotice('Evidence Vault and structured profile synchronized.');
     return true;
   };
 
@@ -143,8 +165,7 @@ export default function Dashboard({ email }: { email: string }) {
       fd.append('file', file);
       const r = await fetch('/api/resume/upload', { method: 'POST', body: fd });
       const j = await r.json();
-      if (!r.ok) throw new Error(j.error || 'Resume upload failed');
-      setResume(j.text);
+      if (j.text) setResume(j.text);
       setFileName(file.name);
       setNotice('Resume imported and extracted successfully. Review it before saving.');
     } catch (e: any) {
@@ -293,6 +314,71 @@ export default function Dashboard({ email }: { email: string }) {
     return true;
   };
 
+  // Run AI Application Strategy against canonical active job
+  const runStrategy = async () => {
+    if (!activeJob) {
+      setNotice('Please select an active job first.');
+      return false;
+    }
+    const j = await call('/api/ai/strategy', {
+      job_id: activeJob.id,
+      job: activeJob.description,
+      resume,
+      title: activeJob.title,
+      company: activeJob.company,
+      location: activeJob.location,
+    });
+    if (!j) return false;
+
+    setJobs((prev) =>
+      prev.map((x) =>
+        x.id === activeJob.id
+          ? {
+              ...x,
+              metadata: {
+                ...((x as any).metadata || {}),
+                strategy: j.strategy,
+              },
+            }
+          : x
+      )
+    );
+    setNotice('Executive application strategy & positioning angles generated!');
+    return true;
+  };
+
+  // Run AI Screening Answers against canonical active job
+  const runScreeningAnswers = async () => {
+    if (!activeJob) {
+      setNotice('Please select an active job first.');
+      return false;
+    }
+    const j = await call('/api/ai/screening-answers', {
+      job_id: activeJob.id,
+      job_description: activeJob.description,
+      resume_text: resume,
+      title: activeJob.title,
+      company: activeJob.company,
+    });
+    if (!j) return false;
+
+    setJobs((prev) =>
+      prev.map((x) =>
+        x.id === activeJob.id
+          ? {
+              ...x,
+              metadata: {
+                ...((x as any).metadata || {}),
+                screening_answers: j.screening_answers,
+              },
+            }
+          : x
+      )
+    );
+    setNotice('Screening question answers prepared for 1-click submission!');
+    return true;
+  };
+
   // Save/Update opportunity in Pipeline
   const addApp = async (statusOverride = 'ready_to_apply') => {
     if (!activeJob) return;
@@ -431,9 +517,12 @@ export default function Dashboard({ email }: { email: string }) {
             {[
               { id: 'overview', label: 'Role Overview', icon: '📋' },
               { id: 'match', label: 'Match Intelligence', icon: '🎯' },
+              { id: 'strategy', label: 'Application Strategy', icon: '🧭' },
               { id: 'resume', label: '100% ATS Resume', icon: '📄' },
               { id: 'qc', label: 'ATS QC Engine', icon: '🛡️' },
               { id: 'cover', label: 'Cover Letter & Pitch', icon: '✉️' },
+              { id: 'submission', label: 'Submission Assistant', icon: '⚡' },
+              { id: 'outreach', label: 'Outreach & Networking', icon: '🤝' },
               { id: 'interview', label: 'STAR Interview Coach', icon: '🎙️' },
               { id: 'package', label: 'Application Package', icon: '📦' },
             ].map((sub) => {
@@ -560,6 +649,18 @@ export default function Dashboard({ email }: { email: string }) {
           </div>
         )}
 
+        {/* ONBOARDING FAST-TRACK GUIDE */}
+        <OnboardingGuide
+          hasResume={resume.trim().length > 50}
+          jobsCount={jobs.length}
+          hasActiveJob={!!activeJob}
+          hasApplication={apps.some((a) => a.status !== 'saved')}
+          onNavigateTab={(targetTab) => {
+            trackEvent('application_started', { from: step, to: targetTab });
+            setStep(targetTab);
+          }}
+        />
+
         {/* STEP 1: Profile & Evidence Vault */}
         {step === 'Profile' && (
           <Card
@@ -570,8 +671,9 @@ export default function Dashboard({ email }: { email: string }) {
               resumeText={resume}
               fileName={fileName}
               busy={busy}
-              onSaveEvidence={async (newText) => {
-                const ok = await saveEvidence(newText);
+              initialProfile={userProfile?.structured_profile}
+              onSaveEvidence={async (newText, structured) => {
+                const ok = await saveEvidence(newText, structured);
                 return !!ok;
               }}
               onUploadFile={async (file) => {
@@ -641,6 +743,8 @@ export default function Dashboard({ email }: { email: string }) {
                 onRunTailor={runTailor}
                 onRunCover={runCover}
                 onRunInterview={runInterview}
+                onRunStrategy={runStrategy}
+                onRunScreeningAnswers={runScreeningAnswers}
                 onSaveToPipeline={addApp}
                 onNotice={setNotice}
                 onSwitchJob={() => setStep('Job Discovery')}
@@ -764,6 +868,10 @@ function Card({ title, sub, children }: { title: string; sub: string; children: 
 }
 
 function Paywall({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    trackEvent('pro_clicked', { source: 'dashboard_modal' });
+  }, []);
+
   return (
     <div className="modal-backdrop">
       <div className="modal paywall">
@@ -784,7 +892,10 @@ function Paywall({ onClose }: { onClose: () => void }) {
         </div>
         <a
           className="primary wide"
-          href={process.env.NEXT_PUBLIC_GUMROAD_URL || 'https://4217411968942.gumroad.com/l/remote-job-complete'}
+          href={appendAttributionParams(process.env.NEXT_PUBLIC_GUMROAD_URL || 'https://4217411968942.gumroad.com/l/remote-job-complete')}
+          onClick={() => trackEvent('checkout_started', { source: 'paywall_cta' })}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           Unlock Pro access →
         </a>
@@ -855,6 +966,30 @@ function Settings({ email, onClose, onSignout }: { email: string; onClose: () =>
             Delete account <span>Permanent</span>
           </button>
         </div>
+
+        {/* Application & Email Client Settings */}
+        <div style={{ marginTop: '16px', borderTop: '1px solid #1c282e', paddingTop: '14px', textAlign: 'left' }}>
+          <span style={{ fontSize: '10px', color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', display: 'block', marginBottom: '4px' }}>
+            APPLICATION & EMAIL CLIENT SETTINGS
+          </span>
+          <p style={{ fontSize: '11px', color: '#8898a0', margin: '0 0 10px', lineHeight: 1.4 }}>
+            Configure how RJA extracts application recipient emails and launches email clients.
+          </p>
+
+          <div style={{ background: '#070b0e', border: '1px solid #1c282e', borderRadius: '6px', padding: '10px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <strong style={{ fontSize: '11px', color: '#f4f7fa' }}>Application Method Intelligence</strong>
+              <span style={{ fontSize: '9px', color: '#9af5cf', background: '#0e2b1f', padding: '1px 6px', borderRadius: '4px' }}>
+                Auto-Extraction Active
+              </span>
+            </div>
+            <div style={{ fontSize: '10px', color: '#8898a0', lineHeight: 1.5 }}>
+              • <strong>Direct Email Applications:</strong> RJA parses job instructions (e.g. <em>"Send CV to jobs@company.com"</em>), populates the Recipient Email field, and passes it directly into <code>mailto:</code>.<br />
+              • <strong>Website Portal Applications:</strong> For online ATS portals (Greenhouse, Lever, Workday), RJA directs you to the official portal without inventing synthetic emails.
+            </div>
+          </div>
+        </div>
+
         {msg && <div className="notice">{msg}</div>}
         <button className="logout wide" onClick={onSignout}>
           Sign out

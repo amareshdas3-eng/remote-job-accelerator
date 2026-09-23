@@ -40,7 +40,17 @@ export async function POST(req: Request) {
     }
 
     const job = String(body.job || '').slice(0, 30000);
-    const resume = String(body.resume || '').slice(0, 30000);
+    let resume = String(body.resume || '').slice(0, 30000);
+
+    if (!resume) {
+      const { data: p } = await supabaseAdmin().from('profiles').select('resume_text, structured_profile').eq('id', user.id).maybeSingle();
+      if (p?.structured_profile) {
+        const { formatStructuredProfileText } = await import('../../../../lib/profile');
+        resume = formatStructuredProfileText(p.structured_profile);
+      } else if (p?.resume_text) {
+        resume = p.resume_text.slice(0, 30000);
+      }
+    }
 
     // Validate that job is non-empty and not just whitespace
     if (!job.trim()) {

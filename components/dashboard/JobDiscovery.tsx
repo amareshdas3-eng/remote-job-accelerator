@@ -26,10 +26,22 @@ export default function JobDiscovery({
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<'all' | 'electrical' | 'project_management' | 'ai_operations' | 'industrial'>('all');
+  const [minFit, setMinFit] = useState<number>(0);
+  const [sort, setSort] = useState<'fit' | 'date' | 'company'>('fit');
+  const [seniority, setSeniority] = useState<'all' | 'executive' | 'senior' | 'mid'>('all');
+  const [shortlistFilter, setShortlistFilter] = useState(false);
+  const [shortlistedIds, setShortlistedIds] = useState<string[]>([]);
+  const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+
   const [discoveryMode, setDiscoveryMode] = useState<'curated' | 'custom'>('curated');
   const [customUrl, setCustomUrl] = useState('');
   const [customText, setCustomText] = useState('');
   const [selectingId, setSelectingId] = useState<string | null>(null);
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [syncing, setSyncing] = useState(false);
 
   // Evidence profile keyword detection
   const profileSignals = useMemo(() => {
@@ -52,14 +64,87 @@ export default function JobDiscovery({
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/jobs/discover?category=${category}&q=${encodeURIComponent(search)}`)
+    const params = new URLSearchParams({
+      category,
+      q: search,
+      page: String(page),
+      limit: '8',
+      min_fit: String(minFit),
+      sort,
+      seniority,
+      shortlisted_only: String(shortlistFilter),
+    });
+
+    fetch(`/api/jobs/discover?${params.toString()}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data.jobs) setOpportunities(data.jobs);
+        if (data.jobs) {
+          setOpportunities(data.jobs);
+          if (data.total !== undefined) setTotal(data.total);
+          if (data.totalPages !== undefined) setTotalPages(data.totalPages);
+          if (data.shortlisted_ids) setShortlistedIds(data.shortlisted_ids);
+        }
       })
       .catch(() => onNotice('Could not load remote opportunities.'))
       .finally(() => setLoading(false));
-  }, [category, search, onNotice]);
+  }, [category, search, page, minFit, sort, seniority, shortlistFilter, onNotice]);
+
+  const handleToggleShortlist = async (opp: RemoteJobOpportunity) => {
+    const isCurrently = opp.is_shortlisted || shortlistedIds.includes(opp.id);
+    const newShortlisted = !isCurrently;
+
+    setOpportunities((prev) =>
+      prev.map((o) => (o.id === opp.id ? { ...o, is_shortlisted: newShortlisted } : o))
+    );
+    setShortlistedIds((prev) =>
+      newShortlisted ? [...prev, opp.id] : prev.filter((id) => id !== opp.id)
+    );
+
+    try {
+      const res = await fetch('/api/jobs/shortlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_id: opp.id, action: newShortlisted ? 'add' : 'remove' }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      onNotice(newShortlisted ? `★ Saved "${opp.title}" to Shortlist.` : `Removed "${opp.title}" from Shortlist.`);
+    } catch {
+      onNotice('Could not update shortlist.');
+    }
+  };
+
+  const handleSyncFeeds = async () => {
+    setSyncing(true);
+    try {
+      const res = await fetch('/api/jobs/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'all', limit: 20 }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        onNotice(`Live remote feed sync complete. Ingested ${data.result?.inserted || 0} fresh opportunities.`);
+        // Reload discovery page 1
+        setPage(1);
+        fetch(`/api/jobs/discover?category=${category}&q=${encodeURIComponent(search)}&page=1&limit=8`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.jobs) {
+              setOpportunities(d.jobs);
+              if (d.total !== undefined) setTotal(d.total);
+              if (d.totalPages !== undefined) setTotalPages(d.totalPages);
+            }
+          });
+      } else {
+        onNotice(data.error || 'Feed sync failed.');
+      }
+    } catch {
+      onNotice('Network error syncing feeds.');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const handleSelectCuratedJob = async (opp: RemoteJobOpportunity) => {
     setSelectingId(opp.id);
@@ -166,7 +251,7 @@ export default function JobDiscovery({
           </div>
 
           {/* Mode Switcher */}
-          <div style={{ display: 'flex', gap: '6px', background: '#0a1014', border: '1px solid #192730', borderRadius: '8px', padding: '4px' }}>
+          <div style={{ display: 'flex', gap: '6px', background: '#0a1014', border: '1px solid #192730', borderRadius: '8px', padding: '4px', flexWrap: 'wrap' }}>
             <button
               className={`tab-btn ${discoveryMode === 'curated' ? 'active' : ''}`}
               onClick={() => setDiscoveryMode('curated')}
@@ -179,7 +264,15 @@ export default function JobDiscovery({
               onClick={() => setDiscoveryMode('custom')}
               style={{ fontSize: '11px', padding: '6px 14px', borderRadius: '6px' }}
             >
-              ＋ Import Custom Job
+              + Ingest Custom Job
+            </button>
+            <button
+              className="tab-btn"
+              onClick={handleSyncFeeds}
+              disabled={syncing}
+              style={{ fontSize: '11px', padding: '6px 14px', borderRadius: '6px', color: '#9af5cf', border: '1px solid #1b4533', background: '#0e1f18' }}
+            >
+              {syncing ? 'Syncing Feeds...' : '⚡ Sync Live Feeds'}
             </button>
           </div>
         </div>
@@ -188,44 +281,128 @@ export default function JobDiscovery({
       {discoveryMode === 'curated' ? (
         <div>
           {/* Search and Category Filters */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '260px', maxWidth: '440px' }}>
-              <input
-                type="text"
-                placeholder="Search remote opportunities by title, company, or requirement keywords…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{ width: '100%', padding: '9px 12px', fontSize: '11px', background: '#080d11', border: '1px solid #1c2b33', borderRadius: '8px', color: '#f8fafc' }}
-              />
-            </div>
+          <div style={{ marginBottom: '18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '260px' }}>
+                <input
+                  type="text"
+                  placeholder="Search remote opportunities by title, company, or requirement keywords…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '11px', background: '#080d11', border: '1px solid #1c2b33', borderRadius: '8px', color: '#f8fafc' }}
+                />
+              </div>
 
-            {/* Category Filter Pills */}
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {[
-                { id: 'all', label: 'All Remote (6)' },
-                { id: 'electrical', label: '⚡ Electrical & Power' },
-                { id: 'project_management', label: '📋 Engineering PM' },
-                { id: 'industrial', label: '🏭 Industrial & Plant' },
-                { id: 'ai_operations', label: '✦ AI Operations' },
-              ].map((cat) => (
+              {/* Category Filter Pills & Shortlist Tab */}
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {[
+                  { id: 'all', label: `All Remote (${total})` },
+                  { id: 'electrical', label: '⚡ Electrical & Power' },
+                  { id: 'project_management', label: '📋 Engineering PM' },
+                  { id: 'industrial', label: '🏭 Industrial & Plant' },
+                  { id: 'ai_operations', label: '✦ AI Operations' },
+                ].map((cat) => {
+                  const isActive = !shortlistFilter && category === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        setShortlistFilter(false);
+                        setCategory(cat.id as any);
+                        setPage(1);
+                      }}
+                      style={{
+                        background: isActive ? '#143124' : '#080d11',
+                        border: `1px solid ${isActive ? '#256346' : '#1a2730'}`,
+                        color: isActive ? '#9af5cf' : '#829198',
+                        padding: '6px 12px',
+                        fontSize: '11px',
+                        fontWeight: isActive ? 700 : 500,
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        transition: 'all .15s ease',
+                      }}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+
                 <button
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id as any)}
+                  onClick={() => {
+                    setShortlistFilter(!shortlistFilter);
+                    setPage(1);
+                  }}
                   style={{
-                    background: category === cat.id ? '#143124' : '#080d11',
-                    border: `1px solid ${category === cat.id ? '#256346' : '#1a2730'}`,
-                    color: category === cat.id ? '#9af5cf' : '#829198',
+                    background: shortlistFilter ? '#2b2308' : '#080d11',
+                    border: `1px solid ${shortlistFilter ? '#f59e0b' : '#1a2730'}`,
+                    color: shortlistFilter ? '#fbbf24' : '#94a3b8',
                     padding: '6px 12px',
                     fontSize: '11px',
-                    fontWeight: category === cat.id ? 700 : 500,
+                    fontWeight: shortlistFilter ? 700 : 500,
                     borderRadius: '6px',
                     cursor: 'pointer',
                     transition: 'all .15s ease',
                   }}
                 >
-                  {cat.label}
+                  ★ Shortlist ({shortlistedIds.length})
                 </button>
-              ))}
+              </div>
+            </div>
+
+            {/* Intelligent Filter Dropdowns Bar */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', background: '#080e13', border: '1px solid #14222c', padding: '8px 12px', borderRadius: '8px' }}>
+              <span style={{ fontSize: '10px', color: '#687882', textTransform: 'uppercase', fontWeight: 700 }}>
+                Intelligent Filters:
+              </span>
+
+              {/* Min Fit Score */}
+              <select
+                value={minFit}
+                onChange={(e) => {
+                  setMinFit(Number(e.target.value));
+                  setPage(1);
+                }}
+                style={{ background: '#0b141a', color: '#cbd5e1', border: '1px solid #1e3342', borderRadius: '6px', padding: '4px 8px', fontSize: '11px' }}
+              >
+                <option value="0">All Match Scores</option>
+                <option value="75">75%+ Solid Fit</option>
+                <option value="85">85%+ High Conviction</option>
+                <option value="90">90%+ Exceptional Match</option>
+              </select>
+
+              {/* Seniority */}
+              <select
+                value={seniority}
+                onChange={(e) => {
+                  setSeniority(e.target.value as any);
+                  setPage(1);
+                }}
+                style={{ background: '#0b141a', color: '#cbd5e1', border: '1px solid #1e3342', borderRadius: '6px', padding: '4px 8px', fontSize: '11px' }}
+              >
+                <option value="all">All Seniority Levels</option>
+                <option value="executive">Executive / Director / Head</option>
+                <option value="senior">Senior / Lead Roles</option>
+                <option value="mid">Mid-Level Execution</option>
+              </select>
+
+              {/* Sort By */}
+              <select
+                value={sort}
+                onChange={(e) => {
+                  setSort(e.target.value as any);
+                  setPage(1);
+                }}
+                style={{ background: '#0b141a', color: '#cbd5e1', border: '1px solid #1e3342', borderRadius: '6px', padding: '4px 8px', fontSize: '11px' }}
+              >
+                <option value="fit">🎯 Highest Documented Fit</option>
+                <option value="date">🕒 Most Recently Published</option>
+                <option value="company">🏢 Company Name (A-Z)</option>
+              </select>
+
+              <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#526571' }}>
+                Ranked against your master structured profile
+              </span>
             </div>
           </div>
 
@@ -236,26 +413,30 @@ export default function JobDiscovery({
             </div>
           ) : opportunities.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '50px 20px', color: '#68767d', fontSize: '12px', background: '#070b0e', border: '1px solid #162229', borderRadius: '10px' }}>
-              No opportunities matched your filter. Try adjusting your query or use "Import Custom Job".
+              No opportunities matched your intelligent filter. Try adjusting your query or threshold.
             </div>
           ) : (
+            <>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px' }}>
               {opportunities.map((opp) => {
                 const isSelected = activeJobId === opp.id || (activeJobId && opp.title.toLowerCase().includes('electrical'));
                 const isSelectingThis = selectingId === opp.id;
+                const isShortlisted = opp.is_shortlisted || shortlistedIds.includes(opp.id);
+                const isExpanded = expandedMatchId === opp.id;
+                const intel = opp.candidate_intelligence;
 
                 return (
                   <div
                     key={opp.id}
                     style={{
                       background: '#070b0e',
-                      border: `1px solid ${isSelected ? '#204a37' : '#192830'}`,
+                      border: `1px solid ${isSelected ? '#204a37' : isShortlisted ? '#423310' : '#192830'}`,
                       borderRadius: '10px',
                       padding: '18px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      boxShadow: isSelected ? '0 0 16px rgba(154,245,207,0.08)' : 'none',
+                      boxShadow: isSelected ? '0 0 16px rgba(154,245,207,0.08)' : isShortlisted ? '0 0 12px rgba(245,158,11,0.08)' : 'none',
                       transition: 'border-color .15s ease',
                     }}
                   >
@@ -268,20 +449,38 @@ export default function JobDiscovery({
                           </strong>
                           <span style={{ fontSize: '13px', color: '#9af5cf', fontWeight: 600 }}>{opp.company}</span>
                         </div>
-                        <span
-                          style={{
-                            fontSize: '10px',
-                            fontWeight: 800,
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            background: '#0e241a',
-                            color: '#9af5cf',
-                            border: '1px solid #1a4a34',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {opp.match_preview.fit_score}% Fit Preview
-                        </span>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                          <span
+                            style={{
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              background: (opp.candidate_intelligence?.fit_score || opp.match_preview.fit_score) >= 90 ? '#0e291f' : '#0e241a',
+                              color: (opp.candidate_intelligence?.fit_score || opp.match_preview.fit_score) >= 90 ? '#34d399' : '#9af5cf',
+                              border: '1px solid #1a4a34',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {opp.candidate_intelligence?.fit_score || opp.match_preview.fit_score}% Fit Preview
+                          </span>
+
+                          <button
+                            onClick={() => setExpandedMatchId(isExpanded ? null : opp.id)}
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: '#38bdf8',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              padding: '2px 4px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {isExpanded ? 'Why You Match ▲' : 'Why You Match ▾'}
+                          </button>
+                        </div>
                       </div>
 
                       {/* Location & Compensation */}
@@ -318,6 +517,80 @@ export default function JobDiscovery({
                         </div>
                       </div>
 
+                      {/* CANDIDATE INTELLIGENCE DOSSIER (EXPANDED "WHY YOU MATCH") */}
+                      {isExpanded && intel && (
+                        <div style={{ background: '#060f14', border: '1px solid #1a3344', borderRadius: '8px', padding: '12px', marginBottom: '12px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '10px', color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                              ✦ Documented Fit Intelligence
+                            </span>
+                            <span style={{ fontSize: '9px', background: '#0f2738', color: '#7dd3fc', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 700 }}>
+                              {intel.tier} match
+                            </span>
+                          </div>
+
+                          {/* 4 Dimension Score Breakdown */}
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+                            <div style={{ background: '#09151c', padding: '6px 8px', borderRadius: '4px', border: '1px solid #162a38' }}>
+                              <span style={{ fontSize: '9px', color: '#7e94a0', display: 'block' }}>Role Alignment</span>
+                              <strong style={{ fontSize: '11px', color: '#f8fafc' }}>{intel.dimensions.role_alignment} / 25 pts</strong>
+                            </div>
+                            <div style={{ background: '#09151c', padding: '6px 8px', borderRadius: '4px', border: '1px solid #162a38' }}>
+                              <span style={{ fontSize: '9px', color: '#7e94a0', display: 'block' }}>Technical Skills</span>
+                              <strong style={{ fontSize: '11px', color: '#f8fafc' }}>{intel.dimensions.technical_skills} / 35 pts</strong>
+                            </div>
+                            <div style={{ background: '#09151c', padding: '6px 8px', borderRadius: '4px', border: '1px solid #162a38' }}>
+                              <span style={{ fontSize: '9px', color: '#7e94a0', display: 'block' }}>Leadership & Certs</span>
+                              <strong style={{ fontSize: '11px', color: '#f8fafc' }}>{intel.dimensions.leadership} / 20 pts</strong>
+                            </div>
+                            <div style={{ background: '#09151c', padding: '6px 8px', borderRadius: '4px', border: '1px solid #162a38' }}>
+                              <span style={{ fontSize: '9px', color: '#7e94a0', display: 'block' }}>Seniority & Remote</span>
+                              <strong style={{ fontSize: '11px', color: '#f8fafc' }}>{intel.dimensions.seniority_remote} / 20 pts</strong>
+                            </div>
+                          </div>
+
+                          {/* Evidence Alignment Highlights */}
+                          <div style={{ marginBottom: '8px' }}>
+                            <span style={{ fontSize: '9px', color: '#9af5cf', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                              Why Your Evidence Matches:
+                            </span>
+                            <ul style={{ margin: 0, paddingLeft: '14px', fontSize: '10px', color: '#cbd5e1', lineHeight: 1.4 }}>
+                              {intel.why_matched.map((w, i) => (
+                                <li key={i} style={{ marginBottom: '2px' }}>{w}</li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Skill Gaps / Tailoring Targets */}
+                          {intel.missing_skills && intel.missing_skills.length > 0 && (
+                            <div style={{ marginBottom: '8px' }}>
+                              <span style={{ fontSize: '9px', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
+                                Keyword Gaps to Address in Resume:
+                              </span>
+                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                {intel.missing_skills.map((gap) => (
+                                  <span key={gap} style={{ fontSize: '9px', background: '#261b05', color: '#fde68a', border: '1px solid #4d380b', padding: '1px 5px', borderRadius: '3px' }}>
+                                    + {gap}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Strategic Positioning Advice */}
+                          {intel.strategic_advice && (
+                            <div style={{ background: '#0a1d29', border: '1px solid #1e4056', borderRadius: '6px', padding: '6px 8px', marginTop: '6px' }}>
+                              <span style={{ fontSize: '9px', color: '#38bdf8', fontWeight: 700, display: 'block', marginBottom: '2px' }}>
+                                💡 Strategic Application Positioning:
+                              </span>
+                              <p style={{ fontSize: '10px', color: '#94a3b8', margin: 0, lineHeight: 1.4 }}>
+                                {intel.strategic_advice}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {/* Key Requirements List */}
                       <div style={{ marginBottom: '12px' }}>
                         <span style={{ fontSize: '9px', color: '#687882', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
@@ -331,16 +604,37 @@ export default function JobDiscovery({
                       </div>
                     </div>
 
-                    {/* Card Actions: Official Link and 1-Click Select */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #142028', paddingTop: '12px', marginTop: '8px' }}>
-                      <a
-                        href={opp.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ fontSize: '11px', color: '#687882', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                      >
-                        <span>Official Posting</span> ↗
-                      </a>
+                    {/* Card Actions: Official Link, Shortlist Toggle, and 1-Click Select */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #142028', paddingTop: '12px', marginTop: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <a
+                          href={opp.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ fontSize: '11px', color: '#687882', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          <span>Official Posting</span> ↗
+                        </a>
+
+                        <button
+                          onClick={() => handleToggleShortlist(opp)}
+                          style={{
+                            background: isShortlisted ? '#2e2105' : 'transparent',
+                            border: `1px solid ${isShortlisted ? '#f59e0b' : '#22323d'}`,
+                            color: isShortlisted ? '#fbbf24' : '#7e909a',
+                            fontSize: '11px',
+                            padding: '4px 8px',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all .15s ease',
+                          }}
+                        >
+                          <span>{isShortlisted ? '★ Shortlisted' : '☆ Shortlist'}</span>
+                        </button>
+                      </div>
 
                       <button
                         className="primary"
@@ -355,6 +649,34 @@ export default function JobDiscovery({
                 );
               })}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '14px 18px', background: '#090f13', border: '1px solid #1c2a33', borderRadius: '10px' }}>
+                <span style={{ fontSize: '11px', color: '#7e909a' }}>
+                  Showing page <strong>{page}</strong> of <strong>{totalPages}</strong> ({total} total opportunities)
+                </span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    className="secondary"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1 || loading}
+                    style={{ fontSize: '11px', padding: '6px 14px' }}
+                  >
+                    ← Previous
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages || loading}
+                    style={{ fontSize: '11px', padding: '6px 14px' }}
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
+            </>
           )}
         </div>
       ) : (
