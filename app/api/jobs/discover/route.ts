@@ -31,7 +31,7 @@ export interface RemoteJobOpportunity {
 }
 
 // Curated high-conviction remote roles aligned with electrical engineering, project management, commissioning, and AI operations
-export const CURATED_REMOTE_JOBS: RemoteJobOpportunity[] = [
+const CURATED_REMOTE_JOBS: RemoteJobOpportunity[] = [
   {
     id: 'disc-schneider-elec-pm',
     external_id: 'seed:schneider-electric:elec-pm',

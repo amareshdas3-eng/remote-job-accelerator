@@ -4,7 +4,7 @@ import { supabaseAdmin } from '../../../lib/supabase';
 import { jsonError, sameOrigin } from '../../../lib/security';
 import { logger } from '../../../lib/logger';
 
-export const statuses = [
+const statuses = [
   'saved',
   'selected',
   'in_progress',
