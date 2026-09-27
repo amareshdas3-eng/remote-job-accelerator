@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { RemoteJobOpportunity } from '../../app/api/jobs/discover/route';
 import { SavedJob } from './OpportunityWorkspace';
+import { trackEvent } from '../../lib/analytics';
 
 interface JobDiscoveryProps {
   onSelectJob: (job: SavedJob, advanceToWorkspace?: boolean) => void;
@@ -467,7 +468,24 @@ export default function JobDiscovery({
                           </span>
 
                           <button
-                            onClick={() => setExpandedMatchId(isExpanded ? null : opp.id)}
+                            onClick={() => {
+                              const nextExpanded = isExpanded ? null : opp.id;
+                              setExpandedMatchId(nextExpanded);
+                              if (nextExpanded) {
+                                trackEvent('match_explanation_viewed', {
+                                  jobId: opp.id,
+                                  company: opp.company,
+                                  role: opp.title,
+                                  fitScore: opp.candidate_intelligence?.fit_score || opp.match_preview.fit_score,
+                                });
+                                trackEvent('why_match_opened', {
+                                  jobId: opp.id,
+                                  company: opp.company,
+                                  role: opp.title,
+                                  fitScore: opp.candidate_intelligence?.fit_score || opp.match_preview.fit_score,
+                                });
+                              }
+                            }}
                             style={{
                               background: 'transparent',
                               border: 'none',
