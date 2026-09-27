@@ -7,13 +7,13 @@
     "build": "next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsx tests/smoke.mjs && tsx tests/job_centric_architecture.mjs && tsx tests/full_12_phase_verification.mjs && tsx tests/phase5_application_execution.mjs && tsx tests/phase6_production_hardening.mjs && tsx tests/phase7_production_launch_validation.mjs && tsx tests/ai_benchmark_eval.mjs && tsx tests/phase8_customer_revenue_validation.mjs && tsx tests/phase9_growth_acquisition_experimentation.mjs && tsx tests/phase10_live_pmf_revenue_validation.mjs"
+    "test": "tsx tests/smoke.mjs && tsx tests/job_centric_architecture.mjs && tsx tests/full_12_phase_verification.mjs && tsx tests/phase5_application_execution.mjs && tsx tests/phase6_production_hardening.mjs && tsx tests/phase7_production_launch_validation.mjs && tsx tests/ai_benchmark_eval.mjs && tsx tests/phase8_customer_revenue_validation.mjs && tsx tests/phase9_growth_acquisition_experimentation.mjs && tsx tests/phase10_live_pmf_revenue_validation.mjs && tsx tests/test_docx_mammoth_security.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.7.0",
     "@supabase/supabase-js": "2.57.4",
     "jose": "6.1.0",
-    "mammoth": "1.10.0",
+    "mammoth": "1.13.0",
     "next": "16.3.5",
     "pdf-parse": "2.4.5",
     "react": "19.1.1",
