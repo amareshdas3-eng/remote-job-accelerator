@@ -5,6 +5,16 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://pftpqwndomydffsuxfje.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key' }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_service_role' }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY || 'dummy_ai_api_key' }}
+      GUMROAD_PING_SECRET: ${{ secrets.GUMROAD_PING_SECRET || 'dummy_gumroad_ping_secret' }}
+      GUMROAD_PRODUCT_PERMALINK: remote-job-complete
+      NEXT_PUBLIC_GUMROAD_URL: https://4217411968942.gumroad.com/l/remote-job-complete
+      EXTENSION_JWT_SECRET: dummy_extension_jwt_secret_minimum_32_characters
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
