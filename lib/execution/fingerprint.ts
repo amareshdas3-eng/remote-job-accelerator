@@ -1,21 +1,82 @@
 import crypto from 'node:crypto';
 import type { ArtifactFingerprint } from './types';
 
+/**
+ * Normalizes text for byte-level canonicalization:
+ * - Translates CRLF (\r\n) and CR (\r) into LF (\n) to prevent transport/OS newline drift
+ * - Normalizes Unicode to NFC (Canonical Decomposition followed by Canonical Composition)
+ * - Preserves exact internal whitespace, casing, punctuation, and Unicode codepoints
+ */
+export function normalizeText(text: string | null | undefined): string {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .normalize('NFC');
+}
+
+/**
+ * Recursively sorts keys alphabetically and normalizes string values
+ * ensuring deterministic serialization regardless of key insertion order.
+ */
+export function deterministicStringify(val: any): string {
+  if (val === null || val === undefined) return 'null';
+  if (typeof val === 'string') {
+    return JSON.stringify(normalizeText(val));
+  }
+  if (typeof val !== 'object') {
+    return JSON.stringify(val);
+  }
+  if (Array.isArray(val)) {
+    return '[' + val.map((item) => deterministicStringify(item)).join(',') + ']';
+  }
+  const sortedKeys = Object.keys(val).sort();
+  const pairs = sortedKeys.map((key) => `${JSON.stringify(key)}:${deterministicStringify(val[key])}`);
+  return '{' + pairs.join(',') + '}';
+}
+
+/**
+ * Canonicalizes the approved application artifact into an immutable, deterministic byte representation.
+ * - Enforces deterministic key order on all structured objects (resume, cover_letter, answers)
+ * - Enforces deterministic sorting of screening answers by question identifier
+ * - Enforces NFC Unicode and newline normalization across all text fields
+ * - Detects ANY mutation in any field of the artifact (including headline, summary, recipient, letter, answers)
+ */
 export function canonicalizeArtifactContent(content: {
   resume: any;
   cover_letter: any;
   screening_answers: any;
 }): string {
-  // Sort and stringify deterministically
-  const resumePart = content.resume?.full_resume || JSON.stringify(content.resume || {});
-  const coverPart = content.cover_letter?.letter || JSON.stringify(content.cover_letter || {});
-  const answersPart = Array.isArray(content.screening_answers?.answers)
-    ? content.screening_answers.answers.map((a: any) => `${a.question}:${a.answer}`).join('\n')
-    : JSON.stringify(content.screening_answers || {});
+  if (!content) return '';
 
-  return `RESUME:\n${resumePart.trim()}\n---\nCOVER:\n${coverPart.trim()}\n---\nANSWERS:\n${answersPart.trim()}`;
+  // 1. Resume Component (deterministic serialization of all resume fields)
+  const resumePart = content.resume ? deterministicStringify(content.resume) : '';
+
+  // 2. Cover Letter Component (deterministic serialization of all cover letter fields)
+  const coverPart = content.cover_letter ? deterministicStringify(content.cover_letter) : '';
+
+  // 3. Screening Answers Component (deterministic sorting by question followed by deep serialization)
+  let answersPart = '';
+  if (Array.isArray(content.screening_answers?.answers)) {
+    const sortedAnswers = [...content.screening_answers.answers].sort((a: any, b: any) => {
+      const keyA = normalizeText(String(a.question_id || a.question || ''));
+      const keyB = normalizeText(String(b.question_id || b.question || ''));
+      return keyA.localeCompare(keyB);
+    });
+
+    answersPart = sortedAnswers
+      .map((a: any) => deterministicStringify(a))
+      .join('\n');
+  } else if (content.screening_answers) {
+    answersPart = deterministicStringify(content.screening_answers);
+  }
+
+  return `RESUME:\n${resumePart}\n---\nCOVER:\n${coverPart}\n---\nANSWERS:\n${answersPart}`;
 }
 
+/**
+ * Computes deterministic SHA-256 fingerprint over canonicalized artifact content.
+ */
 export function computeArtifactFingerprint(content: {
   resume: any;
   cover_letter: any;
@@ -42,6 +103,9 @@ export function computeArtifactFingerprint(content: {
   };
 }
 
+/**
+ * Verifies that current artifact content strictly matches the expected approved fingerprint.
+ */
 export function verifyArtifactFingerprint(
   content: {
     resume: any;

@@ -22,6 +22,8 @@ export interface ArtifactFingerprint {
 export interface ApprovedArtifact {
   id: string;
   application_id: string;
+  evidence_snapshot_id?: string;
+  destination?: string;
   fingerprint: ArtifactFingerprint;
   approved_by: string;
   approved_at: string;

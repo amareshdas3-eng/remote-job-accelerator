@@ -1,13 +1,62 @@
 import crypto from 'node:crypto';
 import type { OutcomeEvent, OutcomeEventType, CareerRoiMetrics } from './types';
 
+/**
+ * Validates legal state transitions in the application outcome lifecycle:
+ * - Applications cannot progress to downstream stages (response, interview, offer) without having an initial 'applied' event.
+ * - Applications in terminal states ('rejected' or 'withdrawn') cannot transition to active downstream stages.
+ */
+export function validateOutcomeTransition(
+  history: OutcomeEvent[],
+  nextType: OutcomeEventType
+): { valid: boolean; reason?: string } {
+  if (!Array.isArray(history) || history.length === 0) {
+    if (nextType !== 'applied') {
+      return {
+        valid: false,
+        reason: `Illegal initial transition: application must be 'applied' before entering stage '${nextType}'.`,
+      };
+    }
+    return { valid: true };
+  }
+
+  const hasApplied = history.some((e) => e.type === 'applied');
+  if (!hasApplied && nextType !== 'applied') {
+    return {
+      valid: false,
+      reason: `Out-of-sequence transition: cannot transition to '${nextType}' because application has not been dispatched ('applied').`,
+    };
+  }
+
+  // Check if current state is terminal ('rejected' or 'withdrawn')
+  const lastEvent = history[history.length - 1];
+  const isTerminal = lastEvent.type === 'rejected' || lastEvent.type === 'withdrawn';
+  if (isTerminal) {
+    return {
+      valid: false,
+      reason: `Illegal transition: application is in terminal state '${lastEvent.type}' and cannot transition to '${nextType}'.`,
+    };
+  }
+
+  return { valid: true };
+}
+
 export function createOutcomeEvent(params: {
   applicationId: string;
   userId: string;
   type: OutcomeEventType;
   stage?: string;
   metadata?: Record<string, any>;
+  existingEvents?: OutcomeEvent[];
+  strictTransitionCheck?: boolean;
 }): OutcomeEvent {
+  if (params.strictTransitionCheck && params.existingEvents) {
+    const check = validateOutcomeTransition(params.existingEvents, params.type);
+    if (!check.valid) {
+      throw new Error(`TRANSITION_INVALID: ${check.reason}`);
+    }
+  }
+
   const stageMap: Record<OutcomeEventType, string> = {
     applied: 'Application Dispatched',
     acknowledged: 'Receipt Acknowledged by Employer',
