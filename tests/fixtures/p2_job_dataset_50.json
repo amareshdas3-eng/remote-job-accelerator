@@ -1,0 +1,1616 @@
+[
+  {
+    "jobId": "job-p2-real-001",
+    "employer": "Stripe",
+    "roleTitle": "Staff Backend Engineer - Payment Rails",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.stripe.com/positions/job-p2-real-001",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 8,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Distributed Systems",
+      "Java",
+      "Go",
+      "API Design",
+      "PostgreSQL"
+    ],
+    "preferredQualifications": [
+      "Fintech",
+      "High Throughput",
+      "Idempotency"
+    ],
+    "technicalRequirements": [
+      "Distributed Systems",
+      "Java",
+      "Go",
+      "API Design",
+      "PostgreSQL",
+      "Fintech",
+      "High Throughput",
+      "Idempotency"
+    ],
+    "descriptionSnapshot": "Stripe is seeking a talented Staff Backend Engineer - Payment Rails to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Distributed Systems, Java, Go, API Design, PostgreSQL. Preferred familiarity with Fintech, High Throughput, Idempotency. Must have at least 8 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "cba8475a40e3652be499114cc617dc7bd7678b04ba4df03f37ad4a86147e6c60"
+  },
+  {
+    "jobId": "job-p2-real-002",
+    "employer": "Cloudflare",
+    "roleTitle": "Senior Systems Engineer - Edge Compute",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.cloudflare.com/positions/job-p2-real-002",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Rust",
+      "C++",
+      "Linux Systems",
+      "Networking Protocols"
+    ],
+    "preferredQualifications": [
+      "WebAssembly",
+      "eBPF"
+    ],
+    "technicalRequirements": [
+      "Rust",
+      "C++",
+      "Linux Systems",
+      "Networking Protocols",
+      "WebAssembly",
+      "eBPF"
+    ],
+    "descriptionSnapshot": "Cloudflare is seeking a talented Senior Systems Engineer - Edge Compute to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Rust, C++, Linux Systems, Networking Protocols. Preferred familiarity with WebAssembly, eBPF. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "23a70d43ffdf3e6b763780c180b383df0c3fd96f075a233d012d961572d7d6a1"
+  },
+  {
+    "jobId": "job-p2-real-003",
+    "employer": "GitLab",
+    "roleTitle": "Staff Fullstack Engineer - CI/CD Engine",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.gitlab.com/positions/job-p2-real-003",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Ruby on Rails",
+      "Vue.js",
+      "PostgreSQL",
+      "Redis"
+    ],
+    "preferredQualifications": [
+      "Git Internals",
+      "DevOps Tooling"
+    ],
+    "technicalRequirements": [
+      "Ruby on Rails",
+      "Vue.js",
+      "PostgreSQL",
+      "Redis",
+      "Git Internals",
+      "DevOps Tooling"
+    ],
+    "descriptionSnapshot": "GitLab is seeking a talented Staff Fullstack Engineer - CI/CD Engine to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Ruby on Rails, Vue.js, PostgreSQL, Redis. Preferred familiarity with Git Internals, DevOps Tooling. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "66d6735bccfe619211f7b2335cf3152760faeafe297ab277e31f159d0d1f281c"
+  },
+  {
+    "jobId": "job-p2-real-004",
+    "employer": "Spotify",
+    "roleTitle": "Senior Backend Engineer - Streaming Core",
+    "category": "Software Engineering",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.spotify.com/positions/job-p2-real-004",
+    "source": "lever_feed",
+    "experienceYearsRequired": 5,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Java",
+      "GCP",
+      "Kafka",
+      "Microservices"
+    ],
+    "preferredQualifications": [
+      "Cassandra",
+      "Event-Driven Architecture"
+    ],
+    "technicalRequirements": [
+      "Java",
+      "GCP",
+      "Kafka",
+      "Microservices",
+      "Cassandra",
+      "Event-Driven Architecture"
+    ],
+    "descriptionSnapshot": "Spotify is seeking a talented Senior Backend Engineer - Streaming Core to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Java, GCP, Kafka, Microservices. Preferred familiarity with Cassandra, Event-Driven Architecture. Must have at least 5 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "b89ef0fa805112d6a6af0f30378ec4fbf985a8608f16b9a4652d349e621a4da2"
+  },
+  {
+    "jobId": "job-p2-real-005",
+    "employer": "DoorDash",
+    "roleTitle": "Principal Software Engineer - Dispatch Optimization",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.doordash.com/positions/job-p2-real-005",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 10,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Kotlin",
+      "Microservices",
+      "Distributed Systems",
+      "Kafka"
+    ],
+    "preferredQualifications": [
+      "Spatial Algorithms",
+      "Real-Time Routing"
+    ],
+    "technicalRequirements": [
+      "Kotlin",
+      "Microservices",
+      "Distributed Systems",
+      "Kafka",
+      "Spatial Algorithms",
+      "Real-Time Routing"
+    ],
+    "descriptionSnapshot": "DoorDash is seeking a talented Principal Software Engineer - Dispatch Optimization to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Kotlin, Microservices, Distributed Systems, Kafka. Preferred familiarity with Spatial Algorithms, Real-Time Routing. Must have at least 10 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "8dae8de58b0c9dc0219e4073b27c36d1a2ed0aa3c1d6e32aa78b0efc17293269"
+  },
+  {
+    "jobId": "job-p2-real-006",
+    "employer": "Uber",
+    "roleTitle": "Senior Distributed Storage Engineer",
+    "category": "Software Engineering",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.uber.com/positions/job-p2-real-006",
+    "source": "workday_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Go",
+      "C++",
+      "Distributed Storage",
+      "Raft/Paxos"
+    ],
+    "preferredQualifications": [
+      "RocksDB",
+      "NVMe Architecture"
+    ],
+    "technicalRequirements": [
+      "Go",
+      "C++",
+      "Distributed Storage",
+      "Raft/Paxos",
+      "RocksDB",
+      "NVMe Architecture"
+    ],
+    "descriptionSnapshot": "Uber is seeking a talented Senior Distributed Storage Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Go, C++, Distributed Storage, Raft/Paxos. Preferred familiarity with RocksDB, NVMe Architecture. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "91127da8bee44813c4d12f41b0a8a34782bc51b79a9aa8ebb53edb0520fc27c7"
+  },
+  {
+    "jobId": "job-p2-real-007",
+    "employer": "Airbnb",
+    "roleTitle": "Senior Fullstack Engineer - Guest Experience",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.airbnb.com/positions/job-p2-real-007",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 5,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "React",
+      "TypeScript",
+      "Java",
+      "GraphQL"
+    ],
+    "preferredQualifications": [
+      "Design Systems",
+      "Web Performance"
+    ],
+    "technicalRequirements": [
+      "React",
+      "TypeScript",
+      "Java",
+      "GraphQL",
+      "Design Systems",
+      "Web Performance"
+    ],
+    "descriptionSnapshot": "Airbnb is seeking a talented Senior Fullstack Engineer - Guest Experience to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with React, TypeScript, Java, GraphQL. Preferred familiarity with Design Systems, Web Performance. Must have at least 5 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "2d84d4fb763442b21cd28912ce5189a5b187e41c6e5aac7b6955b7a2a339cc0d"
+  },
+  {
+    "jobId": "job-p2-real-008",
+    "employer": "Coinbase",
+    "roleTitle": "Senior Platform Engineer - Asset Ingestion",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.coinbase.com/positions/job-p2-real-008",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Go",
+      "Docker",
+      "AWS",
+      "Blockchain Protocols"
+    ],
+    "preferredQualifications": [
+      "Cryptography",
+      "High-Frequency Ingestion"
+    ],
+    "technicalRequirements": [
+      "Go",
+      "Docker",
+      "AWS",
+      "Blockchain Protocols",
+      "Cryptography",
+      "High-Frequency Ingestion"
+    ],
+    "descriptionSnapshot": "Coinbase is seeking a talented Senior Platform Engineer - Asset Ingestion to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Go, Docker, AWS, Blockchain Protocols. Preferred familiarity with Cryptography, High-Frequency Ingestion. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "ffaa2c04981a3a4d6556623c2ed16d1c47cf85ecf7ea49fa74748ba355388882"
+  },
+  {
+    "jobId": "job-p2-real-009",
+    "employer": "Brex",
+    "roleTitle": "Staff Software Engineer - Financial Ledger",
+    "category": "Software Engineering",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.brex.com/positions/job-p2-real-009",
+    "source": "lever_feed",
+    "experienceYearsRequired": 8,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Elixir",
+      "Kotlin",
+      "PostgreSQL",
+      "Event Sourcing"
+    ],
+    "preferredQualifications": [
+      "Double-Entry Accounting",
+      "Kafka"
+    ],
+    "technicalRequirements": [
+      "Elixir",
+      "Kotlin",
+      "PostgreSQL",
+      "Event Sourcing",
+      "Double-Entry Accounting",
+      "Kafka"
+    ],
+    "descriptionSnapshot": "Brex is seeking a talented Staff Software Engineer - Financial Ledger to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Elixir, Kotlin, PostgreSQL, Event Sourcing. Preferred familiarity with Double-Entry Accounting, Kafka. Must have at least 8 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "8144e66c7918278ba95efe1218499347954f29fe99857203a2fa446a2e56cc06"
+  },
+  {
+    "jobId": "job-p2-real-010",
+    "employer": "GitHub",
+    "roleTitle": "Senior Engineer - Actions Platform",
+    "category": "Software Engineering",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.github.com/positions/job-p2-real-010",
+    "source": "direct_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Ruby",
+      "Go",
+      "Kubernetes",
+      "Azure"
+    ],
+    "preferredQualifications": [
+      "Runner Security",
+      "Virtualization"
+    ],
+    "technicalRequirements": [
+      "Ruby",
+      "Go",
+      "Kubernetes",
+      "Azure",
+      "Runner Security",
+      "Virtualization"
+    ],
+    "descriptionSnapshot": "GitHub is seeking a talented Senior Engineer - Actions Platform to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Ruby, Go, Kubernetes, Azure. Preferred familiarity with Runner Security, Virtualization. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "921ec0957f89006cb843596f599b47c47b3d02af2b60841bdb7beb91fe4f7bab"
+  },
+  {
+    "jobId": "job-p2-real-011",
+    "employer": "Datadog",
+    "roleTitle": "Staff Software Engineer - Tracing Pipelines",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.datadog.com/positions/job-p2-real-011",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 8,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Go",
+      "C++",
+      "Kafka",
+      "Distributed Systems"
+    ],
+    "preferredQualifications": [
+      "OpenTelemetry",
+      "High-Volume Streaming"
+    ],
+    "technicalRequirements": [
+      "Go",
+      "C++",
+      "Kafka",
+      "Distributed Systems",
+      "OpenTelemetry",
+      "High-Volume Streaming"
+    ],
+    "descriptionSnapshot": "Datadog is seeking a talented Staff Software Engineer - Tracing Pipelines to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Go, C++, Kafka, Distributed Systems. Preferred familiarity with OpenTelemetry, High-Volume Streaming. Must have at least 8 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "65c1b8161f975abecf604e2c1dbd0939a6b47172ce5ae12f14b7e8128a0acfaf"
+  },
+  {
+    "jobId": "job-p2-real-012",
+    "employer": "Figma",
+    "roleTitle": "Senior Infrastructure Software Engineer",
+    "category": "Software Engineering",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.figma.com/positions/job-p2-real-012",
+    "source": "lever_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Rust",
+      "TypeScript",
+      "WebAssembly",
+      "C++"
+    ],
+    "preferredQualifications": [
+      "Graphics Programming",
+      "CRDTs"
+    ],
+    "technicalRequirements": [
+      "Rust",
+      "TypeScript",
+      "WebAssembly",
+      "C++",
+      "Graphics Programming",
+      "CRDTs"
+    ],
+    "descriptionSnapshot": "Figma is seeking a talented Senior Infrastructure Software Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Rust, TypeScript, WebAssembly, C++. Preferred familiarity with Graphics Programming, CRDTs. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "a7b53daaf27d2636d91f42cc0bd45420f6348b581fe6c90e4ad215fc9bfdb87d"
+  },
+  {
+    "jobId": "job-p2-real-013",
+    "employer": "Vercel",
+    "roleTitle": "Senior Frontend Systems Engineer",
+    "category": "Software Engineering",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.vercel.com/positions/job-p2-real-013",
+    "source": "lever_feed",
+    "experienceYearsRequired": 5,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Node.js"
+    ],
+    "preferredQualifications": [
+      "Edge Runtime",
+      "Turbopack"
+    ],
+    "technicalRequirements": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Node.js",
+      "Edge Runtime",
+      "Turbopack"
+    ],
+    "descriptionSnapshot": "Vercel is seeking a talented Senior Frontend Systems Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Next.js, React, TypeScript, Node.js. Preferred familiarity with Edge Runtime, Turbopack. Must have at least 5 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "7d46d9143ea3066a04efa49a27c7455484a8a28ec8eb11a177fb4b15df085df2"
+  },
+  {
+    "jobId": "job-p2-real-014",
+    "employer": "Elastic",
+    "roleTitle": "Principal Search Core Engineer",
+    "category": "Software Engineering",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.elastic.com/positions/job-p2-real-014",
+    "source": "workday_feed",
+    "experienceYearsRequired": 9,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Java",
+      "Lucene",
+      "Distributed Search",
+      "Concurrency"
+    ],
+    "preferredQualifications": [
+      "Vector Search",
+      "Information Retrieval"
+    ],
+    "technicalRequirements": [
+      "Java",
+      "Lucene",
+      "Distributed Search",
+      "Concurrency",
+      "Vector Search",
+      "Information Retrieval"
+    ],
+    "descriptionSnapshot": "Elastic is seeking a talented Principal Search Core Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Java, Lucene, Distributed Search, Concurrency. Preferred familiarity with Vector Search, Information Retrieval. Must have at least 9 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "0f3f6a6f9c599b40ef559e3857de38235284acaf3a73e54367caa4350b893da2"
+  },
+  {
+    "jobId": "job-p2-real-015",
+    "employer": "MongoDB",
+    "roleTitle": "Senior Replication Engineer",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.mongodb.com/positions/job-p2-real-015",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "C++",
+      "Distributed Consensus",
+      "Concurrency",
+      "Python"
+    ],
+    "preferredQualifications": [
+      "Database Storage Engines"
+    ],
+    "technicalRequirements": [
+      "C++",
+      "Distributed Consensus",
+      "Concurrency",
+      "Python",
+      "Database Storage Engines"
+    ],
+    "descriptionSnapshot": "MongoDB is seeking a talented Senior Replication Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with C++, Distributed Consensus, Concurrency, Python. Preferred familiarity with Database Storage Engines. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "49de2270252818a327efec7cb82ad2167eefcbebea6bf87349e46d5be2547aac"
+  },
+  {
+    "jobId": "job-p2-real-016",
+    "employer": "Shopify",
+    "roleTitle": "Staff Developer - Core Merchant Platform",
+    "category": "Software Engineering",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.shopify.com/positions/job-p2-real-016",
+    "source": "direct_feed",
+    "experienceYearsRequired": 8,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Ruby",
+      "GraphQL",
+      "MySQL",
+      "Kafka"
+    ],
+    "preferredQualifications": [
+      "Large-scale E-Commerce",
+      "System Scaling"
+    ],
+    "technicalRequirements": [
+      "Ruby",
+      "GraphQL",
+      "MySQL",
+      "Kafka",
+      "Large-scale E-Commerce",
+      "System Scaling"
+    ],
+    "descriptionSnapshot": "Shopify is seeking a talented Staff Developer - Core Merchant Platform to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Ruby, GraphQL, MySQL, Kafka. Preferred familiarity with Large-scale E-Commerce, System Scaling. Must have at least 8 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "b1d902490aec615e0a5650e06a125b7f423bdd283505ba92a47bd150c57f209d"
+  },
+  {
+    "jobId": "job-p2-real-017",
+    "employer": "Pinterest",
+    "roleTitle": "Senior Backend Engineer - Graph Storage",
+    "category": "Software Engineering",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.pinterest.com/positions/job-p2-real-017",
+    "source": "workday_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Java",
+      "Python",
+      "RocksDB",
+      "Distributed Systems"
+    ],
+    "preferredQualifications": [
+      "Graph Databases",
+      "HBase"
+    ],
+    "technicalRequirements": [
+      "Java",
+      "Python",
+      "RocksDB",
+      "Distributed Systems",
+      "Graph Databases",
+      "HBase"
+    ],
+    "descriptionSnapshot": "Pinterest is seeking a talented Senior Backend Engineer - Graph Storage to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Java, Python, RocksDB, Distributed Systems. Preferred familiarity with Graph Databases, HBase. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "22fb847ffb0ded7732aa4fc2acf6cfad84fff382990e20fb26c5c35dad7be059"
+  },
+  {
+    "jobId": "job-p2-real-018",
+    "employer": "Twilio",
+    "roleTitle": "Senior Voice Platform Engineer",
+    "category": "Software Engineering",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.twilio.com/positions/job-p2-real-018",
+    "source": "workday_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Java",
+      "SIP Protocols",
+      "AWS",
+      "WebRTC"
+    ],
+    "preferredQualifications": [
+      "Telephony Systems",
+      "Low Latency Audio"
+    ],
+    "technicalRequirements": [
+      "Java",
+      "SIP Protocols",
+      "AWS",
+      "WebRTC",
+      "Telephony Systems",
+      "Low Latency Audio"
+    ],
+    "descriptionSnapshot": "Twilio is seeking a talented Senior Voice Platform Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Java, SIP Protocols, AWS, WebRTC. Preferred familiarity with Telephony Systems, Low Latency Audio. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "6842bfd0608c26be588e85b77fc481541923b4adda539832beb65540a105e921"
+  },
+  {
+    "jobId": "job-p2-real-019",
+    "employer": "Segment",
+    "roleTitle": "Staff Systems Engineer - Pipeline Delivery",
+    "category": "Software Engineering",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.segment.com/positions/job-p2-real-019",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Go",
+      "AWS",
+      "Kafka",
+      "Redis"
+    ],
+    "preferredQualifications": [
+      "Customer Data Platforms",
+      "Stream Processing"
+    ],
+    "technicalRequirements": [
+      "Go",
+      "AWS",
+      "Kafka",
+      "Redis",
+      "Customer Data Platforms",
+      "Stream Processing"
+    ],
+    "descriptionSnapshot": "Segment is seeking a talented Staff Systems Engineer - Pipeline Delivery to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Go, AWS, Kafka, Redis. Preferred familiarity with Customer Data Platforms, Stream Processing. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "ab0dcf2056ad474409b103177b2ac792eec3938bc7d0d3c57ad2d9da6f89cfe7"
+  },
+  {
+    "jobId": "job-p2-real-020",
+    "employer": "Canva",
+    "roleTitle": "Senior Backend Engineer - Export Engine",
+    "category": "Software Engineering",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.canva.com/positions/job-p2-real-020",
+    "source": "direct_feed",
+    "experienceYearsRequired": 5,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Java",
+      "AWS",
+      "Image Processing",
+      "Microservices"
+    ],
+    "preferredQualifications": [
+      "GPU Acceleration",
+      "Render Pipelines"
+    ],
+    "technicalRequirements": [
+      "Java",
+      "AWS",
+      "Image Processing",
+      "Microservices",
+      "GPU Acceleration",
+      "Render Pipelines"
+    ],
+    "descriptionSnapshot": "Canva is seeking a talented Senior Backend Engineer - Export Engine to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Java, AWS, Image Processing, Microservices. Preferred familiarity with GPU Acceleration, Render Pipelines. Must have at least 5 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "af1bd0ab317fc1b02797df762edd99a2026b12b29a48e49b396d618dea3750e8"
+  },
+  {
+    "jobId": "job-p2-real-021",
+    "employer": "HashiCorp",
+    "roleTitle": "Staff SRE - Terraform Cloud Platform",
+    "category": "Infrastructure",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.hashicorp.com/positions/job-p2-real-021",
+    "source": "lever_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Terraform",
+      "Kubernetes",
+      "Go",
+      "AWS",
+      "Linux"
+    ],
+    "preferredQualifications": [
+      "Consul",
+      "Vault",
+      "Zero Trust"
+    ],
+    "technicalRequirements": [
+      "Terraform",
+      "Kubernetes",
+      "Go",
+      "AWS",
+      "Linux",
+      "Consul",
+      "Vault",
+      "Zero Trust"
+    ],
+    "descriptionSnapshot": "HashiCorp is seeking a talented Staff SRE - Terraform Cloud Platform to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Terraform, Kubernetes, Go, AWS, Linux. Preferred familiarity with Consul, Vault, Zero Trust. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "2a9679a3d4635987e034f385043351113543e79fc0a4dbc6e16906e812d19359"
+  },
+  {
+    "jobId": "job-p2-real-022",
+    "employer": "Fastly",
+    "roleTitle": "Senior Edge Infrastructure Engineer",
+    "category": "Infrastructure",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.fastly.com/positions/job-p2-real-022",
+    "source": "lever_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Linux Kernel",
+      "BGP",
+      "Rust",
+      "Networking"
+    ],
+    "preferredQualifications": [
+      "Anycast Routing",
+      "CDN Architecture"
+    ],
+    "technicalRequirements": [
+      "Linux Kernel",
+      "BGP",
+      "Rust",
+      "Networking",
+      "Anycast Routing",
+      "CDN Architecture"
+    ],
+    "descriptionSnapshot": "Fastly is seeking a talented Senior Edge Infrastructure Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Linux Kernel, BGP, Rust, Networking. Preferred familiarity with Anycast Routing, CDN Architecture. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "133089dee5c7e98a785f9a713c454070b79b97083095ae3ecc8d6fb4ca0b5c36"
+  },
+  {
+    "jobId": "job-p2-real-023",
+    "employer": "Cockroach Labs",
+    "roleTitle": "Senior Cloud Reliability Engineer",
+    "category": "Infrastructure",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.cockroachlabs.com/positions/job-p2-real-023",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 5,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Kubernetes",
+      "Go",
+      "GCP",
+      "Distributed Databases"
+    ],
+    "preferredQualifications": [
+      "Multi-Region Routing",
+      "Chaos Engineering"
+    ],
+    "technicalRequirements": [
+      "Kubernetes",
+      "Go",
+      "GCP",
+      "Distributed Databases",
+      "Multi-Region Routing",
+      "Chaos Engineering"
+    ],
+    "descriptionSnapshot": "Cockroach Labs is seeking a talented Senior Cloud Reliability Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Kubernetes, Go, GCP, Distributed Databases. Preferred familiarity with Multi-Region Routing, Chaos Engineering. Must have at least 5 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "b9a50d02d875ce7c29503d0d4f0917577ea0514a0f60b5210633f5dcee9b0099"
+  },
+  {
+    "jobId": "job-p2-real-024",
+    "employer": "Grafana Labs",
+    "roleTitle": "Staff Platform Engineer - Cortex/Loki",
+    "category": "Infrastructure",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.grafanalabs.com/positions/job-p2-real-024",
+    "source": "lever_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Go",
+      "Kubernetes",
+      "Prometheus",
+      "Object Storage"
+    ],
+    "preferredQualifications": [
+      "Observability at Scale",
+      "Thanos"
+    ],
+    "technicalRequirements": [
+      "Go",
+      "Kubernetes",
+      "Prometheus",
+      "Object Storage",
+      "Observability at Scale",
+      "Thanos"
+    ],
+    "descriptionSnapshot": "Grafana Labs is seeking a talented Staff Platform Engineer - Cortex/Loki to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Go, Kubernetes, Prometheus, Object Storage. Preferred familiarity with Observability at Scale, Thanos. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "d91692ed42d3fb32d888ce10a01cc36180511186f2678e58a23dc68071b52eb6"
+  },
+  {
+    "jobId": "job-p2-real-025",
+    "employer": "Supabase",
+    "roleTitle": "Senior Database Reliability Engineer",
+    "category": "Infrastructure",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.supabase.com/positions/job-p2-real-025",
+    "source": "lever_feed",
+    "experienceYearsRequired": 5,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "PostgreSQL",
+      "Docker",
+      "Linux",
+      "Go"
+    ],
+    "preferredQualifications": [
+      "pgBouncer",
+      "WAL Archiving",
+      "Cloud Networking"
+    ],
+    "technicalRequirements": [
+      "PostgreSQL",
+      "Docker",
+      "Linux",
+      "Go",
+      "pgBouncer",
+      "WAL Archiving",
+      "Cloud Networking"
+    ],
+    "descriptionSnapshot": "Supabase is seeking a talented Senior Database Reliability Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with PostgreSQL, Docker, Linux, Go. Preferred familiarity with pgBouncer, WAL Archiving, Cloud Networking. Must have at least 5 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "34135ccb842ba9a3479539030bbfa7be18b37d5ef913336ce8b9749e5ca0597c"
+  },
+  {
+    "jobId": "job-p2-real-026",
+    "employer": "Palantir",
+    "roleTitle": "Senior Infrastructure Deployment Engineer",
+    "category": "Infrastructure",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.palantir.com/positions/job-p2-real-026",
+    "source": "workday_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Kubernetes",
+      "Java",
+      "Terraform",
+      "Multi-Cloud"
+    ],
+    "preferredQualifications": [
+      "GovCloud",
+      "Air-Gapped Environments"
+    ],
+    "technicalRequirements": [
+      "Kubernetes",
+      "Java",
+      "Terraform",
+      "Multi-Cloud",
+      "GovCloud",
+      "Air-Gapped Environments"
+    ],
+    "descriptionSnapshot": "Palantir is seeking a talented Senior Infrastructure Deployment Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Kubernetes, Java, Terraform, Multi-Cloud. Preferred familiarity with GovCloud, Air-Gapped Environments. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "52766be981170e2eced37660cdefaaa60a98d7e6b09f6bac8f8dd265ef18eb84"
+  },
+  {
+    "jobId": "job-p2-real-027",
+    "employer": "PagerDuty",
+    "roleTitle": "Senior SRE - Real-Time Alerting Engine",
+    "category": "Infrastructure",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.pagerduty.com/positions/job-p2-real-027",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "AWS",
+      "Datadog",
+      "Terraform",
+      "Python/Ruby"
+    ],
+    "preferredQualifications": [
+      "Incident Response",
+      "High Availability 99.999%"
+    ],
+    "technicalRequirements": [
+      "AWS",
+      "Datadog",
+      "Terraform",
+      "Python/Ruby",
+      "Incident Response",
+      "High Availability 99.999%"
+    ],
+    "descriptionSnapshot": "PagerDuty is seeking a talented Senior SRE - Real-Time Alerting Engine to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with AWS, Datadog, Terraform, Python/Ruby. Preferred familiarity with Incident Response, High Availability 99.999%. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "de6973de4dcfba3728299e8fa656769abd413b1cf1a4bd097eebbe7a2e367869"
+  },
+  {
+    "jobId": "job-p2-real-028",
+    "employer": "CrowdStrike",
+    "roleTitle": "Staff Cloud Security Architect",
+    "category": "Infrastructure",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.crowdstrike.com/positions/job-p2-real-028",
+    "source": "workday_feed",
+    "experienceYearsRequired": 8,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "AWS/Azure",
+      "Kubernetes",
+      "IAM Security",
+      "Go/Python"
+    ],
+    "preferredQualifications": [
+      "Zero Trust Architecture",
+      "Threat Detection"
+    ],
+    "technicalRequirements": [
+      "AWS/Azure",
+      "Kubernetes",
+      "IAM Security",
+      "Go/Python",
+      "Zero Trust Architecture",
+      "Threat Detection"
+    ],
+    "descriptionSnapshot": "CrowdStrike is seeking a talented Staff Cloud Security Architect to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with AWS/Azure, Kubernetes, IAM Security, Go/Python. Preferred familiarity with Zero Trust Architecture, Threat Detection. Must have at least 8 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "22ac20b781dd47226144413e6ab6ff257dd0d31645879765d4c0b6642c46a742"
+  },
+  {
+    "jobId": "job-p2-real-029",
+    "employer": "DigitalOcean",
+    "roleTitle": "Senior SRE - Hypervisor Networking",
+    "category": "Infrastructure",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.digitalocean.com/positions/job-p2-real-029",
+    "source": "direct_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "KVM",
+      "QEMU",
+      "Linux Networking",
+      "Go"
+    ],
+    "preferredQualifications": [
+      "Open vSwitch",
+      "Software Defined Networking"
+    ],
+    "technicalRequirements": [
+      "KVM",
+      "QEMU",
+      "Linux Networking",
+      "Go",
+      "Open vSwitch",
+      "Software Defined Networking"
+    ],
+    "descriptionSnapshot": "DigitalOcean is seeking a talented Senior SRE - Hypervisor Networking to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with KVM, QEMU, Linux Networking, Go. Preferred familiarity with Open vSwitch, Software Defined Networking. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "19e20476b3f56a24d02cb7f985525854266fd98a105dd5c001ba24e7b1f3618f"
+  },
+  {
+    "jobId": "job-p2-real-030",
+    "employer": "Red Hat",
+    "roleTitle": "Principal OpenShift Platform Engineer",
+    "category": "Infrastructure",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.redhat.com/positions/job-p2-real-030",
+    "source": "direct_feed",
+    "experienceYearsRequired": 9,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Kubernetes",
+      "Red Hat Linux",
+      "Ansible",
+      "Go"
+    ],
+    "preferredQualifications": [
+      "Kubernetes Operators",
+      "OCI Standards"
+    ],
+    "technicalRequirements": [
+      "Kubernetes",
+      "Red Hat Linux",
+      "Ansible",
+      "Go",
+      "Kubernetes Operators",
+      "OCI Standards"
+    ],
+    "descriptionSnapshot": "Red Hat is seeking a talented Principal OpenShift Platform Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Kubernetes, Red Hat Linux, Ansible, Go. Preferred familiarity with Kubernetes Operators, OCI Standards. Must have at least 9 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "44832341dea9e4558b3c7998bab1fe6c9fe5daacbe42f6a3987f70119d40f0d2"
+  },
+  {
+    "jobId": "job-p2-real-031",
+    "employer": "Atlassian",
+    "roleTitle": "Principal Technical Program Manager - Enterprise Cloud",
+    "category": "Product Leadership",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.atlassian.com/positions/job-p2-real-031",
+    "source": "workday_feed",
+    "experienceYearsRequired": 9,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Enterprise Agile",
+      "Cloud Migration",
+      "Cross-Team TPM",
+      "Jira API"
+    ],
+    "preferredQualifications": [
+      "Multi-Tenant Scaling",
+      "FinOps"
+    ],
+    "technicalRequirements": [
+      "Enterprise Agile",
+      "Cloud Migration",
+      "Cross-Team TPM",
+      "Jira API",
+      "Multi-Tenant Scaling",
+      "FinOps"
+    ],
+    "descriptionSnapshot": "Atlassian is seeking a talented Principal Technical Program Manager - Enterprise Cloud to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Enterprise Agile, Cloud Migration, Cross-Team TPM, Jira API. Preferred familiarity with Multi-Tenant Scaling, FinOps. Must have at least 9 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "fc07334c61ff78ac6b076b5b7894b312572d3f6fedbb101e84946b2d80b75290"
+  },
+  {
+    "jobId": "job-p2-real-032",
+    "employer": "Notion",
+    "roleTitle": "Staff Engineering Manager - Core Product",
+    "category": "Product Leadership",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.notion.com/positions/job-p2-real-032",
+    "source": "lever_feed",
+    "experienceYearsRequired": 8,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Engineering Leadership",
+      "TypeScript",
+      "People Management",
+      "Roadmap Delivery"
+    ],
+    "preferredQualifications": [
+      "Collaborative Editing",
+      "Product Strategy"
+    ],
+    "technicalRequirements": [
+      "Engineering Leadership",
+      "TypeScript",
+      "People Management",
+      "Roadmap Delivery",
+      "Collaborative Editing",
+      "Product Strategy"
+    ],
+    "descriptionSnapshot": "Notion is seeking a talented Staff Engineering Manager - Core Product to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Engineering Leadership, TypeScript, People Management, Roadmap Delivery. Preferred familiarity with Collaborative Editing, Product Strategy. Must have at least 8 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "70537292167ac0e9ee6d7041e0deec547e1152b096dac5a91bbc2da7d92adfb6"
+  },
+  {
+    "jobId": "job-p2-real-033",
+    "employer": "Asana",
+    "roleTitle": "Principal Technical Project Manager - Infrastructure",
+    "category": "Product Leadership",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.asana.com/positions/job-p2-real-033",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 8,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Infrastructure Roadmap",
+      "Cloud Governance",
+      "Technical Delivery",
+      "Risk Management"
+    ],
+    "preferredQualifications": [
+      "AWS Migration",
+      "Security Compliance"
+    ],
+    "technicalRequirements": [
+      "Infrastructure Roadmap",
+      "Cloud Governance",
+      "Technical Delivery",
+      "Risk Management",
+      "AWS Migration",
+      "Security Compliance"
+    ],
+    "descriptionSnapshot": "Asana is seeking a talented Principal Technical Project Manager - Infrastructure to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Infrastructure Roadmap, Cloud Governance, Technical Delivery, Risk Management. Preferred familiarity with AWS Migration, Security Compliance. Must have at least 8 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "272ce3dd053c92070e0faa0e4e1efd3116ac691ec49485443c66294dc91b5174"
+  },
+  {
+    "jobId": "job-p2-real-034",
+    "employer": "Miro",
+    "roleTitle": "Engineering Director - Platform Core",
+    "category": "Product Leadership",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.miro.com/positions/job-p2-real-034",
+    "source": "lever_feed",
+    "experienceYearsRequired": 10,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Executive Leadership",
+      "Architecture Governance",
+      "Org Design",
+      "Global Scaling"
+    ],
+    "preferredQualifications": [
+      "Visual Collaboration",
+      "Distributed Teams"
+    ],
+    "technicalRequirements": [
+      "Executive Leadership",
+      "Architecture Governance",
+      "Org Design",
+      "Global Scaling",
+      "Visual Collaboration",
+      "Distributed Teams"
+    ],
+    "descriptionSnapshot": "Miro is seeking a talented Engineering Director - Platform Core to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Executive Leadership, Architecture Governance, Org Design, Global Scaling. Preferred familiarity with Visual Collaboration, Distributed Teams. Must have at least 10 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "f357fd7f27c31416269491403c4bb29a8c3af726c3dafd8e1d3a4733d1b520ba"
+  },
+  {
+    "jobId": "job-p2-real-035",
+    "employer": "Airtable",
+    "roleTitle": "Staff Technical Product Manager - Integrations API",
+    "category": "Product Leadership",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.airtable.com/positions/job-p2-real-035",
+    "source": "lever_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "API Strategy",
+      "Developer Ecosystems",
+      "SQL",
+      "Technical Specs"
+    ],
+    "preferredQualifications": [
+      "Webhooks Engine",
+      "Partner Platforms"
+    ],
+    "technicalRequirements": [
+      "API Strategy",
+      "Developer Ecosystems",
+      "SQL",
+      "Technical Specs",
+      "Webhooks Engine",
+      "Partner Platforms"
+    ],
+    "descriptionSnapshot": "Airtable is seeking a talented Staff Technical Product Manager - Integrations API to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with API Strategy, Developer Ecosystems, SQL, Technical Specs. Preferred familiarity with Webhooks Engine, Partner Platforms. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "8b0685b272afc1edcd9a068e6fd93254ccf8ac2eeb3f1ae8a08b6666c7115784"
+  },
+  {
+    "jobId": "job-p2-real-036",
+    "employer": "Slack",
+    "roleTitle": "Principal Technical Program Manager - Platform Ecosystem",
+    "category": "Product Leadership",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.slack.com/positions/job-p2-real-036",
+    "source": "direct_feed",
+    "experienceYearsRequired": 9,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Enterprise Security",
+      "App Directory",
+      "API Governance",
+      "TPM Leadership"
+    ],
+    "preferredQualifications": [
+      "Enterprise Grid",
+      "OAuth Standards"
+    ],
+    "technicalRequirements": [
+      "Enterprise Security",
+      "App Directory",
+      "API Governance",
+      "TPM Leadership",
+      "Enterprise Grid",
+      "OAuth Standards"
+    ],
+    "descriptionSnapshot": "Slack is seeking a talented Principal Technical Program Manager - Platform Ecosystem to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Enterprise Security, App Directory, API Governance, TPM Leadership. Preferred familiarity with Enterprise Grid, OAuth Standards. Must have at least 9 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "d8f99bd90af4ef8d6ca4c1e83fdbfa60ad38226413d38e109c411d01232eb84f"
+  },
+  {
+    "jobId": "job-p2-real-037",
+    "employer": "Linear",
+    "roleTitle": "Technical Product Lead - Workflow Automation",
+    "category": "Product Leadership",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.linear.com/positions/job-p2-real-037",
+    "source": "direct_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Product Engineering",
+      "GraphQL",
+      "Product Spec Writing",
+      "Developer Tools"
+    ],
+    "preferredQualifications": [
+      "Keyboard-First UX",
+      "Sync Engines"
+    ],
+    "technicalRequirements": [
+      "Product Engineering",
+      "GraphQL",
+      "Product Spec Writing",
+      "Developer Tools",
+      "Keyboard-First UX",
+      "Sync Engines"
+    ],
+    "descriptionSnapshot": "Linear is seeking a talented Technical Product Lead - Workflow Automation to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Product Engineering, GraphQL, Product Spec Writing, Developer Tools. Preferred familiarity with Keyboard-First UX, Sync Engines. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "40210400b49a044ff2f21438619007a4753eab1e38f5749da87e21771249b113"
+  },
+  {
+    "jobId": "job-p2-real-038",
+    "employer": "Zapier",
+    "roleTitle": "Staff Technical Project Manager - Partner Connect",
+    "category": "Product Leadership",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.zapier.com/positions/job-p2-real-038",
+    "source": "lever_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "REST APIs",
+      "Async Architecture",
+      "SLA Management",
+      "Cross-Org Leadership"
+    ],
+    "preferredQualifications": [
+      "Serverless Integration",
+      "Remote Org Culture"
+    ],
+    "technicalRequirements": [
+      "REST APIs",
+      "Async Architecture",
+      "SLA Management",
+      "Cross-Org Leadership",
+      "Serverless Integration",
+      "Remote Org Culture"
+    ],
+    "descriptionSnapshot": "Zapier is seeking a talented Staff Technical Project Manager - Partner Connect to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with REST APIs, Async Architecture, SLA Management, Cross-Org Leadership. Preferred familiarity with Serverless Integration, Remote Org Culture. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "af5a4a800b9ff60c9ffee1432642a38cf2756b2054901c29a1aa66a9445a88b2"
+  },
+  {
+    "jobId": "job-p2-real-039",
+    "employer": "Monday.com",
+    "roleTitle": "Senior Technical Program Manager - Big Brain Analytics",
+    "category": "Product Leadership",
+    "atsPlatform": "Workday",
+    "jobUrl": "https://jobs.mondaycom.com/positions/job-p2-real-039",
+    "source": "workday_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Data Infrastructure",
+      "Project Management",
+      "Cloud Security",
+      "BI Tooling"
+    ],
+    "preferredQualifications": [
+      "Snowflake Integration",
+      "Enterprise Scaling"
+    ],
+    "technicalRequirements": [
+      "Data Infrastructure",
+      "Project Management",
+      "Cloud Security",
+      "BI Tooling",
+      "Snowflake Integration",
+      "Enterprise Scaling"
+    ],
+    "descriptionSnapshot": "Monday.com is seeking a talented Senior Technical Program Manager - Big Brain Analytics to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Data Infrastructure, Project Management, Cloud Security, BI Tooling. Preferred familiarity with Snowflake Integration, Enterprise Scaling. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "925aec4003a120e2b8c1f27937026449b5b2433bef865f85eed0643596aa1c5f"
+  },
+  {
+    "jobId": "job-p2-real-040",
+    "employer": "ClickUp",
+    "roleTitle": "Director of Engineering - Core Productivity",
+    "category": "Product Leadership",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.clickup.com/positions/job-p2-real-040",
+    "source": "direct_feed",
+    "experienceYearsRequired": 10,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Large Engineering Teams",
+      "Architecture Overhaul",
+      "System Reliability",
+      "Executive Ops"
+    ],
+    "preferredQualifications": [
+      "Rapid Scaling",
+      "Performance Optimization"
+    ],
+    "technicalRequirements": [
+      "Large Engineering Teams",
+      "Architecture Overhaul",
+      "System Reliability",
+      "Executive Ops",
+      "Rapid Scaling",
+      "Performance Optimization"
+    ],
+    "descriptionSnapshot": "ClickUp is seeking a talented Director of Engineering - Core Productivity to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Large Engineering Teams, Architecture Overhaul, System Reliability, Executive Ops. Preferred familiarity with Rapid Scaling, Performance Optimization. Must have at least 10 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "5d5e87bf232c40439125ae3dcd587647366b79e1657eedd6f967a85d0c1222c2"
+  },
+  {
+    "jobId": "job-p2-real-041",
+    "employer": "Snowflake",
+    "roleTitle": "Senior Core Engine Data Engineer",
+    "category": "Data & AI",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.snowflake.com/positions/job-p2-real-041",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "C++",
+      "SQL Optimizers",
+      "Distributed Query Execution",
+      "FoundationDB"
+    ],
+    "preferredQualifications": [
+      "Vectorized Processing",
+      "Columnar Storage"
+    ],
+    "technicalRequirements": [
+      "C++",
+      "SQL Optimizers",
+      "Distributed Query Execution",
+      "FoundationDB",
+      "Vectorized Processing",
+      "Columnar Storage"
+    ],
+    "descriptionSnapshot": "Snowflake is seeking a talented Senior Core Engine Data Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with C++, SQL Optimizers, Distributed Query Execution, FoundationDB. Preferred familiarity with Vectorized Processing, Columnar Storage. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "7112b4447c327d2e81fdb5c699985cbcb85e2910aa91b3d24dac9203de38177d"
+  },
+  {
+    "jobId": "job-p2-real-042",
+    "employer": "Anthropic",
+    "roleTitle": "Staff Systems Engineer - Model Training Infrastructure",
+    "category": "Data & AI",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.anthropic.com/positions/job-p2-real-042",
+    "source": "lever_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "PyTorch",
+      "Distributed Training",
+      "Slurm/Ray",
+      "CUDA/C++"
+    ],
+    "preferredQualifications": [
+      "Large Language Models",
+      "High-Bandwidth Interconnects"
+    ],
+    "technicalRequirements": [
+      "PyTorch",
+      "Distributed Training",
+      "Slurm/Ray",
+      "CUDA/C++",
+      "Large Language Models",
+      "High-Bandwidth Interconnects"
+    ],
+    "descriptionSnapshot": "Anthropic is seeking a talented Staff Systems Engineer - Model Training Infrastructure to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with PyTorch, Distributed Training, Slurm/Ray, CUDA/C++. Preferred familiarity with Large Language Models, High-Bandwidth Interconnects. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "1307a3674f6f177c93e3baa79c0f327f2304f16c20f262b51b1ac24e5b970b9c"
+  },
+  {
+    "jobId": "job-p2-real-043",
+    "employer": "Scale AI",
+    "roleTitle": "Senior Platform Engineer - LLM Ingestion Pipeline",
+    "category": "Data & AI",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.scaleai.com/positions/job-p2-real-043",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 5,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Python",
+      "PostgreSQL",
+      "FastAPI",
+      "Redis",
+      "Docker"
+    ],
+    "preferredQualifications": [
+      "RLHF Tooling",
+      "Synthetic Data Pipelines"
+    ],
+    "technicalRequirements": [
+      "Python",
+      "PostgreSQL",
+      "FastAPI",
+      "Redis",
+      "Docker",
+      "RLHF Tooling",
+      "Synthetic Data Pipelines"
+    ],
+    "descriptionSnapshot": "Scale AI is seeking a talented Senior Platform Engineer - LLM Ingestion Pipeline to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Python, PostgreSQL, FastAPI, Redis, Docker. Preferred familiarity with RLHF Tooling, Synthetic Data Pipelines. Must have at least 5 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "dd75b07a922a5f2dc401972458dfa7740bb173fc2e95e53bc69a62fcdb51925a"
+  },
+  {
+    "jobId": "job-p2-real-044",
+    "employer": "OpenAI",
+    "roleTitle": "Senior Data Infrastructure Engineer - Web Data Pipeline",
+    "category": "Data & AI",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.openai.com/positions/job-p2-real-044",
+    "source": "lever_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Python",
+      "Spark/Databricks",
+      "Delta Lake",
+      "Kafka"
+    ],
+    "preferredQualifications": [
+      "Peta-scale Crawling",
+      "Deduplication Algorithms"
+    ],
+    "technicalRequirements": [
+      "Python",
+      "Spark/Databricks",
+      "Delta Lake",
+      "Kafka",
+      "Peta-scale Crawling",
+      "Deduplication Algorithms"
+    ],
+    "descriptionSnapshot": "OpenAI is seeking a talented Senior Data Infrastructure Engineer - Web Data Pipeline to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Python, Spark/Databricks, Delta Lake, Kafka. Preferred familiarity with Peta-scale Crawling, Deduplication Algorithms. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "619a4c6e2172c8d08d4c1065ee3e37de72dfa76517a783f20ec8539c6ab4ec44"
+  },
+  {
+    "jobId": "job-p2-real-045",
+    "employer": "Weights & Biases",
+    "roleTitle": "Staff ML Platform Engineer",
+    "category": "Data & AI",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.weightsbiases.com/positions/job-p2-real-045",
+    "source": "lever_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Python",
+      "Go",
+      "Kubernetes",
+      "MLflow/WandB",
+      "Docker"
+    ],
+    "preferredQualifications": [
+      "Experiment Tracking",
+      "LLM Monitoring"
+    ],
+    "technicalRequirements": [
+      "Python",
+      "Go",
+      "Kubernetes",
+      "MLflow/WandB",
+      "Docker",
+      "Experiment Tracking",
+      "LLM Monitoring"
+    ],
+    "descriptionSnapshot": "Weights & Biases is seeking a talented Staff ML Platform Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Python, Go, Kubernetes, MLflow/WandB, Docker. Preferred familiarity with Experiment Tracking, LLM Monitoring. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "b2f288a96bc0e56871cd15bbe57562acf4453a1e60926ffc379636855cc70956"
+  },
+  {
+    "jobId": "job-p2-real-046",
+    "employer": "Cohere",
+    "roleTitle": "Senior Distributed Systems Engineer - Inference Platform",
+    "category": "Data & AI",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.cohere.com/positions/job-p2-real-046",
+    "source": "direct_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Rust",
+      "Python",
+      "Triton Inference Server",
+      "vLLM"
+    ],
+    "preferredQualifications": [
+      "Model Quantization",
+      "Low-Latency Serving"
+    ],
+    "technicalRequirements": [
+      "Rust",
+      "Python",
+      "Triton Inference Server",
+      "vLLM",
+      "Model Quantization",
+      "Low-Latency Serving"
+    ],
+    "descriptionSnapshot": "Cohere is seeking a talented Senior Distributed Systems Engineer - Inference Platform to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Rust, Python, Triton Inference Server, vLLM. Preferred familiarity with Model Quantization, Low-Latency Serving. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "ad8bd3a6f9272a86ae0436e0dd7fe5e810bc7dc06d3d30dd1cc24fca63ffbe98"
+  },
+  {
+    "jobId": "job-p2-real-047",
+    "employer": "dbt Labs",
+    "roleTitle": "Staff Data Platform Engineer - Semantic Layer",
+    "category": "Data & AI",
+    "atsPlatform": "Lever",
+    "jobUrl": "https://jobs.dbtlabs.com/positions/job-p2-real-047",
+    "source": "lever_feed",
+    "experienceYearsRequired": 7,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Python",
+      "SQL",
+      "Rust",
+      "Data Modeling",
+      "DuckDB"
+    ],
+    "preferredQualifications": [
+      "Semantic Layer",
+      "OLAP Engines"
+    ],
+    "technicalRequirements": [
+      "Python",
+      "SQL",
+      "Rust",
+      "Data Modeling",
+      "DuckDB",
+      "Semantic Layer",
+      "OLAP Engines"
+    ],
+    "descriptionSnapshot": "dbt Labs is seeking a talented Staff Data Platform Engineer - Semantic Layer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Python, SQL, Rust, Data Modeling, DuckDB. Preferred familiarity with Semantic Layer, OLAP Engines. Must have at least 7 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "ee916661e8b58926cb9a2aa7bc7a3d2e8d29e04f31237dcc898bcb1075e38319"
+  },
+  {
+    "jobId": "job-p2-real-048",
+    "employer": "Databricks",
+    "roleTitle": "Senior Spark Engine Developer",
+    "category": "Data & AI",
+    "atsPlatform": "Greenhouse",
+    "jobUrl": "https://jobs.databricks.com/positions/job-p2-real-048",
+    "source": "greenhouse_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Scala",
+      "Java",
+      "Spark Core",
+      "Distributed Systems"
+    ],
+    "preferredQualifications": [
+      "Catalyst Optimizer",
+      "Photon Engine"
+    ],
+    "technicalRequirements": [
+      "Scala",
+      "Java",
+      "Spark Core",
+      "Distributed Systems",
+      "Catalyst Optimizer",
+      "Photon Engine"
+    ],
+    "descriptionSnapshot": "Databricks is seeking a talented Senior Spark Engine Developer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Scala, Java, Spark Core, Distributed Systems. Preferred familiarity with Catalyst Optimizer, Photon Engine. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "d02a5dfb28965f03d4d0998ea15c81994c411e0379588796f8f0e2be3ced3ec0"
+  },
+  {
+    "jobId": "job-p2-real-049",
+    "employer": "Hugging Face",
+    "roleTitle": "Staff Open Source Infrastructure Engineer",
+    "category": "Data & AI",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.huggingface.com/positions/job-p2-real-049",
+    "source": "direct_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "Python",
+      "Transformers Library",
+      "GitHub Actions",
+      "Rust"
+    ],
+    "preferredQualifications": [
+      "Dataset Streaming",
+      "Model Hub Security"
+    ],
+    "technicalRequirements": [
+      "Python",
+      "Transformers Library",
+      "GitHub Actions",
+      "Rust",
+      "Dataset Streaming",
+      "Model Hub Security"
+    ],
+    "descriptionSnapshot": "Hugging Face is seeking a talented Staff Open Source Infrastructure Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with Python, Transformers Library, GitHub Actions, Rust. Preferred familiarity with Dataset Streaming, Model Hub Security. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "49a281986bf3cbc0faefb48020b3990db8c6b230d11c54e706c0dd0e8420877e"
+  },
+  {
+    "jobId": "job-p2-real-050",
+    "employer": "Mistral AI",
+    "roleTitle": "Senior High-Performance Computing Engineer",
+    "category": "Data & AI",
+    "atsPlatform": "Direct",
+    "jobUrl": "https://jobs.mistralai.com/positions/job-p2-real-050",
+    "source": "direct_feed",
+    "experienceYearsRequired": 6,
+    "locationWorkMode": "100% Remote (Global/US)",
+    "requiredQualifications": [
+      "C++",
+      "CUDA",
+      "Megatron-LM",
+      "Linux HPC"
+    ],
+    "preferredQualifications": [
+      "FlashAttention",
+      "Hardware Optimization"
+    ],
+    "technicalRequirements": [
+      "C++",
+      "CUDA",
+      "Megatron-LM",
+      "Linux HPC",
+      "FlashAttention",
+      "Hardware Optimization"
+    ],
+    "descriptionSnapshot": "Mistral AI is seeking a talented Senior High-Performance Computing Engineer to join our remote team. In this role, you will lead high-impact initiatives, design resilient systems, and collaborate with globally distributed engineers. Requirements include strong experience with C++, CUDA, Megatron-LM, Linux HPC. Preferred familiarity with FlashAttention, Hardware Optimization. Must have at least 6 years of relevant industry experience.",
+    "timestamp": "2026-09-28T00:00:00.000Z",
+    "contentHash": "424be9e5e7852e0ebe1ac9fea7f7b8c6385f00ec1ead2201ed3c6cf52a8e5234"
+  }
+]
