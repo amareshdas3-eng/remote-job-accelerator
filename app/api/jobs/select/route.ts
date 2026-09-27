@@ -171,6 +171,19 @@ export async function POST(req: Request) {
       if (updatedApp) appRecord = updatedApp;
     }
 
+    // Track product telemetry
+    try {
+      const { trackServerEvent } = await import('../../../../lib/analytics');
+      await trackServerEvent('job_selected', {
+        jobId: jobRecord.id,
+        company: jobRecord.company,
+        role: jobRecord.title,
+        route: routeInfo.route,
+      }, user.id);
+    } catch {
+      // Non-fatal telemetry
+    }
+
     return NextResponse.json({
       job_id: jobRecord.id,
       job: jobRecord,

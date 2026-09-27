@@ -447,6 +447,18 @@ export async function GET(req: Request) {
     const paginatedJobs = processed.slice(from, to);
     const totalPages = Math.ceil(total / limit) || 1;
 
+    // Track product telemetry
+    try {
+      const { trackServerEvent } = await import('../../../../lib/analytics');
+      await trackServerEvent('jobs_matched', {
+        count: total,
+        returned: paginatedJobs.length,
+        topScore: paginatedJobs[0]?.candidate_intelligence?.fit_score || paginatedJobs[0]?.match_preview?.fit_score || 0
+      }, user.id);
+    } catch {
+      // Non-fatal telemetry
+    }
+
     return NextResponse.json({
       jobs: paginatedJobs,
       total,

@@ -195,3 +195,170 @@ export function extractEmbeddedStructuredProfile(text: string): StructuredProfil
     return null;
   }
 }
+
+/**
+ * Deterministically extracts a validated StructuredProfileData from raw resume text
+ * (DOCX, PDF, or TXT) when an explicit structured profile JSON is not pre-supplied.
+ */
+export function extractStructuredProfileFromText(text: string): StructuredProfileData {
+  if (!text) {
+    return {
+      full_name: '',
+      headline: '',
+      years_experience: 10,
+      professional_summary: '',
+      target_roles: [],
+      target_industries: [],
+      remote_preferences: {
+        remote_only: true,
+        timezones: [],
+        preferred_contract: 'Full-time / Contract',
+        target_compensation: '',
+      },
+      technical_domains: [],
+      technical_skills: [],
+      pm_leadership_skills: [],
+      ai_capabilities: [],
+      employers: [],
+      education: [],
+      certifications: [],
+      raw_evidence: '',
+    };
+  }
+
+  // Check if an embedded structured profile envelope is present first
+  const existing = extractEmbeddedStructuredProfile(text);
+  if (existing) return existing;
+
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const firstLine = lines[0] || '';
+  const secondLine = lines[1] || '';
+
+  let full_name = '';
+  if (firstLine.length < 50 && !firstLine.includes('@') && !firstLine.includes('http') && !/resume|curriculum vitae|cv\b/i.test(firstLine)) {
+    full_name = firstLine;
+  }
+
+  let headline = '';
+  if (secondLine.length < 150 && !secondLine.includes('@') && !secondLine.includes('http')) {
+    headline = secondLine;
+  }
+
+  // Extract years of experience
+  let years_experience: number | string = 10;
+  const expMatch = text.match(/(\d{1,2})\+?\s*(?:years|yrs)\b/i);
+  if (expMatch && expMatch[1]) {
+    years_experience = parseInt(expMatch[1], 10);
+  }
+
+  const textLower = text.toLowerCase();
+
+  // Technical skills dictionary
+  const TECH_SKILLS = [
+    'Next.js', 'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Go', 'Golang',
+    'PostgreSQL', 'SQL', 'GraphQL', 'REST APIs', 'Supabase', 'Docker', 'Kubernetes',
+    'AWS', 'GCP', 'Azure', 'Terraform', 'CI/CD', 'GitHub Actions', 'Microservices',
+    'Electrical Engineering', 'Substation', 'Switchgear', 'Power Systems', 'High Voltage',
+    'Medium Voltage', 'SCADA', 'PLC', 'Industrial Automation', 'Commissioning', 'Erection',
+    'Testing & Commissioning', 'Plant Engineering', 'Instrumentation', 'Protection Relays',
+    'Single-Line Diagrams', 'Megapack', 'Microgrid', 'FAT/SAT'
+  ];
+
+  const technical_skills: string[] = [];
+  for (const s of TECH_SKILLS) {
+    if (textLower.includes(s.toLowerCase())) {
+      technical_skills.push(s);
+    }
+  }
+
+  // PM & Leadership skills dictionary
+  const PM_SKILLS = [
+    'Project Management', 'Agile', 'Scrum', 'Stakeholder Management', 'Tendering',
+    'EPC', 'Budget Management', 'Schedule Optimization', 'Contract Negotiation',
+    'Vendor Management', 'Technical Governance', 'Site Management', 'Risk Management',
+    'Quality Assurance', 'O&M'
+  ];
+
+  const pm_leadership_skills: string[] = [];
+  for (const pm of PM_SKILLS) {
+    if (textLower.includes(pm.toLowerCase())) {
+      pm_leadership_skills.push(pm);
+    }
+  }
+
+  // AI & Automation dictionary
+  const AI_SKILLS = [
+    'AI Workflows', 'Agentic AI', 'LLM Integration', 'Generative AI', 'Prompt Engineering',
+    'Machine Learning', 'Data Pipelines', 'Automation'
+  ];
+
+  const ai_capabilities: string[] = [];
+  for (const ai of AI_SKILLS) {
+    if (textLower.includes(ai.toLowerCase())) {
+      ai_capabilities.push(ai);
+    }
+  }
+
+  // Certifications
+  const CERTS = ['PMP', 'Prince2', 'PE License', 'Professional Engineer', 'AWS Certified', 'Scrum Master', 'OSHA 30', 'NFPA 70E'];
+  const certifications: string[] = [];
+  for (const c of CERTS) {
+    if (new RegExp(`\\b${c}\\b`, 'i').test(text)) {
+      certifications.push(c);
+    }
+  }
+
+  // Target roles
+  const target_roles: string[] = [];
+  if (textLower.includes('electrical') && textLower.includes('project manager')) {
+    target_roles.push('Senior Electrical Project Manager');
+  }
+  if (textLower.includes('full stack') || (textLower.includes('software engineer') && textLower.includes('senior'))) {
+    target_roles.push('Senior Full-Stack Engineer');
+  }
+  if (textLower.includes('project manager') && !target_roles.includes('Senior Electrical Project Manager')) {
+    target_roles.push('Technical Project Manager');
+  }
+  if (textLower.includes('commissioning') || textLower.includes('plant engineer')) {
+    target_roles.push('Commissioning & Plant Engineering Lead');
+  }
+  if (textLower.includes('ai') && textLower.includes('operations')) {
+    target_roles.push('AI Operations Project Manager');
+  }
+
+  if (target_roles.length === 0) {
+    target_roles.push(headline || 'Senior Technical Lead');
+  }
+
+  // Summary
+  let professional_summary = '';
+  const summaryMatch = text.match(/(?:summary|professional summary|about me|profile)[:\s]*([\s\S]{50,800}?)(?:\n\s*\n[A-Z]{3,}|\n\s*experience|\n\s*skills|\n\s*education|$)/i);
+  if (summaryMatch && summaryMatch[1]) {
+    professional_summary = summaryMatch[1].trim();
+  } else {
+    professional_summary = lines.slice(0, 4).join(' ').slice(0, 500);
+  }
+
+  return {
+    full_name: full_name.slice(0, 200),
+    headline: (headline || target_roles[0] || 'Senior Engineering Leader').slice(0, 400),
+    years_experience,
+    professional_summary,
+    target_roles,
+    target_industries: ['Energy & Infrastructure', 'Software & Cloud SaaS', 'Industrial Automation'],
+    remote_preferences: {
+      remote_only: true,
+      timezones: ['US Eastern', 'US Pacific', 'UTC / Global'],
+      preferred_contract: 'Full-time Remote',
+      target_compensation: '$140,000 – $190,000 / yr',
+    },
+    technical_domains: technical_skills.slice(0, 5),
+    technical_skills: technical_skills.slice(0, 30),
+    pm_leadership_skills: pm_leadership_skills.slice(0, 20),
+    ai_capabilities: ai_capabilities.slice(0, 10),
+    employers: [],
+    education: [],
+    certifications,
+    raw_evidence: text.slice(0, 25000),
+  };
+}

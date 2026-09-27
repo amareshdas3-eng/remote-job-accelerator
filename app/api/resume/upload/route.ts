@@ -99,6 +99,12 @@ export async function POST(req: Request) {
       text = text.slice(0, 50000);
     }
 
+    // Automatically derive structured profile if not already provided
+    if (!structuredProfile) {
+      const { extractStructuredProfileFromText } = await import('../../../../lib/profile');
+      structuredProfile = extractStructuredProfileFromText(text);
+    }
+
     const a = supabaseAdmin();
 
     const upsertData: Record<string, any> = {
@@ -120,6 +126,20 @@ export async function POST(req: Request) {
     }
 
     if (error) throw error;
+
+    // Track product telemetry
+    try {
+      const { trackServerEvent } = await import('../../../../lib/analytics');
+      await trackServerEvent('resume_uploaded', { filename, characters: text.length }, u.id);
+      await trackServerEvent('resume_parsed', {
+        filename,
+        characters: text.length,
+        skillsCount: structuredProfile?.technical_skills?.length || 0,
+        targetRolesCount: structuredProfile?.target_roles?.length || 0
+      }, u.id);
+    } catch {
+      // Telemetry should not block upload response
+    }
 
     return NextResponse.json(
       {
