@@ -30,7 +30,9 @@ export function deterministicStringify(val: any): string {
   if (Array.isArray(val)) {
     return '[' + val.map((item) => deterministicStringify(item)).join(',') + ']';
   }
-  const sortedKeys = Object.keys(val).sort();
+  const sortedKeys = Object.keys(val)
+    .filter((key) => val[key] !== undefined)
+    .sort();
   const pairs = sortedKeys.map((key) => `${JSON.stringify(key)}:${deterministicStringify(val[key])}`);
   return '{' + pairs.join(',') + '}';
 }
@@ -46,8 +48,11 @@ export function canonicalizeArtifactContent(content: {
   resume: any;
   cover_letter: any;
   screening_answers: any;
-}): string {
+} | string): string {
   if (!content) return '';
+  if (typeof content === 'string') {
+    return normalizeText(content);
+  }
 
   // 1. Resume Component (deterministic serialization of all resume fields)
   const resumePart = content.resume ? deterministicStringify(content.resume) : '';
@@ -57,22 +62,30 @@ export function canonicalizeArtifactContent(content: {
 
   // 3. Screening Answers Component (deterministic sorting by question followed by deep serialization)
   let answersPart = '';
-  if (Array.isArray(content.screening_answers?.answers)) {
-    const sortedAnswers = [...content.screening_answers.answers].sort((a: any, b: any) => {
-      const keyA = normalizeText(String(a.question_id || a.question || ''));
-      const keyB = normalizeText(String(b.question_id || b.question || ''));
-      return keyA.localeCompare(keyB);
-    });
+  if (content.screening_answers) {
+    if (Array.isArray(content.screening_answers?.answers)) {
+      const sortedAnswers = [...content.screening_answers.answers].sort((a: any, b: any) => {
+        const keyA = normalizeText(String(a.question_id || a.question || ''));
+        const keyB = normalizeText(String(b.question_id || b.question || ''));
+        const diff = keyA.localeCompare(keyB);
+        if (diff !== 0) return diff;
+        return deterministicStringify(a).localeCompare(deterministicStringify(b));
+      });
 
-    answersPart = sortedAnswers
-      .map((a: any) => deterministicStringify(a))
-      .join('\n');
-  } else if (content.screening_answers) {
-    answersPart = deterministicStringify(content.screening_answers);
+      const normalizedAnswersObj = {
+        ...content.screening_answers,
+        answers: sortedAnswers,
+      };
+      answersPart = deterministicStringify(normalizedAnswersObj);
+    } else {
+      answersPart = deterministicStringify(content.screening_answers);
+    }
   }
 
   return `RESUME:\n${resumePart}\n---\nCOVER:\n${coverPart}\n---\nANSWERS:\n${answersPart}`;
 }
+
+export const DEFAULT_FINGERPRINT_SCHEME = 'rja-c14n-v1-sha256';
 
 /**
  * Computes deterministic SHA-256 fingerprint over canonicalized artifact content.
@@ -81,19 +94,22 @@ export function computeArtifactFingerprint(content: {
   resume: any;
   cover_letter: any;
   screening_answers: any;
-}): ArtifactFingerprint {
+} | string): ArtifactFingerprint {
   const canonicalString = canonicalizeArtifactContent(content);
   const hash = crypto.createHash('sha256').update(canonicalString, 'utf8').digest('hex');
 
-  const resumeLength = (content.resume?.full_resume || '').length;
-  const coverLetterLength = (content.cover_letter?.letter || '').length;
-  const answersCount = Array.isArray(content.screening_answers?.answers)
+  const isObj = typeof content === 'object' && content !== null;
+  const resumeLength = isObj ? (content.resume?.full_resume || '').length : 0;
+  const coverLetterLength = isObj ? (content.cover_letter?.letter || '').length : 0;
+  const answersCount = isObj && Array.isArray(content.screening_answers?.answers)
     ? content.screening_answers.answers.length
     : 0;
 
   return {
     hash,
     algorithm: 'sha256',
+    fingerprint_algorithm: DEFAULT_FINGERPRINT_SCHEME,
+    canonicalization_scheme: DEFAULT_FINGERPRINT_SCHEME,
     components: {
       resume_length: resumeLength,
       cover_letter_length: coverLetterLength,
@@ -111,7 +127,7 @@ export function verifyArtifactFingerprint(
     resume: any;
     cover_letter: any;
     screening_answers: any;
-  },
+  } | string,
   expectedHash: string
 ): { valid: boolean; actualHash: string } {
   const currentFingerprint = computeArtifactFingerprint(content);

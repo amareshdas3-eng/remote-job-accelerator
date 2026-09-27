@@ -1,0 +1,27 @@
+{
+  "name": "artifact-unicode",
+  "schema_version": "rja-c14n-v1-sha256",
+  "description": "Multilingual and complex Unicode content with precomposed/decomposed glyphs and symbols",
+  "content": {
+    "resume": {
+      "headline": "Senior Ingénieur de Systèmes",
+      "summary": "Spécialisé dans les architectures distribuées à Zürich, München et São Paulo.",
+      "full_resume": "Hélène Müller — Ingénieur Principal\nパイプライン開発 & データベース最適化。\nMastery of ∑(x_i) metrics, α-β testing, and 🛡️ high-resilience systems."
+    },
+    "cover_letter": {
+      "recipient": "Comité de Recrutement — Zürich",
+      "letter": "Chers membres du comité,\nMon expérience en ingénierie logicielle garantit des résultats probants 🚀."
+    },
+    "screening_answers": {
+      "answers": [
+        {
+          "question_id": "q_langues",
+          "question": "Quelles langues maîtrisez-vous?",
+          "answer": "Français (natif), English (fluent), Deutsch (B2)."
+        }
+      ]
+    }
+  },
+  "expected_canonical": "RESUME:\n{\"full_resume\":\"Hélène Müller — Ingénieur Principal\\nパイプライン開発 & データベース最適化。\\nMastery of ∑(x_i) metrics, α-β testing, and 🛡️ high-resilience systems.\",\"headline\":\"Senior Ingénieur de Systèmes\",\"summary\":\"Spécialisé dans les architectures distribuées à Zürich, München et São Paulo.\"}\n---\nCOVER:\n{\"letter\":\"Chers membres du comité,\\nMon expérience en ingénierie logicielle garantit des résultats probants 🚀.\",\"recipient\":\"Comité de Recrutement — Zürich\"}\n---\nANSWERS:\n{\"answers\":[{\"answer\":\"Français (natif), English (fluent), Deutsch (B2).\",\"question\":\"Quelles langues maîtrisez-vous?\",\"question_id\":\"q_langues\"}]}",
+  "expected_digest": "9a4fc05fe4dfaf5fac829c98392bd8d03b3af2a6caa435722e866ba5bc948f2b"
+}

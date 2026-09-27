@@ -205,24 +205,27 @@ export function executeApplicationPackage(params: ExecuteParams): ExecutionResul
     }
 
     // Successful Dispatch
+    const effectiveRoute = String(params.route || 'portal');
+    const effectiveAppId = String(params.applicationId || params.approvedArtifact.application_id || 'app-default');
+
     const attempt: ExecutionAttempt = {
       id: attemptId,
-      application_id: params.applicationId,
+      application_id: effectiveAppId,
       approved_artifact_id: params.approvedArtifact.id,
       verified_fingerprint: verification.actualHash,
-      route: params.route,
+      route: effectiveRoute,
       destination: params.destination,
       status: 'confirmed',
       dispatched_at: now,
     };
 
     const receiptId = `rcpt-${crypto.randomBytes(8).toString('hex')}`;
-    const confirmationId = `CONF-${params.route.toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const confirmationId = `CONF-${effectiveRoute.toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const receipt: SubmissionReceipt = {
       id: receiptId,
       execution_attempt_id: attemptId,
-      application_id: params.applicationId,
+      application_id: effectiveAppId,
       destination: params.destination,
       external_confirmation_id: confirmationId,
       verified_fingerprint: verification.actualHash,

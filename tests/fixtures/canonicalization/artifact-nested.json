@@ -1,0 +1,59 @@
+{
+  "name": "artifact-nested",
+  "schema_version": "rja-c14n-v1-sha256",
+  "description": "Deeply nested object hierarchies and multi-level dictionary properties",
+  "content": {
+    "resume": {
+      "headline": "Staff Security Engineer",
+      "summary": "Cryptographic protocol designer and secure systems architect.",
+      "full_resume": "Staff Security Engineer.\nDesigned hardware security module interfaces.",
+      "skills": [
+        "Rust",
+        "Cryptography",
+        "Formal Methods",
+        "eBPF"
+      ],
+      "clearance": {
+        "level": "Top Secret / SCI",
+        "adjudicated": true,
+        "investigation": {
+          "agency": "DOD",
+          "year": 2024
+        }
+      }
+    },
+    "cover_letter": {
+      "recipient": "Chief Information Security Officer",
+      "letter": "Dear CISO,\nI look forward to discussing your cryptographic infrastructure.",
+      "metadata": {
+        "classification": "UNCLASSIFIED",
+        "routing": {
+          "department": "InfoSec",
+          "priority": 1
+        }
+      }
+    },
+    "screening_answers": {
+      "answers": [
+        {
+          "question_id": "q_fips",
+          "question": "Have you worked with FIPS 140-3 standards?",
+          "answer": "Yes, led two Level 3 module certifications.",
+          "details": {
+            "standards": [
+              "FIPS 140-3",
+              "Common Criteria EAL5+"
+            ],
+            "verified": true
+          }
+        }
+      ],
+      "submission_meta": {
+        "source": "vault_upload",
+        "compliance_checked": true
+      }
+    }
+  },
+  "expected_canonical": "RESUME:\n{\"clearance\":{\"adjudicated\":true,\"investigation\":{\"agency\":\"DOD\",\"year\":2024},\"level\":\"Top Secret / SCI\"},\"full_resume\":\"Staff Security Engineer.\\nDesigned hardware security module interfaces.\",\"headline\":\"Staff Security Engineer\",\"skills\":[\"Rust\",\"Cryptography\",\"Formal Methods\",\"eBPF\"],\"summary\":\"Cryptographic protocol designer and secure systems architect.\"}\n---\nCOVER:\n{\"letter\":\"Dear CISO,\\nI look forward to discussing your cryptographic infrastructure.\",\"metadata\":{\"classification\":\"UNCLASSIFIED\",\"routing\":{\"department\":\"InfoSec\",\"priority\":1}},\"recipient\":\"Chief Information Security Officer\"}\n---\nANSWERS:\n{\"answers\":[{\"answer\":\"Yes, led two Level 3 module certifications.\",\"details\":{\"standards\":[\"FIPS 140-3\",\"Common Criteria EAL5+\"],\"verified\":true},\"question\":\"Have you worked with FIPS 140-3 standards?\",\"question_id\":\"q_fips\"}],\"submission_meta\":{\"compliance_checked\":true,\"source\":\"vault_upload\"}}",
+  "expected_digest": "629dee83ce22382862f91303e464795fc5640750e177ddbceeab8167a49d2945"
+}

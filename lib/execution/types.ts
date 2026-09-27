@@ -11,6 +11,8 @@ export interface EvidenceSnapshot {
 export interface ArtifactFingerprint {
   hash: string;
   algorithm: 'sha256';
+  fingerprint_algorithm?: 'rja-c14n-v1-sha256' | string;
+  canonicalization_scheme?: 'rja-c14n-v1-sha256' | string;
   components: {
     resume_length: number;
     cover_letter_length: number;

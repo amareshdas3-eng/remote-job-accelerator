@@ -1,0 +1,27 @@
+{
+  "name": "artifact-newlines",
+  "schema_version": "rja-c14n-v1-sha256",
+  "description": "Artifact with transport-encoded mixed CRLF and CR line endings",
+  "content": {
+    "resume": {
+      "headline": "Infrastructure Engineer",
+      "summary": "Reliability specialist.\r\nProven track record with 99.99% SLA uptime.",
+      "full_resume": "Line 1: Summary of experience\r\nLine 2: High-voltage systems\rLine 3: Distributed computing\nLine 4: Final statement."
+    },
+    "cover_letter": {
+      "recipient": "Talent Team\r\nCorp HQ",
+      "letter": "Paragraph 1\r\n\r\nParagraph 2\rParagraph 3\nSincerely."
+    },
+    "screening_answers": {
+      "answers": [
+        {
+          "question_id": "q_work_auth",
+          "question": "Are you authorized to work?\r\n",
+          "answer": "Yes, authorized.\rNo sponsorship required."
+        }
+      ]
+    }
+  },
+  "expected_canonical": "RESUME:\n{\"full_resume\":\"Line 1: Summary of experience\\nLine 2: High-voltage systems\\nLine 3: Distributed computing\\nLine 4: Final statement.\",\"headline\":\"Infrastructure Engineer\",\"summary\":\"Reliability specialist.\\nProven track record with 99.99% SLA uptime.\"}\n---\nCOVER:\n{\"letter\":\"Paragraph 1\\n\\nParagraph 2\\nParagraph 3\\nSincerely.\",\"recipient\":\"Talent Team\\nCorp HQ\"}\n---\nANSWERS:\n{\"answers\":[{\"answer\":\"Yes, authorized.\\nNo sponsorship required.\",\"question\":\"Are you authorized to work?\\n\",\"question_id\":\"q_work_auth\"}]}",
+  "expected_digest": "087885fba21eb084481fbbdfb78237253e7815dafabefb60e4ff2d84474346f9"
+}

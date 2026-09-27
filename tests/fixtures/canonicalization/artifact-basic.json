@@ -1,0 +1,32 @@
+{
+  "name": "artifact-basic",
+  "schema_version": "rja-c14n-v1-sha256",
+  "description": "Standard baseline application package with ASCII fields",
+  "content": {
+    "resume": {
+      "headline": "Lead Systems Architect",
+      "summary": "12+ years designing distributed cloud architectures and zero-trust security platforms.",
+      "full_resume": "Alex Vance, PE\n12+ years designing distributed cloud architectures.\nExpert in Kubernetes and Rust."
+    },
+    "cover_letter": {
+      "recipient": "Engineering Hiring Committee",
+      "letter": "Dear Committee,\nI am writing to express my strong interest in the Principal Architect position."
+    },
+    "screening_answers": {
+      "answers": [
+        {
+          "question_id": "q_notice",
+          "question": "What is your current notice period?",
+          "answer": "2 weeks notice required."
+        },
+        {
+          "question_id": "q_remote",
+          "question": "Do you have remote distributed leadership experience?",
+          "answer": "Yes, 8+ years leading teams across 4 timezones."
+        }
+      ]
+    }
+  },
+  "expected_canonical": "RESUME:\n{\"full_resume\":\"Alex Vance, PE\\n12+ years designing distributed cloud architectures.\\nExpert in Kubernetes and Rust.\",\"headline\":\"Lead Systems Architect\",\"summary\":\"12+ years designing distributed cloud architectures and zero-trust security platforms.\"}\n---\nCOVER:\n{\"letter\":\"Dear Committee,\\nI am writing to express my strong interest in the Principal Architect position.\",\"recipient\":\"Engineering Hiring Committee\"}\n---\nANSWERS:\n{\"answers\":[{\"answer\":\"2 weeks notice required.\",\"question\":\"What is your current notice period?\",\"question_id\":\"q_notice\"},{\"answer\":\"Yes, 8+ years leading teams across 4 timezones.\",\"question\":\"Do you have remote distributed leadership experience?\",\"question_id\":\"q_remote\"}]}",
+  "expected_digest": "d7edc7f7e9cf334466044e304813d88ef689bc8fa5696e52b9ff6e58497a4014"
+}

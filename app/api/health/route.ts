@@ -20,7 +20,7 @@ export async function GET() {
 
   return NextResponse.json({
     status: 'ok',
-    version: '4.3.0',
+    version: '5.0.0',
     timestamp: new Date().toISOString(),
     services: {
       database: dbConfigured ? 'configured' : 'unconfigured',

@@ -1,0 +1,32 @@
+{
+  "name": "artifact-duplicate-question-ids",
+  "schema_version": "rja-c14n-v1-sha256",
+  "description": "Screening answers with identical question identifiers requiring deep tie-breaker sorting",
+  "content": {
+    "resume": {
+      "headline": "Lead Data Platform Engineer",
+      "summary": "Specialist in large-scale stream processing and lakehouses.",
+      "full_resume": "Lead Data Platform Engineer.\nApache Spark and Iceberg expert."
+    },
+    "cover_letter": {
+      "recipient": "Data Platform Hiring Group",
+      "letter": "Dear Hiring Group,\nI am excited about your lakehouse architecture roadmap."
+    },
+    "screening_answers": {
+      "answers": [
+        {
+          "question_id": "q_open_ended",
+          "question": "Please describe a challenge you resolved.",
+          "answer": "Resolved partition skew in distributed ETL, reducing job runtime by 65%."
+        },
+        {
+          "question_id": "q_open_ended",
+          "question": "Please describe a challenge you resolved.",
+          "answer": "Architected zero-downtime database migration for 40TB PostgreSQL cluster."
+        }
+      ]
+    }
+  },
+  "expected_canonical": "RESUME:\n{\"full_resume\":\"Lead Data Platform Engineer.\\nApache Spark and Iceberg expert.\",\"headline\":\"Lead Data Platform Engineer\",\"summary\":\"Specialist in large-scale stream processing and lakehouses.\"}\n---\nCOVER:\n{\"letter\":\"Dear Hiring Group,\\nI am excited about your lakehouse architecture roadmap.\",\"recipient\":\"Data Platform Hiring Group\"}\n---\nANSWERS:\n{\"answers\":[{\"answer\":\"Architected zero-downtime database migration for 40TB PostgreSQL cluster.\",\"question\":\"Please describe a challenge you resolved.\",\"question_id\":\"q_open_ended\"},{\"answer\":\"Resolved partition skew in distributed ETL, reducing job runtime by 65%.\",\"question\":\"Please describe a challenge you resolved.\",\"question_id\":\"q_open_ended\"}]}",
+  "expected_digest": "ca69113c0ce53c796509fcce3b716845d2258479df08938f64f2fb46d3c63eb2"
+}
