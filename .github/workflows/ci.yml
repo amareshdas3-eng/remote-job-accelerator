@@ -4,7 +4,7 @@ on:
   pull_request:
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://pftpqwndomydffsuxfje.supabase.co' }}
@@ -16,8 +16,8 @@ jobs:
       NEXT_PUBLIC_GUMROAD_URL: https://4217411968942.gumroad.com/l/remote-job-complete
       EXTENSION_JWT_SECRET: dummy_extension_jwt_secret_minimum_32_characters
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: 'npm'
