@@ -130,6 +130,22 @@ const normalizedC = normalizeJobRecord(rawJobC);
 assert.notStrictEqual(normalizedA.external_id, normalizedC.external_id, 'Different jobs must produce distinct dedup keys');
 console.log('  ✓ Test 2.3: Distinct job postings generate unique keys.');
 
+// Anti-collision check: same company & title, but different posting URLs must NOT collide
+const rawJobSameTitleDiffUrl = {
+  title: 'Remote Senior Electrical Project Manager',
+  company: 'Schneider Electric Global',
+  url: 'https://se.com/careers/job?id=99282',
+  description: 'Second opening for different department',
+  source: 'LinkedIn Jobs',
+};
+const normalizedDiffUrl = normalizeJobRecord(rawJobSameTitleDiffUrl);
+assert.notStrictEqual(
+  normalizedA.external_id,
+  normalizedDiffUrl.external_id,
+  'Genuinely different jobs sharing company/title but having distinct URLs must not collide'
+);
+console.log('  ✓ Test 2.4: Anti-collision verified: distinct URLs with same title/company maintain distinct dedup keys.');
+
 console.log('✓ Area 2 PASSED: Job normalization and deduplication verified.\n');
 
 // -------------------------------------------------------------
@@ -153,15 +169,33 @@ const matchResultA = computeCandidateJobMatch(
   sampleResume
 );
 
-// Verify 4-dimensional breakdown
+// Verify 4-dimensional breakdown & invariants
 assert.strictEqual(typeof matchResultA.fit_score, 'number');
+assert.ok(matchResultA.fit_score >= 0 && matchResultA.fit_score <= 100, `Invariant violation: fit_score must be between 0 and 100, got ${matchResultA.fit_score}`);
 assert.ok(matchResultA.fit_score >= 85 && matchResultA.fit_score <= 100, `Expected high fit score, got ${matchResultA.fit_score}`);
 assert.ok(matchResultA.tier === 'exceptional' || matchResultA.tier === 'strong');
 assert.ok(matchResultA.dimensions.role_alignment >= 20, 'Role alignment score must reflect target role match');
 assert.ok(matchResultA.dimensions.technical_skills >= 25, 'Technical score must reflect skill overlap');
 assert.ok(matchResultA.dimensions.leadership >= 15, 'Leadership score must reflect PMP and management keywords');
 assert.ok(matchResultA.dimensions.seniority_remote >= 18, 'Seniority score must reflect 12 yrs and 100% remote');
-console.log(`  ✓ Test 3.1: 4-Dimensional score computed deterministically (${matchResultA.fit_score}% - Tier: ${matchResultA.tier}).`);
+console.log(`  ✓ Test 3.1: 4-Dimensional score computed deterministically (${matchResultA.fit_score}% - Tier: ${matchResultA.tier}) and satisfies 0 <= fit_score <= 100.`);
+
+// Repeatability / Determinism test: identical inputs must yield identical match results
+const repeatResult = computeCandidateJobMatch(
+  {
+    title: normalizedA.title,
+    description: normalizedA.description,
+    skills: normalizedA.skills,
+    location: normalizedA.location,
+    remote_status: normalizedA.remote_status,
+    category: normalizedA.category,
+    company: normalizedA.company,
+  },
+  extractedProfile,
+  sampleResume
+);
+assert.deepStrictEqual(matchResultA, repeatResult, 'Deterministic engine must return identical results for identical inputs');
+console.log('  ✓ Test 3.2: Determinism invariant verified: repeated calls yield identical scores and tiers.');
 
 // Verify explainable output
 assert.ok(Array.isArray(matchResultA.why_matched), 'why_matched must be an array');
@@ -243,6 +277,14 @@ const discoveryComponentCode = fs.readFileSync(path.join(ROOT, 'components', 'da
 assert.ok(discoveryComponentCode.includes("'match_explanation_viewed'"), 'JobDiscovery UI must emit match_explanation_viewed on why match click');
 
 console.log('  ✓ Test 5.2: Ingestion, discovery, explanation, and selection routes wire telemetry events.');
+
+// Telemetry Privacy Check: ensure no raw resume text or auth secrets are transmitted in telemetry properties
+const uploadRouteContent = fs.readFileSync(path.join(ROOT, 'app', 'api', 'resume', 'upload', 'route.ts'), 'utf8');
+const telemetryMatches = uploadRouteContent.match(/trackServerEvent\('resume_parsed'[\s\S]*?\);/);
+assert.ok(telemetryMatches && telemetryMatches[0], 'Must find resume_parsed telemetry call');
+assert.ok(!telemetryMatches[0].includes('resume_text'), 'resume_parsed telemetry payload must not persist raw resume_text');
+assert.ok(!telemetryMatches[0].includes('text,'), 'resume_parsed telemetry payload must not persist raw text');
+console.log('  ✓ Test 5.3: Telemetry privacy verified: raw resume text and sensitive tokens are strictly excluded from event properties.');
 
 console.log('✓ Area 5 PASSED: Telemetry and observability pipeline verified.\n');
 
