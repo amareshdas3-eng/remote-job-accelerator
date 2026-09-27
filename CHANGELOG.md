@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.6.1 — Execution Security Hardening & Byte-Level Cryptographic Canonicalization
+
+- **Byte-Level Cryptographic Canonicalization**: Hardened `lib/execution/fingerprint.ts` with Unicode NFC normalization, transport newline translation (`\r\n` / `\r` to `\n`), deep key-sorting (`deterministicStringify`), and question-ordered screening answer sorting.
+- **Deep Artifact Mutation Defense**: Extended canonicalization to serialize and hash all structured fields (headline, summary, full_resume, recipient, letter, answers), ensuring any metadata tampering strictly alters the SHA-256 digest.
+- **Homoglyph & Whitespace Attack Defense**: Validated that Unicode homoglyphs (e.g. Cyrillic `а` vs Latin `a`) and internal whitespace mutations ("Project Manager" vs "Project  Manager") strictly produce divergent SHA-256 digests and trigger `MUTATION_BLOCKED`.
+- **Reviewer Signature & Timestamp Verification**: Added strict checks in `lib/execution/engine.ts` rejecting empty, whitespace-only, or unparseable human approval signatures.
+- **Destination & Evidence Snapshot Guards**: Enforced destination lock and snapshot ID consistency in `executeApplicationPackage`, blocking redirection attacks (`DESTINATION_MISMATCH`) and drifted evidence states (`SNAPSHOT_MISMATCH`).
+- **In-Flight Concurrency Lock**: Added execution lock mechanism (`acquireExecutionLock`, `releaseExecutionLock`) to prevent simultaneous race conditions (`CONCURRENT_EXECUTION_BLOCKED`).
+- **Transparent Idempotency Recovery & Retry Handling**: Supported `idempotentReturnExisting` to cleanly return existing receipts without re-dispatching, and verified safe retry flows after transient gateway failures (`DISPATCH_FAILED`).
+- **Outcome State Transition Validation**: Added `validateOutcomeTransition` in `lib/execution/stateMachine.ts` preventing out-of-sequence stages (e.g. `offer` without prior `applied`) and downstream transitions from terminal states (`rejected` / `withdrawn`).
+- **Dedicated Regression Suite**: Added `tests/phase13_security_execution_hardening.mjs` verifying all 6 byte-level invariants and 12 security/abuse attack simulations permanently wired into `npm test` (15 total test suites).
+
 ## 4.6.0 — Controlled Application Execution & Outcome Intelligence
 
 - **Evidence Snapshot Engine**: Added `lib/execution/snapshot.ts` creating immutable, deep-cloned snapshots of verified candidate profile data at approval time with deterministic SHA-256 identification (`ev-snap-*`).

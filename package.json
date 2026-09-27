@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsx tests/smoke.mjs && tsx tests/job_centric_architecture.mjs && tsx tests/full_12_phase_verification.mjs && tsx tests/phase5_application_execution.mjs && tsx tests/phase6_production_hardening.mjs && tsx tests/phase7_production_launch_validation.mjs && tsx tests/ai_benchmark_eval.mjs && tsx tests/phase8_customer_revenue_validation.mjs && tsx tests/phase9_growth_acquisition_experimentation.mjs && tsx tests/phase10_live_pmf_revenue_validation.mjs && tsx tests/test_docx_mammoth_security.mjs && tsx tests/phase11_job_intelligence_slice.mjs && tsx tests/phase12_application_intelligence_slice.mjs && tsx tests/phase13_execution_outcome_slice.mjs"
+    "test": "tsx tests/smoke.mjs && tsx tests/job_centric_architecture.mjs && tsx tests/full_12_phase_verification.mjs && tsx tests/phase5_application_execution.mjs && tsx tests/phase6_production_hardening.mjs && tsx tests/phase7_production_launch_validation.mjs && tsx tests/ai_benchmark_eval.mjs && tsx tests/phase8_customer_revenue_validation.mjs && tsx tests/phase9_growth_acquisition_experimentation.mjs && tsx tests/phase10_live_pmf_revenue_validation.mjs && tsx tests/test_docx_mammoth_security.mjs && tsx tests/phase11_job_intelligence_slice.mjs && tsx tests/phase12_application_intelligence_slice.mjs && tsx tests/phase13_execution_outcome_slice.mjs && tsx tests/phase13_security_execution_hardening.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.7.0",
