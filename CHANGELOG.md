@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.6.0 — Controlled Application Execution & Outcome Intelligence
+
+- **Evidence Snapshot Engine**: Added `lib/execution/snapshot.ts` creating immutable, deep-cloned snapshots of verified candidate profile data at approval time with deterministic SHA-256 identification (`ev-snap-*`).
+- **Artifact Cryptographic Fingerprinting**: Added `lib/execution/fingerprint.ts` computing canonical SHA-256 digests over approved tailored packages (`resumeText`, `coverLetter`, `answers`) to guarantee content integrity.
+- **Approved-Content Mutation Guard**: Implemented hard block invariant in `lib/execution/engine.ts`: *"Nothing after Human Approval may change the approved application artifact."* Recalculates fingerprint at dispatch time and halts immediately (`status: 'blocked'`) if hash diverges.
+- **Human Approval Enforcement**: Enforced strict signature and timestamp verification before execution; unapproved or unsigned packages are rejected.
+- **Idempotent Dispatch & Receipts**: Built destination-keyed deduplication preventing duplicate submissions, issuing verifiable `SubmissionReceipt` with timestamp, channel, and confirmation code.
+- **Event-Sourced Outcome State Machine**: Added `lib/execution/stateMachine.ts` tracking discrete application lifecycle events (`applied` → `acknowledged` → `viewed` → `recruiter_response` → `screening` → `interview` → `technical_round` → `final_round` → `offer` / `rejected` / `withdrawn`).
+- **Career ROI Analytics Engine**: Added factual conversion metrics in `lib/execution/stateMachine.ts` computing response rates, interview-to-offer rates, and turnaround durations.
+- **Execution & Outcome API Routes**: Added `/api/applications/execute` (POST: verify & dispatch) and `/api/applications/outcomes` (GET: ROI metrics, POST: record transition).
+- **Execution Telemetry**: Added `execution_dispatched`, `execution_confirmed`, `execution_blocked`, `recruiter_response_recorded`, `interview_scheduled`, and `offer_received` events to `lib/analytics.ts`.
+- **Phase 13 Test Suite**: Added `tests/phase13_execution_outcome_slice.mjs` (9/9 areas) wired permanently into `npm test` (14 total test suites).
+
 ## 4.5.0 — Application Intelligence & Truthfulness Boundary
 
 - **Application Workspace**: Transformed selected opportunities into actionable application packages with structured requirement mappings and lifecycle status tracking.
