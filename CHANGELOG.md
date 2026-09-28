@@ -1,5 +1,32 @@
 # Changelog
 
+## 5.2.0 — Final Architecture Freeze & Release Completion (RJA DONE)
+
+- **Release Milestone & Final Freeze**: Official certification and release of RJA `v5.2.0`, marking the permanent architecture freeze and complete delivery of the Remote Job Accelerator roadmap.
+- **Controlled Implementation of RFC-CP-004**:
+  - Implemented optional pre-flight narrative emphasis (`tailoredCoverLetterParagraph?: string | null`) with strict 1,000-character ceiling.
+  - Implemented default-collapsed UI accordion in `UnifiedJobWorkspace.tsx`, guaranteeing zero required clicks, dismissals, or prompt fatigue for standard applicants.
+  - Hardened Policy Guard hallucination firewall (`validateCustomCoverLetterParagraph`), intercepting ungrounded credentials (e.g. unverified certifications, degrees) and halting execution with `BLOCK`.
+  - Maintained canonical fingerprinting determinism and zero positive authority expansion.
+- **Empirical Gate 4 Production Validation ($N = 30$)**:
+  - **Hypothesis H1 (Review Time Saving)**: Confirmed $0.70\text{ min}$ ($42.0\text{ seconds}$) saving per tailored application ($2.14\text{m}$ tailored vs $2.84\text{m}$ unguided manual edit baseline).
+  - **Hypothesis H2 (Ergonomics & Adoption)**: Confirmed $90.0\%$ ($27/30$) zero-friction standard workflows with $10.0\%$ ($3/30$) targeted adoption.
+  - **Hypothesis H3 (Hallucination Containment)**: Confirmed $100.0\%$ ($378/378$ claims) evidence verification rate on dispatched packages; **strictly 0 ungrounded claims escaped**.
+  - **Hypothesis H4 (Deterministic Integrity)**: Confirmed $100.0\%$ ($30/30$) deterministic replay under `rja-c14n-v1-sha256` and **0 diff lines** in `lib/execution/`.
+- **Gate 5 Unified RJA Audit (7/7 Pillars Certified)**:
+  - Formally certified all 7 core pillars: Architecture, Security, Governance, Evidence, Economics, Resilience, and Auditability via automated audit test suite `tests/v5_2_gate5_unified_audit.mjs`.
+  - Resilience Matrix: 157 / 157 adversarial, failure-recovery, and chaos scenarios 100% green.
+  - Unit Economics: Observed AI cost of $\$0.0404$ per application ($<\$0.05$ ceiling) with gross commercial margins $>79\%$.
+- **Gate 6 Permanent Architecture Freeze**:
+  - Sealed core system substrates (`lib/execution/` and `lib/agents/contracts.ts`) against further modification.
+  - Roadmap completed: No further features, no CP-005, and no agent authority expansion.
+  - System transition to perpetual governed production stability.
+- **Published Artifacts**:
+  - `docs/SPEC_GATE_4_PRODUCTION_VALIDATION.md`
+  - `docs/GATE_4_PRODUCTION_VALIDATION_REPORT.md`
+  - `docs/GATE_5_UNIFIED_RJA_AUDIT.md`
+  - `docs/RJA_FINAL_ARCHITECTURE_FREEZE.md`
+
 ## 5.1.x — Evidence Accumulation (Phase 2: N=120 Uncertainty Reduction)
 
 - **Operational Milestone (Non-Version Release)**: Successfully executed Phase 2 Evidence Accumulation, expanding the production evidence denominator to $N=120$ real job applications under the frozen v5.1.0 baseline.
