@@ -1,5 +1,31 @@
 # Changelog
 
+## 5.1.0 — Evidence-Driven Product Evolution
+
+- **Controlled Version Transition**: Transitioned from the certified v5.0.0 baseline to v5.1.0. All existing architectural invariants, sovereign approval gates, cryptographic freezing boundaries, and negative capabilities are 100% preserved ($\text{Agent Intelligence} \neq \text{Agent Authority}$).
+- **CP-001 — Structured Relocation Decision Prompt**:
+  - Surfaced structured relocation decisions (`confirm_remote_exception`, `relocate`, or `drop`) directly in Policy Guard & Orchestrator when candidate work preferences conflict with non-remote job locations.
+  - Required sovereign human confirmation (`confirm_relocation_waiver`) at the Human Review Gate.
+  - Zero false positives on remote opportunities; deterministic replay and full evidence grounding preserved.
+  - Autonomous agents strictly prohibited from self-confirming relocation waivers.
+  - Verified in `tests/v5_1_cp001_relocation_decision.mjs` (7/7 tests passing).
+- **CP-002 — Workday Screening Answer Character Limit Pre-Validation**:
+  - Pre-validates screening answer lengths for Workday destination jobs before submission.
+  - Hard constraint ceiling: 250 characters (fail-fast error).
+  - Pre-flight warning threshold: 240 characters.
+  - Invariant: Zero authoritative artifact mutation. Answers are never silently truncated, preserving cryptographic hashes and human intent.
+  - Exempts non-Workday ATS platforms (Greenhouse, Lever).
+  - Verified in `tests/v5_1_cp002_workday_length_validation.mjs` (6/6 tests passing).
+- **Cross-Version Protection & Authority Invariant**:
+  - Substrate zero-drift: `lib/execution/` verified at 0 lines of diff against baseline `43a4c43`.
+  - Authority zero-drift: `lib/agents/contracts.ts` verified at 0 lines of diff; negative capabilities (`canExecute: false`, `canApprove: false`, `canMutateEvidence: false`) remain strictly enforced across all agent types.
+  - Historical immutability: T0–T12 ledger, P2 50-job benchmark hash (`8227f169...`), and P4 pilot cohort integrity permanently immutable.
+  - Verified in `tests/v5_1_cross_version_protection.mjs` (5/5 checks passing).
+- **Release Verification & Certification**:
+  - 32/32 test suites green (29 v5.0 regression suites + 3 new v5.1 verification suites).
+  - 157/157 resilience scenarios green.
+  - Static type checking: 0 errors (`tsc --noEmit`).
+
 ## 5.0.0-P5 — Production & Market Deployment
 
 - **Deployment Phase Transition**: Permanently froze v5.0.0 as the production baseline, establishing RJA as a *governed agentic application system* where AI proposes and reasons across complete workflows while execution authority remains strictly controlled by deterministic infrastructure and sovereign human approval ($\text{Agent Intelligence} \neq \text{Agent Authority}$).

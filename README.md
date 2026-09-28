@@ -1,9 +1,9 @@
-# Remote Job Accelerator (RJA) v5.0.0
+# Remote Job Accelerator (RJA) v5.1.0
 ### Production-Grade Governed Multi-Agent AI System
 
-[![Release](https://img.shields.io/badge/Release-v5.0.0-blue.svg)](RELEASE_NOTES_v5.0.0.md)
+[![Release](https://img.shields.io/badge/Release-v5.1.0-blue.svg)](docs/V5_1_0_RELEASE_CERTIFICATION.md)
 [![Resilience Matrix](https://img.shields.io/badge/Resilience%20Matrix-157%2F157%20Passed-brightgreen.svg)](docs/V5_BETA2_RESILIENCE_MATRIX.md)
-[![Regression Suites](https://img.shields.io/badge/Regression-29%2F29%20Green-brightgreen.svg)](docs/V5_RELEASE_CERTIFICATION.md)
+[![Regression Suites](https://img.shields.io/badge/Regression-32%2F32%20Green-brightgreen.svg)](docs/V5_1_0_RELEASE_CERTIFICATION.md)
 [![Substrate Drift](https://img.shields.io/badge/lib%2Fexecution-Zero%20Drift-brightgreen.svg)](docs/SECURITY_ARCHITECTURE_REVIEW_V4.6.1.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-0%20Errors-blue.svg)](package.json)
 [![Fingerprint Scheme](https://img.shields.io/badge/Scheme-rja--c14n--v1--sha256-blueviolet.svg)](lib/execution/fingerprint.ts)

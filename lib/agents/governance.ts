@@ -47,6 +47,11 @@ export interface HumanApprovalParams {
   };
   destination: string;
   approvalTimestamp?: string;
+  relocationConfirmation?: {
+    jobId?: string;
+    choice: string;
+    confirmed: boolean;
+  };
 }
 
 export interface ApprovedPackageRecord {
@@ -63,6 +68,11 @@ export interface ApprovedPackageRecord {
     resume: any;
     cover_letter: any;
     screening_answers: any;
+  };
+  relocationConfirmation?: {
+    jobId?: string;
+    choice: string;
+    confirmed: boolean;
   };
 }
 
@@ -493,6 +503,7 @@ export function signHumanApproval(params: HumanApprovalParams): ApprovedPackageR
     destination,
     canonicalFingerprint,
     artifactContent: JSON.parse(JSON.stringify(artifactContent)),
+    relocationConfirmation: params.relocationConfirmation ? { ...params.relocationConfirmation } : undefined,
   };
 }
 
@@ -766,4 +777,79 @@ export function verifyUnifiedLifecycleAuditTrail(lifecycle: UnifiedLifecycleTrac
     traceChain,
   };
 }
+
+/**
+ * RFC CP-002: Workday Screening Answer Pre-Validation.
+ * Pre-validates screening answer lengths for Workday destinations against the 250-character ceiling.
+ * INVARIANT: Pure deterministic validation — NEVER mutates or auto-truncates the authoritative artifact.
+ */
+export interface WorkdayValidationResult {
+  valid: boolean;
+  destination: string;
+  isWorkday: boolean;
+  maxCharacterLimit: number;
+  warningThreshold: number;
+  warnings: string[];
+  errors: string[];
+  characterCounts: { question_id: string; length: number; exceedsLimit: boolean }[];
+}
+
+export function validateWorkdayScreeningAnswers(
+  screeningAnswers: any,
+  destination: string = ''
+): WorkdayValidationResult {
+  const destLower = String(destination || '').toLowerCase();
+  const isWorkday = destLower.includes('workday');
+  const maxLimit = 250;
+  const warningThreshold = 240;
+
+  const result: WorkdayValidationResult = {
+    valid: true,
+    destination,
+    isWorkday,
+    maxCharacterLimit: maxLimit,
+    warningThreshold,
+    warnings: [],
+    errors: [],
+    characterCounts: [],
+  };
+
+  if (!isWorkday || !screeningAnswers) {
+    return result;
+  }
+
+  const rawAnswers = Array.isArray(screeningAnswers.answers)
+    ? screeningAnswers.answers
+    : Array.isArray(screeningAnswers)
+    ? screeningAnswers
+    : [];
+
+  for (let i = 0; i < rawAnswers.length; i++) {
+    const item = rawAnswers[i];
+    const qId = String(item.question_id || item.question || `q-${i + 1}`);
+    const text = String(item.answer || item.text || '');
+    const length = text.length;
+    const exceeds = length > maxLimit;
+
+    result.characterCounts.push({
+      question_id: qId,
+      length,
+      exceedsLimit: exceeds,
+    });
+
+    if (exceeds) {
+      result.valid = false;
+      result.errors.push(
+        `Workday pre-validation failed for '${qId}': length ${length} exceeds maximum allowed ${maxLimit} characters.`
+      );
+    } else if (length >= warningThreshold) {
+      result.warnings.push(
+        `Workday pre-validation warning for '${qId}': length ${length} approaches 250-character ceiling (warning threshold: ${warningThreshold}).`
+      );
+    }
+  }
+
+  return result;
+}
+
 

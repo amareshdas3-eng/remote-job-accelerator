@@ -300,6 +300,29 @@ export async function synthesizeOrchestrationProposal(
     }
   }
 
+  // CP-001: Structured Relocation Decision Surfacing (RFC CP-001)
+  // Detect on-site / hybrid work requirements or explicit relocation mandates in discovered opportunities
+  for (const { proposal: discProp, proposalId: discEnvelopeId } of unwrappedDiscoveries) {
+    const loc = (discProp.location || '').toLowerCase();
+    const desc = (discProp.description || '').toLowerCase();
+    const isRelocationLocation = /\b(on-site|onsite|hybrid|in-office|relocation required|must relocate)\b/i.test(loc);
+    const isRelocationDesc = /\b(relocation assistance required|must be willing to relocate|on-site 3 days|on-site 4 days|on-site 5 days|mandatory in-office attendance)\b/i.test(desc);
+
+    if (isRelocationLocation || isRelocationDesc) {
+      requiredHumanDecisions.push({
+        decisionId: `dec-relocation-${discProp.jobId}`,
+        type: 'confirm_relocation_waiver',
+        title: `Confirm Remote Exception / Relocation Policy: ${discProp.company}`,
+        description: `Job '${discProp.title}' at '${discProp.company}' lists location '${discProp.location || 'On-site'}'. Candidate confirmation required for remote exception or relocation willingness.`,
+        relatedProposalIds: [discEnvelopeId],
+        reason: `Policy requirement: On-site/hybrid or relocation constraint identified for ${discProp.company}.`,
+        options: ['Confirm Remote Exception Request', 'Willing to Relocate', 'Drop Opportunity'],
+        targetJobId: discProp.jobId,
+        required: true,
+      });
+    }
+  }
+
   // 5. Deduplicate and sort decisions and conflicts deterministically
   const uniqueConflicts = Array.from(
     new Map(conflicts.map((c) => [c.conflictId, c])).values()
