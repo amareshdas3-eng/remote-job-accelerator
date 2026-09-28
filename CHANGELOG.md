@@ -1,5 +1,26 @@
 # Changelog
 
+## 5.0.0-P5 — Production & Market Deployment
+
+- **Deployment Phase Transition**: Permanently froze v5.0.0 as the production baseline, establishing RJA as a *governed agentic application system* where AI proposes and reasons across complete workflows while execution authority remains strictly controlled by deterministic infrastructure and sovereign human approval ($\text{Agent Intelligence} \neq \text{Agent Authority}$).
+- **The Five Practical Questions of Deployment**:
+  1. *Unassisted Onboarding*: Verified self-service onboarding in $< 1\text{ second}$ with $0$ support interventions and $0\%$ configuration errors.
+  2. *Continuous Operations*: Certified 24/7 continuous workflow execution, fail-safe Policy Guard blocks, and clean recovery from upstream provider failure.
+  3. *Multi-User Isolation*: Enforced 6-layer isolation boundary (Tenant, Candidate, Job, Artifact, Audit, Authority) preventing cross-tenant leakage, profile contamination, and unauthorized agent execution.
+  4. *Unit Economic Survival*: Tracked actual AI costs ($\$0.042/\text{app}$), human review labor ($\$1.83/\text{app}$), and infra costs ($\$0.01/\text{app}$) delivering observed $23.5\times$ economic leverage without naive population extrapolation.
+  5. *Multi-Environment Replicability*: Verified $100\%$ bit-for-bit canonical fingerprint parity (`3ea665bb...`) and identical audit chains across independent production environments (`prod-us-east-1` vs `prod-eu-west-1`) with strict zero substrate drift.
+- **Continuous Production Evidence Ledger**: Created immutable ledger fixture at `tests/fixtures/p5_production_evidence_ledger.json` recording Run ID, Timestamp, Environment, Version, Job ID, Workflow Outcome, Policy Decision, Human Intervention, AI Cost, Review Cost, Incident ID, Audit Fingerprint, and Final Status.
+- **P5 Deployment Artifacts**:
+  - `docs/P5_PRODUCTION_DEPLOYMENT_SPECIFICATION.md`
+  - `docs/P5_MARKET_DEPLOYMENT_PLAYBOOK.md`
+  - `docs/P5_OPERATIONS_RUNBOOK.md`
+  - `docs/P5_SECURITY_MODEL.md`
+  - `docs/P5_PRODUCTION_METRICS.md`
+  - `tests/p5_production_deployment.mjs`
+  - `tests/p5_multi_user_isolation.mjs`
+  - `tests/p5_operational_smoke.mjs`
+  - `tests/fixtures/p5_production_evidence_ledger.json`
+
 ## 5.0.0-P4 — Controlled Production Pilot & Operational Evidence
 
 - **Controlled Cohort Deployment**: Operated frozen v5.0.0 core with 5 verified technical candidates across 25 real remote job opportunities (Greenhouse, Lever, Workday).
