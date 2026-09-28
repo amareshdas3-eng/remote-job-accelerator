@@ -272,8 +272,8 @@ export default function Dashboard({ email }: { email: string }) {
     return true;
   };
 
-  // Run AI Cover Letter against canonical active job
-  const runCover = async () => {
+  // Run AI Cover Letter against canonical active job (CP-004 pre-flight custom paragraph supported)
+  const runCover = async (tailoredCoverLetterParagraph?: string) => {
     if (!activeJob) {
       setNotice('Please select an active job first.');
       return false;
@@ -283,6 +283,8 @@ export default function Dashboard({ email }: { email: string }) {
       resume,
       job_id: activeJob.id,
       tailored_resume: activeJob.tailored_resume,
+      tailored_cover_letter_paragraph: tailoredCoverLetterParagraph,
+      tailoredCoverLetterParagraph,
     });
     if (!j) return false;
 

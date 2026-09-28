@@ -29,6 +29,7 @@ export interface PolicyEvaluationContext {
     planning?: any[];
   };
   forceDecision?: PolicyDecisionType;
+  tailoredCoverLetterParagraph?: string | null;
   options?: {
     policyDecisionId?: string;
     createdAt?: string;
@@ -52,6 +53,7 @@ export interface HumanApprovalParams {
     choice: string;
     confirmed: boolean;
   };
+  tailoredCoverLetterParagraph?: string | null;
 }
 
 export interface ApprovedPackageRecord {
@@ -74,6 +76,7 @@ export interface ApprovedPackageRecord {
     choice: string;
     confirmed: boolean;
   };
+  tailoredCoverLetterParagraph?: string;
 }
 
 /**
@@ -244,6 +247,29 @@ export function evaluatePolicyDecision(
           rule: `CONFLICT_${conflict.type}`,
           description: `Unresolved blocking conflict (${conflict.type}): ${conflict.description}`,
           relatedProposalIds: conflict.proposalIds || conflict.involvedProposalIds || [],
+        });
+      }
+    }
+  }
+
+  // CP-004: Pre-Flight Custom Paragraph Evidence & Hallucination Audit
+  const customParagraphToAudit =
+    context.tailoredCoverLetterParagraph ||
+    (upstreamInputs?.planning || []).find((p: any) => p?.output?.tailoredCoverLetterParagraph || p?.tailoredCoverLetterParagraph)?.output?.tailoredCoverLetterParagraph ||
+    (upstreamInputs?.planning || []).find((p: any) => p?.tailoredCoverLetterParagraph)?.tailoredCoverLetterParagraph ||
+    (proposal as any).tailoredCoverLetterParagraph;
+
+  if (customParagraphToAudit) {
+    const customAudit = validateCustomCoverLetterParagraph(customParagraphToAudit, snapshot);
+    if (!customAudit.valid) {
+      for (const err of customAudit.errors) {
+        findings.push({
+          findingId: `find-cp004-ungrounded-${findings.length + 1}`,
+          category: 'CONSISTENCY',
+          severity: 'BLOCKING',
+          rule: 'POLICY_VIOLATION_UNGROUNDED_CLAIM',
+          description: err,
+          relatedProposalIds: [proposal.orchestrationId],
         });
       }
     }
@@ -504,6 +530,7 @@ export function signHumanApproval(params: HumanApprovalParams): ApprovedPackageR
     canonicalFingerprint,
     artifactContent: JSON.parse(JSON.stringify(artifactContent)),
     relocationConfirmation: params.relocationConfirmation ? { ...params.relocationConfirmation } : undefined,
+    tailoredCoverLetterParagraph: params.tailoredCoverLetterParagraph || undefined,
   };
 }
 
@@ -851,5 +878,105 @@ export function validateWorkdayScreeningAnswers(
 
   return result;
 }
+
+/**
+ * RFC CP-004: Pre-Flight Custom Paragraph Evidence & Length Validation.
+ * Validates candidate-provided custom cover letter paragraph:
+ * - Ensures length does not exceed 1000 characters.
+ * - Extracts high-stakes credentials (degrees, licenses, certs) and audits against verified candidate snapshot.
+ * - Blocks ungrounded credential claims before proposal approval.
+ */
+export interface CustomParagraphValidationResult {
+  valid: boolean;
+  hasCustomParagraph: boolean;
+  length: number;
+  maxCharacterLimit: number;
+  verifiedClaims: string[];
+  unsupportedClaims: string[];
+  warnings: string[];
+  errors: string[];
+}
+
+export function validateCustomCoverLetterParagraph(
+  customParagraph: string | null | undefined,
+  snapshot?: EvidenceSnapshot | null
+): CustomParagraphValidationResult {
+  const maxLimit = 1000;
+  const rawText = customParagraph ? String(customParagraph).trim() : '';
+  const length = rawText.length;
+
+  const result: CustomParagraphValidationResult = {
+    valid: true,
+    hasCustomParagraph: length > 0,
+    length,
+    maxCharacterLimit: maxLimit,
+    verifiedClaims: [],
+    unsupportedClaims: [],
+    warnings: [],
+    errors: [],
+  };
+
+  if (!customParagraph || length === 0) {
+    return result;
+  }
+
+  if (length > maxLimit) {
+    result.valid = false;
+    result.errors.push(
+      `Custom paragraph pre-validation failed: length ${length} exceeds maximum allowed ${maxLimit} characters.`
+    );
+  }
+
+  // Audit high stakes credentials if snapshot is available
+  const snapAny = snapshot as any;
+  const prof = snapAny?.profile_data || snapAny?.profile || snapAny?.data;
+  if (snapshot && prof) {
+    const HIGH_STAKES_CREDENTIALS = [
+      'pmp',
+      'prince2',
+      'pe license',
+      'professional engineer',
+      'phd',
+      'doctorate',
+      'mba',
+      'master of science',
+      'cpa',
+      'cissp',
+      'aws certified solutions architect',
+      'gcp professional cloud architect',
+      'cka',
+    ];
+
+    const lowerText = rawText.toLowerCase();
+    const verifiedCertifications = (prof.certifications || []).map((c: any) => String(c).toLowerCase().trim());
+    const candidateSkills = [
+      ...(prof.skills || []),
+      ...(prof.technical_skills || []),
+      ...(prof.verifiableFacts || []),
+    ].map((s: any) => String(s).toLowerCase().trim());
+
+    const fullEvidence = `${JSON.stringify(prof)} ${snapshot.evidence_hash || ''}`.toLowerCase();
+
+    for (const cred of HIGH_STAKES_CREDENTIALS) {
+      const credRegex = new RegExp(`\\b${cred}\\b`, 'i');
+      if (credRegex.test(lowerText)) {
+        const hasCertInProfile = verifiedCertifications.some((vc: string) => vc.includes(cred) || cred.includes(vc));
+        const hasCertInEvidence = fullEvidence.includes(cred);
+        const hasSkillInEvidence = candidateSkills.some((cs: string) => cs.includes(cred) || cred.includes(cs));
+
+        if (hasCertInProfile || hasCertInEvidence || hasSkillInEvidence) {
+          result.verifiedClaims.push(`Verified Credential: ${cred.toUpperCase()}`);
+        } else {
+          result.valid = false;
+          result.unsupportedClaims.push(`Hallucinated or unverified credential claimed in custom paragraph: ${cred.toUpperCase()}`);
+          result.errors.push(`UNGROUNDED_CLAIM_DETECTED: '${cred.toUpperCase()}' is not supported by verified candidate snapshot evidence.`);
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 
 

@@ -22,6 +22,7 @@ export interface PlanningOptions {
   createdAt?: string;
   planId?: string;
   forceReviewRequired?: boolean;
+  tailoredCoverLetterParagraph?: string | null;
 }
 
 /**
@@ -95,6 +96,21 @@ export async function generatePlanningProposal(
   const rationale: string[] = [];
 
   let activePreparationCount = 0;
+
+  // CP-004: Validate and sanitize optional custom narrative paragraph
+  let sanitizedCustomParagraph: string | undefined;
+  if (options?.tailoredCoverLetterParagraph !== undefined && options?.tailoredCoverLetterParagraph !== null) {
+    const rawParagraph = String(options.tailoredCoverLetterParagraph);
+    if (rawParagraph.length > 1000) {
+      throw new Error(
+        `PLANNING_INPUT_INVALID: tailoredCoverLetterParagraph exceeds maximum length of 1000 characters (received ${rawParagraph.length})`
+      );
+    }
+    const trimmed = rawParagraph.trim();
+    if (trimmed.length > 0) {
+      sanitizedCustomParagraph = trimmed;
+    }
+  }
 
   for (let i = 0; i < sortedEvaluations.length; i++) {
     const { evaluation, proposalId } = sortedEvaluations[i];
@@ -185,6 +201,9 @@ export async function generatePlanningProposal(
       priority: i + 1,
       prerequisites,
       rationale: actionRationale,
+      ...(actionType === 'prepare_for_review' && sanitizedCustomParagraph
+        ? { customNarrativeParagraph: sanitizedCustomParagraph }
+        : {}),
     });
   }
 
@@ -201,6 +220,10 @@ export async function generatePlanningProposal(
       `${actions.filter((a) => a.action === 'defer').length} deferred.`
   );
 
+  if (sanitizedCustomParagraph) {
+    rationale.push('Incorporated optional candidate custom narrative focus into review preparation.');
+  }
+
   return {
     planId,
     candidateSnapshotId: snapshot.id,
@@ -215,6 +238,7 @@ export async function generatePlanningProposal(
     rationale,
     createdAt,
     proposed_by: 'planning_agent',
+    ...(sanitizedCustomParagraph ? { tailoredCoverLetterParagraph: sanitizedCustomParagraph } : {}),
   };
 }
 

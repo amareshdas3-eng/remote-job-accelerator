@@ -50,15 +50,23 @@ Return ONLY valid JSON matching this schema:
   "gaps": ["Unmatched requirement 1"]
 }`;
 
+  const customParagraph = String(b.tailoredCoverLetterParagraph || b.tailored_cover_letter_paragraph || '').trim();
+  if (customParagraph.length > 1000) {
+    return NextResponse.json({ error: 'tailoredCoverLetterParagraph exceeds maximum length of 1000 characters' }, { status: 400 });
+  }
+
   const userPrompt = `Create a matching tailored cover letter and email application pitch for this target role.
 JOB DESCRIPTION:
 ${job}
 
-${tailoredResume ? `TAILORED ATS RESUME CONTEXT:\n${tailoredResume}\n\n` : ''}MASTER RESUME EVIDENCE:
+${tailoredResume ? `TAILORED ATS RESUME CONTEXT:\n${tailoredResume}\n\n` : ''}${customParagraph ? `CANDIDATE CUSTOM NARRATIVE FOCUS (MUST BE TRUTHFULLY HARMONIZED):\n${customParagraph}\n\n` : ''}MASTER RESUME EVIDENCE:
 ${resume}`;
 
   const raw = await ai(systemPrompt, userPrompt);
   const result = safeJson(raw);
+  if (customParagraph && result && typeof result === 'object') {
+    result.customNarrativeParagraph = customParagraph;
+  }
   if (b.job_id) {
     await supabaseAdmin()
       .from('jobs')

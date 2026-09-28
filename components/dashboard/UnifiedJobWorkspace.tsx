@@ -16,7 +16,7 @@ interface UnifiedJobWorkspaceProps {
   onRunMatch: () => Promise<boolean>;
   onRunStrategy?: () => Promise<boolean>;
   onRunTailor: () => Promise<boolean>;
-  onRunCover: () => Promise<boolean>;
+  onRunCover: (customParagraph?: string) => Promise<boolean>;
   onRunScreeningAnswers?: (customQuestions?: string[]) => Promise<boolean>;
   onRunInterview: () => Promise<boolean>;
   onSaveToPipeline: (status?: string) => Promise<void>;
@@ -84,6 +84,10 @@ export default function UnifiedJobWorkspace({
     const updated = detectedRoute?.emailRecipient || extractApplicationEmail(activeJob.url, activeJob.application_url, activeJob.description) || '';
     setRecipientEmail(updated);
   }, [activeJob.id, detectedRoute?.emailRecipient, activeJob.url, activeJob.application_url, activeJob.description]);
+
+  // CP-004: Pre-flight optional custom narrative emphasis (Default-collapsed to prevent prompt fatigue)
+  const [customNarrativeOpen, setCustomNarrativeOpen] = useState(false);
+  const [customNarrativeText, setCustomNarrativeText] = useState('');
 
   const interview = activeInterview?.plan;
   const score = typeof match?.score === 'number' ? match.score : null;
@@ -935,11 +939,65 @@ export default function UnifiedJobWorkspace({
               </div>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '50px 16px', color: '#7e909a' }}>
+            <div style={{ textAlign: 'center', padding: '40px 16px', color: '#7e909a' }}>
               <p style={{ fontSize: '12px', marginBottom: '14px' }}>
                 No cover letter generated yet for "{activeJob.title} at {activeJob.company}".
               </p>
-              <button className="primary" disabled={busy} onClick={onRunCover}>
+
+              {/* CP-004: Default-Collapsed Custom Narrative Accordion */}
+              <div style={{ maxWidth: '520px', margin: '0 auto 16px', textAlign: 'left' }}>
+                <button
+                  type="button"
+                  onClick={() => setCustomNarrativeOpen(!customNarrativeOpen)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#38bdf8',
+                    fontSize: '11px',
+                    cursor: 'pointer',
+                    padding: '4px 0',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontWeight: 600,
+                  }}
+                >
+                  {customNarrativeOpen ? '▼' : '►'} Add optional custom narrative emphasis (Optional)
+                </button>
+                {customNarrativeOpen && (
+                  <div style={{ marginTop: '8px', background: '#091319', border: '1px solid #182730', borderRadius: '6px', padding: '12px' }}>
+                    <p style={{ fontSize: '10px', color: '#94a3b8', margin: '0 0 6px', lineHeight: 1.4 }}>
+                      Provide tailored narrative emphasis or draft paragraph (max 1,000 characters). Must cite verifiable credentials or experience.
+                    </p>
+                    <textarea
+                      value={customNarrativeText}
+                      onChange={(e) => setCustomNarrativeText(e.target.value.slice(0, 1000))}
+                      placeholder="e.g. Focus on my experience migrating legacy financial messaging to distributed Kafka clusters..."
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        background: '#04080a',
+                        border: '1px solid #1e3847',
+                        borderRadius: '4px',
+                        color: '#e2e8f0',
+                        fontSize: '11px',
+                        padding: '8px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    <div style={{ fontSize: '9px', color: '#64748b', textAlign: 'right', marginTop: '4px' }}>
+                      {customNarrativeText.length} / 1000 characters
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                className="primary"
+                disabled={busy}
+                onClick={() => onRunCover(customNarrativeText.trim() || undefined)}
+              >
                 {busy ? 'Generating Cover Letter…' : 'Generate Role-Aligned Cover Letter →'}
               </button>
             </div>
@@ -951,14 +1009,18 @@ export default function UnifiedJobWorkspace({
               <button className="secondary" onClick={() => setTab('qc')}>
                 ← Back to ATS QC
               </button>
-              <button className="secondary" disabled={busy} onClick={onRunCover}>
+              <button
+                className="secondary"
+                disabled={busy}
+                onClick={() => onRunCover(customNarrativeText.trim() || undefined)}
+              >
                 {busy ? 'Writing…' : cover ? '↻ Re-generate Cover Letter' : 'Generate Cover Letter'}
               </button>
               <button
                 className="primary"
                 disabled={busy}
                 onClick={async () => {
-                  if (!cover) await onRunCover();
+                  if (!cover) await onRunCover(customNarrativeText.trim() || undefined);
                   setTab('submission');
                 }}
               >

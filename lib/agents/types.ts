@@ -193,6 +193,7 @@ export interface PlannedAction {
   priority: number; // 1 = highest priority
   prerequisites: string[];
   rationale: string;
+  customNarrativeParagraph?: string;
 }
 
 /**
@@ -224,6 +225,7 @@ export interface PlanningProposal {
   rationale: string[];
   createdAt: string;
   proposed_by: 'planning_agent';
+  tailoredCoverLetterParagraph?: string;
 }
 
 /**
