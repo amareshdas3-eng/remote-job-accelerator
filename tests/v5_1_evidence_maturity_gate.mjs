@@ -5,6 +5,7 @@ import path from 'node:path';
 import {
   evaluateEvidenceMaturity,
   calculateWilsonScoreInterval,
+  validateRFCEvidenceSufficiency,
 } from '../lib/evidence/maturity.js';
 import {
   DEFAULT_FINGERPRINT_SCHEME,
@@ -152,10 +153,43 @@ assert.strictEqual(customParagraphRFC.denominator, 60);
 assert.strictEqual(customParagraphRFC.frequencyPct, 5.0);
 assert.strictEqual(customParagraphRFC.thresholdExceeded, true, '5.0% meets the 5.0% threshold');
 assert.ok(customParagraphRFC.synthesizedRFC);
-assert.strictEqual(customParagraphRFC.synthesizedRFC.status, 'PROPOSED_FOR_HUMAN_REVIEW');
-assert.strictEqual(customParagraphRFC.synthesizedRFC.requiresAuthorityExpansion, false);
+
+const rfcPkg = customParagraphRFC.synthesizedRFC;
+
+// Verify all 12 mandatory RFC Evidence Sufficiency fields
+assert.strictEqual(rfcPkg.rfcId, 'RFC-CP-004-COVER-LETTER-CUSTOM-PARAGRAPH', 'Field 1: RFC ID');
+assert.ok(rfcPkg.evidenceWindow.start && rfcPkg.evidenceWindow.end, 'Field 2: Evidence Window');
+assert.deepStrictEqual(rfcPkg.evidenceWindow.runIndexRange, [1, 60], 'Field 2: Run Index Range');
+assert.strictEqual(rfcPkg.n, 60, 'Field 3: N Denominator');
+assert.strictEqual(rfcPkg.affectedSegment.category, 'cover_letter_custom_paragraph', 'Field 4: Affected Segment');
+assert.strictEqual(rfcPkg.affectedSegment.segmentN, 3);
+assert.strictEqual(rfcPkg.observedRate.rateString, '3/60 (5%)', 'Field 5: Observed Rate');
+assert.deepStrictEqual(rfcPkg.ci95, [1.71, 13.70], 'Field 6: 95% Wilson Confidence Interval');
+assert.strictEqual(rfcPkg.baseline.version, 'v5.1.0', 'Field 7: Baseline Version');
+assert.ok(rfcPkg.expectedBenefit.metric, 'Field 8: Expected Benefit');
+assert.ok(rfcPkg.potentialRegression.riskFactors.length >= 2, 'Field 9: Potential Regression Analysis');
+assert.strictEqual(rfcPkg.authorityImpact.expandsAgentAuthority, false, 'Field 10: Zero Agent Authority Expansion');
+assert.strictEqual(rfcPkg.authorityImpact.modifiesSubstrate, false, 'Field 10: Zero Substrate Modification');
+assert.strictEqual(rfcPkg.authorityImpact.negativeCapabilitiesPreserved, true, 'Field 10: Negative Capabilities Preserved');
+assert.strictEqual(rfcPkg.humanDecision, 'PENDING_REVIEW', 'Field 11: Human Decision State');
+assert.strictEqual(rfcPkg.decisionRationale, null, 'Field 12: Decision Rationale (null while pending)');
+
+// Validate RFC Evidence Sufficiency using formal validator
+const validationResult = validateRFCEvidenceSufficiency(rfcPkg);
+assert.strictEqual(validationResult.isValid, true, 'RFC Package must pass formal sufficiency validation');
+assert.strictEqual(validationResult.missingFields.length, 0);
+assert.strictEqual(validationResult.errors.length, 0);
+
+// Validate Fail-Closed Behavior on Tampered / Incomplete RFC Package
+const invalidPkg = { ...rfcPkg, authorityImpact: { ...rfcPkg.authorityImpact, expandsAgentAuthority: true } };
+// @ts-ignore
+const failClosedResult = validateRFCEvidenceSufficiency(invalidPkg);
+assert.strictEqual(failClosedResult.isValid, false, 'Validator must reject package attempting authority expansion');
+assert.ok(failClosedResult.errors.some(e => e.includes('Authority violation')));
+
 console.log(`  ✓ RFC Trigger Threshold: ${customParagraphRFC.frequencyPct}% meets 5.0% threshold.`);
-console.log(`  ✓ Synthesized RFC: ${customParagraphRFC.synthesizedRFC.rfcId} (Denominator: N=60, Occurrences: 3)`);
+console.log(`  ✓ Synthesized RFC: ${rfcPkg.rfcId} (Denominator: N=60, Occurrences: 3)`);
+console.log(`  ✓ All 12 RFC Evidence Sufficiency fields verified and formally validated.`);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. GOVERNING INVARIANT: TELEMETRY MUST NEVER BECOME AN AUTHORITY CHANNEL

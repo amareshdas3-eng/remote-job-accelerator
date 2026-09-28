@@ -20,7 +20,9 @@
 - **Field Validation of CP-001 & CP-002**:
   - CP-001: $11 / 11$ ($100.0\%$) non-remote jobs surfaced relocation decision prompt; $0 / 49$ ($0.0\%$) remote false positives.
   - CP-002: $23 / 23$ ($100.0\%$) Workday screening answers compliant; $2$ pre-flight advisory warnings; **strictly 0 silent string truncations**.
-- **Evidence-Driven RFC Synthesis**: Evaluated candidate edit friction ($3/60 = 5.0\%$) to synthesize `RFC-CP-004-COVER-LETTER-CUSTOM-PARAGRAPH` for human sovereign review.
+- **Evidence-Driven RFC Synthesis & Sufficiency Standard**:
+  - Formalized the **12-Field RFC Evidence Sufficiency Standard** in `lib/evidence/maturity.ts` (`validateRFCEvidenceSufficiency`), enforcing that all candidate change proposals provide explicit RFC ID, evidence window, denominator $N$, affected segment, observed rate, 95% Wilson CI, baseline behavior, expected benefits, regression risks/mitigations, zero-authority impact proof, human decision state, and decision rationale.
+  - Published the formal **Human Review Package for RFC-CP-004** (`docs/RFC_CP_004_HUMAN_REVIEW_PACKAGE.md`) for human engineering determination under Branch B, preserving v5.1.0 without speculative v5.2.0 changes.
 - **Substrate & Authority Zero-Drift**: Verified `lib/execution/` and `lib/agents/contracts.ts` at **strictly 0 diff lines**. Full regression suites green.
 
 ## 5.1.0 — Evidence-Driven Product Evolution

@@ -101,21 +101,62 @@ export interface SegmentAnalysis {
   meanTotalCostUsd: number;
 }
 
+export interface RFCEvidenceSufficiencyPackage {
+  rfcId: string;
+  evidenceWindow: {
+    start: string;
+    end: string;
+    runIndexRange: [number, number];
+  };
+  n: number;
+  affectedSegment: {
+    category: string;
+    description: string;
+    segmentN: number;
+    segmentSharePct: number;
+  };
+  observedRate: {
+    numerator: number;
+    denominator: number;
+    ratePct: number;
+    rateString: string;
+  };
+  ci95: [number, number];
+  baseline: {
+    version: string;
+    currentBehavior: string;
+  };
+  expectedBenefit: {
+    metric: string;
+    estimatedImprovement: string;
+    impactSummary: string;
+  };
+  potentialRegression: {
+    riskFactors: string[];
+    mitigationStrategy: string;
+  };
+  authorityImpact: {
+    expandsAgentAuthority: false;
+    modifiesSubstrate: false;
+    negativeCapabilitiesPreserved: true;
+    governanceTier: 'PROPOSAL_ONLY' | 'REPRESENTATIONAL_ONLY';
+  };
+  humanDecision: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'REQUEST_MORE_EVIDENCE';
+  decisionRationale: string | null;
+  // Compatibility & metadata fields
+  status: 'PROPOSED_FOR_HUMAN_REVIEW' | 'APPROVED' | 'REJECTED';
+  requiresHumanReview: true;
+  requiresAuthorityExpansion: false;
+  title: string;
+}
+
 export interface RFCCandidateEvaluation {
   frictionCategory: string;
   occurrences: number;
   denominator: number;
   frequencyPct: number;
   thresholdExceeded: boolean;
-  synthesizedRFC: null | {
-    rfcId: string;
-    title: string;
-    evidenceDenominator: number;
-    evidenceOccurrences: number;
-    status: 'PROPOSED_FOR_HUMAN_REVIEW';
-    requiresHumanReview: true;
-    requiresAuthorityExpansion: false;
-  };
+  synthesizedRFC: null | RFCEvidenceSufficiencyPackage;
 }
 
 export interface EvidenceMaturityReport {
@@ -223,6 +264,123 @@ export function calculateContinuousMetric(values: number[]): ContinuousMetric {
       Number(Math.max(0, mean - marginOfError).toFixed(4)),
       Number((mean + marginOfError).toFixed(4)),
     ],
+  };
+}
+
+/**
+ * Formal Validator for RFC Evidence Sufficiency.
+ * Enforces that every proposed CP-00x candidate provides all 12 mandatory fields
+ * before it can be submitted to the human review gate:
+ * 1. RFC ID
+ * 2. Evidence Window
+ * 3. N (Denominator)
+ * 4. Affected Segment
+ * 5. Observed Rate
+ * 6. 95% Confidence Interval (Wilson Score)
+ * 7. Baseline Behavior
+ * 8. Expected Benefit
+ * 9. Potential Regression Analysis
+ * 10. Authority Impact Assessment (Strictly Zero Expansion)
+ * 11. Human Decision State
+ * 12. Decision Rationale
+ */
+export function validateRFCEvidenceSufficiency(pkg: RFCEvidenceSufficiencyPackage): {
+  isValid: boolean;
+  missingFields: string[];
+  errors: string[];
+} {
+  const missingFields: string[] = [];
+  const errors: string[] = [];
+
+  // 1. RFC ID
+  if (!pkg.rfcId || !/^RFC-CP-\d{3}/.test(pkg.rfcId)) {
+    missingFields.push('rfcId');
+    errors.push(`Invalid or missing RFC ID format: "${pkg.rfcId}". Must start with RFC-CP-00X.`);
+  }
+
+  // 2. Evidence Window
+  if (!pkg.evidenceWindow || !pkg.evidenceWindow.start || !pkg.evidenceWindow.end || !pkg.evidenceWindow.runIndexRange) {
+    missingFields.push('evidenceWindow');
+    errors.push('Missing or incomplete evidenceWindow (requires start, end, runIndexRange).');
+  }
+
+  // 3. N (Denominator)
+  if (typeof pkg.n !== 'number' || pkg.n <= 0) {
+    missingFields.push('n');
+    errors.push(`Invalid denominator N: ${pkg.n}. Must be greater than 0.`);
+  }
+
+  // 4. Affected Segment
+  if (!pkg.affectedSegment || !pkg.affectedSegment.category || typeof pkg.affectedSegment.segmentN !== 'number') {
+    missingFields.push('affectedSegment');
+    errors.push('Missing or incomplete affectedSegment specification.');
+  }
+
+  // 5. Observed Rate
+  if (!pkg.observedRate || typeof pkg.observedRate.numerator !== 'number' || typeof pkg.observedRate.ratePct !== 'number') {
+    missingFields.push('observedRate');
+    errors.push('Missing or incomplete observedRate.');
+  } else if (pkg.observedRate.denominator !== pkg.n) {
+    errors.push(`observedRate denominator (${pkg.observedRate.denominator}) does not match total N (${pkg.n}).`);
+  }
+
+  // 6. 95% Confidence Interval (Wilson Score)
+  if (!Array.isArray(pkg.ci95) || pkg.ci95.length !== 2 || pkg.ci95[0] > pkg.ci95[1]) {
+    missingFields.push('ci95');
+    errors.push(`Invalid 95% confidence interval tuple: ${JSON.stringify(pkg.ci95)}`);
+  }
+
+  // 7. Baseline
+  if (!pkg.baseline || !pkg.baseline.version || !pkg.baseline.currentBehavior) {
+    missingFields.push('baseline');
+    errors.push('Missing baseline specification (requires version, currentBehavior).');
+  }
+
+  // 8. Expected Benefit
+  if (!pkg.expectedBenefit || !pkg.expectedBenefit.metric || !pkg.expectedBenefit.estimatedImprovement) {
+    missingFields.push('expectedBenefit');
+    errors.push('Missing expectedBenefit definition.');
+  }
+
+  // 9. Potential Regression
+  if (!pkg.potentialRegression || !Array.isArray(pkg.potentialRegression.riskFactors) || !pkg.potentialRegression.mitigationStrategy) {
+    missingFields.push('potentialRegression');
+    errors.push('Missing potentialRegression analysis.');
+  }
+
+  // 10. Authority Impact
+  if (!pkg.authorityImpact) {
+    missingFields.push('authorityImpact');
+    errors.push('Missing authorityImpact definition.');
+  } else {
+    if (pkg.authorityImpact.expandsAgentAuthority !== false) {
+      errors.push('Authority violation: expandsAgentAuthority must be strictly false.');
+    }
+    if (pkg.authorityImpact.modifiesSubstrate !== false) {
+      errors.push('Authority violation: modifiesSubstrate must be strictly false.');
+    }
+    if (pkg.authorityImpact.negativeCapabilitiesPreserved !== true) {
+      errors.push('Authority violation: negativeCapabilitiesPreserved must be true.');
+    }
+  }
+
+  // 11. Human Decision
+  const validDecisions = ['PENDING_REVIEW', 'APPROVED', 'REJECTED', 'REQUEST_MORE_EVIDENCE'];
+  if (!pkg.humanDecision || !validDecisions.includes(pkg.humanDecision)) {
+    missingFields.push('humanDecision');
+    errors.push(`Invalid humanDecision: "${pkg.humanDecision}". Expected one of: ${validDecisions.join(', ')}`);
+  }
+
+  // 12. Decision Rationale
+  if (pkg.humanDecision !== 'PENDING_REVIEW' && (!pkg.decisionRationale || pkg.decisionRationale.trim().length === 0)) {
+    missingFields.push('decisionRationale');
+    errors.push('Decision rationale is required when human decision is finalized.');
+  }
+
+  return {
+    isValid: missingFields.length === 0 && errors.length === 0,
+    missingFields,
+    errors,
   };
 }
 
@@ -424,23 +582,75 @@ export function evaluateEvidenceMaturity(ledger: ProductionEvidenceLedger): Evid
   for (const [cat, count] of Object.entries(editCategories)) {
     const freq = (count / N) * 100;
     const exceeded = freq >= RFC_TRIGGER_THRESHOLD_PCT;
+    const ci95 = calculateWilsonScoreInterval(count, N);
+
+    const synthesizedPackage: RFCEvidenceSufficiencyPackage | null = exceeded
+      ? {
+          rfcId: `RFC-CP-004-${cat.toUpperCase().replace(/_/g, '-')}`,
+          title: `Pre-Flight Adaptive Guidance for ${cat.replace(/_/g, ' ')}`,
+          evidenceWindow: {
+            start: records[0]?.timestamp || new Date().toISOString(),
+            end: records[N - 1]?.timestamp || new Date().toISOString(),
+            runIndexRange: [1, N],
+          },
+          n: N,
+          affectedSegment: {
+            category: cat,
+            description:
+              cat === 'cover_letter_custom_paragraph'
+                ? 'Tier-1 Enterprise Applications where custom tailored cover letters are submitted'
+                : `Workload runs exhibiting friction in ${cat}`,
+            segmentN: count,
+            segmentSharePct: Number(freq.toFixed(2)),
+          },
+          observedRate: {
+            numerator: count,
+            denominator: N,
+            ratePct: Number(freq.toFixed(2)),
+            rateString: `${count}/${N} (${Number(freq.toFixed(2))}%)`,
+          },
+          ci95,
+          baseline: {
+            version: ledger.governedBaseline || 'v5.1.0',
+            currentBehavior:
+              'System generates application package deterministically from evidence profile without prompting candidate for tailored custom paragraphs before human review.',
+          },
+          expectedBenefit: {
+            metric: 'Human review edit duration and custom paragraph satisfaction',
+            estimatedImprovement:
+              'Eliminates ~45 seconds of post-generation manual text editing on tailored enterprise applications',
+            impactSummary:
+              'Captures optional candidate custom guidance up-front before proposal generation, preventing repetitive downstream manual rewrites.',
+          },
+          potentialRegression: {
+            riskFactors: [
+              'Candidate prompt fatigue if presented unnecessarily on standardized jobs',
+              'Risk of introducing ungrounded claims if custom text bypasses truth verification',
+            ],
+            mitigationStrategy:
+              'Make custom paragraph prompt strictly optional and default-omitted; require Policy Guard to audit all custom text against candidate evidence snapshot.',
+          },
+          authorityImpact: {
+            expandsAgentAuthority: false,
+            modifiesSubstrate: false,
+            negativeCapabilitiesPreserved: true,
+            governanceTier: 'PROPOSAL_ONLY',
+          },
+          humanDecision: 'PENDING_REVIEW',
+          decisionRationale: null,
+          status: 'PROPOSED_FOR_HUMAN_REVIEW',
+          requiresHumanReview: true,
+          requiresAuthorityExpansion: false,
+        }
+      : null;
+
     rfcCandidates.push({
       frictionCategory: cat,
       occurrences: count,
       denominator: N,
       frequencyPct: Number(freq.toFixed(2)),
       thresholdExceeded: exceeded,
-      synthesizedRFC: exceeded
-        ? {
-            rfcId: `RFC-CP-004-${cat.toUpperCase().replace(/_/g, '-')}`,
-            title: `Pre-Flight Adaptive Guidance for ${cat.replace(/_/g, ' ')}`,
-            evidenceDenominator: N,
-            evidenceOccurrences: count,
-            status: 'PROPOSED_FOR_HUMAN_REVIEW',
-            requiresHumanReview: true,
-            requiresAuthorityExpansion: false,
-          }
-        : null,
+      synthesizedRFC: synthesizedPackage,
     });
   }
 
