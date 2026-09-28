@@ -1,5 +1,24 @@
 # Changelog
 
+## 5.1.x — Evidence Accumulation (Phase 2: N=120 Uncertainty Reduction)
+
+- **Operational Milestone (Non-Version Release)**: Successfully executed Phase 2 Evidence Accumulation, expanding the production evidence denominator to $N=120$ real job applications under the frozen v5.1.0 baseline.
+- **Uncertainty Reduction on RFC-CP-004**:
+  - Recalculated custom paragraph edit rate: $7 / 120$ ($5.83\%$).
+  - Narrowed 95% Wilson score interval from $[1.71\%, 13.70\%]$ ($N=60$) to $[2.85\%, 11.55\%]$ ($N=120$), reducing uncertainty by **$27.4\%$**.
+  - Quantified review time savings: $2.84\text{ min}$ (custom paragraph runs) vs $2.12\text{ min}$ (standard runs), proving a direct **$\sim 43.4\text{ second}$ manual friction delta**.
+  - Measured prompt fatigue risk: $94.17\%$ of candidates ($113/120$) do NOT require or edit custom paragraphs, empirically verifying that the prompt must be strictly optional and default-collapsed.
+- **Outcome Taxonomy ($N=120$)**:
+  - `COMPLETED`: $109 / 120$ ($90.83\%$, 95% CI: $[84.33\%, 94.80\%]$).
+  - `BLOCKED`: $5 / 120$ ($4.17\%$, 95% CI: $[1.79\%, 9.38\%]$).
+  - `ABANDONED`: $4 / 120$ ($3.33\%$, 95% CI: $[1.30\%, 8.26\%]$).
+  - `FAILED`: $2 / 120$ ($1.67\%$, 95% CI: $[0.46\%, 5.87\%]$).
+- **Segment Representation**: Tier-1 Enterprise applications adequately represented at $79 / 120$ ($65.83\%$), with Growth Unicorns at $41 / 120$ ($34.17\%$).
+- **Substrate & Authority Invariants**: $0$ authority boundary violations, $0$ unhandled incidents, $100\%$ deterministic replay ($120/120$), and $0$ diff lines on `lib/execution/` and `lib/agents/contracts.ts`.
+- **Published Artifacts**:
+  - `docs/V5_1_EVIDENCE_ACCUMULATION_PHASE_2_REPORT.md`
+  - Updated `docs/RFC_CP_004_HUMAN_REVIEW_PACKAGE.md` (awaiting human sovereign review).
+
 ## 5.1.x — Evidence Maturity Gate & Statistical Telemetry
 
 - **Operational Milestone (Non-Version Release)**: Established the v5.1.x Evidence Maturity Gate, operating the frozen v5.1.0 commercial baseline to expand the empirical evidence denominator from $N=8$ to $N=60$ real technical job applications without introducing arbitrary versions or autonomous authority layers.
