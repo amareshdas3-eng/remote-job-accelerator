@@ -64,9 +64,58 @@ New Governed Version
 Throughout this entire progression, the foundational invariant remains:
 $$\mathbf{\text{Agent Intelligence}} \neq \mathbf{\text{Agent Authority}}$$
 
+### Crucial Architectural Invariant: Telemetry Must Never Become an Authority Channel
+
+A foundational failure mode of naive autonomous systems is "closed-loop telemetry drift," where operational monitoring metrics automatically mutate production behavior without human mediation. In RJA v5.1.x, this is strictly forbidden:
+
+```
+Telemetry
+   │
+   ▼
+Observation
+   │
+   ▼
+Statistical Analysis
+   │
+   ▼
+Empirical Evidence
+   │
+   ▼
+Human-Reviewed RFC (CP-00x)
+   │
+   ▼
+Sovereign Human Approval
+   │
+   ▼
+New Governed Version
+```
+
+**Under no circumstances may telemetry data automatically adjust agent authority, loosen Policy Guard gates, or mutate authoritative candidate artifacts.**
+
 ---
 
-## 3. The 12 Core Operational Evidence Dimensions
+## 3. Evidence Maturity Standards & Taxonomy
+
+To ensure scientific rigor and avoid premature generalization from small samples, v5.1.x enforces three reporting standards:
+
+### A. Four-Way Outcome Taxonomy
+Every application run is assigned exactly one mutually exclusive outcome:
+1. `COMPLETED`: Signed by candidate, cryptographically frozen, and dispatched to external employer.
+2. `BLOCKED`: Safely intercepted by Policy Guard due to ungrounded claims, authority violations, or policy limits.
+3. `ABANDONED`: Sovereignly canceled by candidate choice (e.g. after prompt surfaces on-site requirements).
+4. `FAILED`: Upstream infrastructure or external ATS rate limit; queued for retry without state corruption.
+
+### B. Denominator-Aware Metric Reporting ($k / N$)
+Bare percentages (e.g., "75% completion") are prohibited without publishing explicit numerators and denominators ($k / N$).
+
+### C. 95% Wilson Score Confidence Intervals
+All binomial proportions are reported with two-sided 95% Wilson score confidence intervals to quantify sample size uncertainty:
+$$\tilde{p} = \frac{k + \frac{z^2}{2}}{N + z^2}, \quad \text{se} = \frac{z \sqrt{\frac{k(N-k)}{N} + \frac{z^2}{4}}}{N + z^2}, \quad z = 1.96$$
+$$\text{CI}_{95\%} = [\max(0, \tilde{p} - \text{se}) \cdot 100, \min(1, \tilde{p} + \text{se}) \cdot 100]$$
+
+---
+
+## 4. The 12 Core Operational Evidence Dimensions
 
 During v5.1.x operations, the system continuously logs real-world execution telemetry into the **Continuous Production Evidence Ledger** ([`tests/fixtures/v5_1_production_evidence_ledger.json`](file:///c:/RJA/v4.3/app/tests/fixtures/v5_1_production_evidence_ledger.json)). Telemetry is evaluated across twelve pre-registered dimensions:
 

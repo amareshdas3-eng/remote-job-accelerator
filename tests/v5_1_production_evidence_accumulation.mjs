@@ -74,13 +74,13 @@ for (const rec of ledger.records) {
   assert.ok(rec.runId && rec.jobId && rec.candidateId, 'Record must have identity keys');
 
   // Dimension 2: Completion rate
-  if (rec.workflowOutcome === 'DISPATCHED_TO_EXTERNAL') {
+  if (rec.workflowOutcome === 'COMPLETED' || rec.workflowOutcome === 'DISPATCHED_TO_EXTERNAL') {
     completedCount++;
     dispatchedClaimsTotal += rec.evidenceClaimsTotal;
     dispatchedClaimsVerified += rec.evidenceClaimsVerified;
   }
   // Dimension 3: Policy-block rate
-  if (rec.policyDecision === 'BLOCK') blockedCount++;
+  if (rec.policyDecision === 'BLOCK' || rec.workflowOutcome === 'BLOCKED') blockedCount++;
   // Dimension 4: Human edit rate
   if (rec.humanEditMade) humanEditCount++;
 
@@ -106,7 +106,7 @@ for (const rec of ledger.records) {
 
   // Dimension 11: Authority-boundary violations
   // Strict rule: No record may permit autonomous dispatch or lack signature
-  if (rec.workflowOutcome === 'DISPATCHED_TO_EXTERNAL' && !rec.auditFingerprint) {
+  if ((rec.workflowOutcome === 'COMPLETED' || rec.workflowOutcome === 'DISPATCHED_TO_EXTERNAL') && !rec.auditFingerprint) {
     authorityViolations++;
   }
 

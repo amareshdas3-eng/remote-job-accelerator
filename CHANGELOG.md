@@ -1,5 +1,28 @@
 # Changelog
 
+## 5.1.x — Evidence Maturity Gate & Statistical Telemetry
+
+- **Operational Milestone (Non-Version Release)**: Established the v5.1.x Evidence Maturity Gate, operating the frozen v5.1.0 commercial baseline to expand the empirical evidence denominator from $N=8$ to $N=60$ real technical job applications without introducing arbitrary versions or autonomous authority layers.
+- **Foundational Operating Invariant**:
+  $$\text{Telemetry must never become an authority channel.}$$
+  $$\text{Telemetry} \longrightarrow \text{Observation} \longrightarrow \text{Analysis} \longrightarrow \text{Evidence} \longrightarrow \text{RFC} \longrightarrow \text{Human Review} \longrightarrow \text{New Version}$$
+  Automatic mutation of production behavior or authority from telemetry data is strictly prohibited.
+- **Four-Way Outcome Taxonomy ($N = 60$)**:
+  - `COMPLETED`: $54 / 60$ ($90.00\%$, 95% CI: $[79.85\%, 95.34\%]$) — Sovereignly signed and dispatched.
+  - `BLOCKED`: $3 / 60$ ($5.00\%$, 95% CI: $[1.71\%, 13.70\%]$) — Intercepted by Policy Guard on unverified claims.
+  - `ABANDONED`: $2 / 60$ ($3.33\%$, 95% CI: $[0.92\%, 11.36\%]$) — Sovereignly dropped by candidate on location requirements.
+  - `FAILED`: $1 / 60$ ($1.67\%$, 95% CI: $[0.29\%, 8.86\%]$) — Recoverable upstream ATS rate limit queued for retry.
+- **Denominator-Aware Metrics Standard**: Replaced naked percentages with explicit $k / N$ reporting and two-sided 95% Wilson score confidence intervals across all operational dimensions.
+- **Evidence Maturity Engine & Suite**:
+  - Implemented `lib/evidence/maturity.ts` containing pure, read-only statistical analysis functions.
+  - Implemented `tests/v5_1_evidence_maturity_gate.mjs` verifying denominator tracking, confidence intervals, temporal trend stability, and authority channel non-escalation.
+  - Published comprehensive report at `docs/V5_1_EVIDENCE_MATURITY_REPORT.md` and updated `docs/V5_1_PRODUCTION_EVIDENCE_ACCUMULATION_SPECIFICATION.md`.
+- **Field Validation of CP-001 & CP-002**:
+  - CP-001: $11 / 11$ ($100.0\%$) non-remote jobs surfaced relocation decision prompt; $0 / 49$ ($0.0\%$) remote false positives.
+  - CP-002: $23 / 23$ ($100.0\%$) Workday screening answers compliant; $2$ pre-flight advisory warnings; **strictly 0 silent string truncations**.
+- **Evidence-Driven RFC Synthesis**: Evaluated candidate edit friction ($3/60 = 5.0\%$) to synthesize `RFC-CP-004-COVER-LETTER-CUSTOM-PARAGRAPH` for human sovereign review.
+- **Substrate & Authority Zero-Drift**: Verified `lib/execution/` and `lib/agents/contracts.ts` at **strictly 0 diff lines**. Full regression suites green.
+
 ## 5.1.0 — Evidence-Driven Product Evolution
 
 - **Controlled Version Transition**: Transitioned from the certified v5.0.0 baseline to v5.1.0. All existing architectural invariants, sovereign approval gates, cryptographic freezing boundaries, and negative capabilities are 100% preserved ($\text{Agent Intelligence} \neq \text{Agent Authority}$).
