@@ -66,7 +66,7 @@ In the initial pilot report ($N=60$), the observed rate of custom paragraph edit
 In Phase 2 ($N=120$), with $4$ additional custom paragraph events observed in runs 61–120:
 * **Recalculated Rate**: **$7 / 120$ ($5.83\%$)**
 * **Narrowed 95% Wilson Score Interval**: **$[2.85\%,\, 11.55\%]$**
-* **Result**: The uncertainty width dropped from $11.99\%$ to $8.70\%$—a **$27.4\%$ reduction in parameter variance**. The true rate is bounded above $2.8\%$ with 95% confidence.
+* **Result**: The uncertainty width dropped from $11.99\%$ to $8.70\%$—a **$27.4\%$ reduction in parameter variance**. The observed rate ($5.83\%$) and its 95% Wilson confidence interval ($[2.85\%,\, 11.55\%]$) provide empirical evidence that custom-paragraph friction is a recurring observed event in the $N=120$ production sample, while also indicating that it affects a minority of applications.
 
 ### B. Quantified Time Savings
 Tracking review duration across both cohorts revealed a distinct bimodality:

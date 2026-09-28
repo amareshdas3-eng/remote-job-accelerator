@@ -75,7 +75,7 @@ The following 12 fields are formally required for any proposed change package (C
 * **Uncertainty Trajectory**:
   - $N=60$ ($3/60$): $[1.71\%,\, 13.70\%]$ (interval width $11.99\%$)
   - $N=120$ ($7/120$): $[2.85\%,\, 11.55\%]$ (interval width $8.70\%$)
-  - Uncertainty reduced by **$27.4\%$**, bounding true occurrence safely above $2.8\%$.
+  - Uncertainty reduced by **$27.4\%$**. The observed rate ($5.83\%$) and its 95% Wilson confidence interval ($[2.85\%,\, 11.55\%]$) provide empirical evidence that custom-paragraph friction is a recurring observed event in the $N=120$ production sample, while also indicating that it affects a minority of applications.
 
 ### Field 7: Baseline Behavior
 * **Governed Baseline**: `v5.1.0`
