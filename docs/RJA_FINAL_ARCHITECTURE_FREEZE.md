@@ -55,7 +55,7 @@ Every gate in the mandated release sequence has been executed, verified, and sea
 | **Gate 1** | **Human Sovereign Review** | `docs/RFC_CP_004_HUMAN_REVIEW_PACKAGE.md`<br>`docs/SPEC_CP_004_CUSTOM_PARAGRAPH_GUIDANCE.md` | Formal human approval signed (`SIG-HUMAN-AUTH-RFC-CP-004-APPROVED`); zero authority expansion authorized. |
 | **Gate 2** | **Controlled Implementation** | `lib/agents/governance.ts`, `lib/agents/planning.ts`<br>`components/dashboard/UnifiedJobWorkspace.tsx` | CP-004 pre-flight input ($\le 1000$ chars), default-collapsed UI, Policy Guard ungrounded claim firewall. |
 | **Gate 3** | **Regression & Resilience** | `tests/v5_2_cp004_custom_paragraph.mjs`<br>`tests/v5_beta2_resilience.mjs` | 35/35 regression suites green; 157/157 resilience scenarios green; zero substrate drift in `lib/execution/`. |
-| **Gate 4** | **Production Validation** | `docs/SPEC_GATE_4_PRODUCTION_VALIDATION.md`<br>`docs/GATE_4_PRODUCTION_VALIDATION_REPORT.md` | $N=30$ validation runs confirming H1 ($42.0\text{s}$ review saving), H2 ($90\%$ omission ergonomics), H3 ($100\%$ claim verification), H4 ($100\%$ determinism). |
+| **Gate 4** | **Production Validation** | `docs/SPEC_GATE_4_PRODUCTION_VALIDATION.md`<br>`docs/GATE_4_PRODUCTION_VALIDATION_REPORT.md` | In the $N=30$ validation cohort, H1–H4 met acceptance criteria: H1 ($42.0\text{s}$ observed review saving on tailored runs), H2 ($90.0\%$ observed zero-fatigue omission), H3 ($100\%$ claim verification), H4 ($100\%$ determinism). |
 | **Gate 5** | **Unified RJA Audit** | `docs/GATE_5_UNIFIED_RJA_AUDIT.md`<br>`tests/v5_2_gate5_unified_audit.mjs` | Formal certification across all 7 pillars: Architecture, Security, Governance, Evidence, Economics, Resilience, and Auditability. |
 | **Gate 6** | **Architecture Freeze** | `docs/RJA_FINAL_ARCHITECTURE_FREEZE.md`<br>`CHANGELOG.md` | Permanent architecture freeze; tag `v5.2.0`; release roadmap officially completed. |
 
@@ -94,7 +94,7 @@ guarantees $100\%$ deterministic replay and auditability across all past, presen
                        RJA v5.2.0 PRODUCTION SCORECARD
 ═════════════════════════════════════════════════════════════════════════
   Release Version:             v5.2.0
-  Commit Baseline:             f2c4b36 (Main branch)
+  Commit Baseline:             c970ce7 (Main branch)
   Total Automated Test Suites: 37 / 37 (100% Green)
   Resilience & Chaos Matrix:   157 / 157 Scenarios (100% Green)
   TypeScript Compilation:      0 Errors (Strict mode)

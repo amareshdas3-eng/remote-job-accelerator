@@ -16,8 +16,7 @@ Gate 4 has empirically evaluated the `v5.2.0` production baseline against real w
 In strict alignment with RJA epistemological principles:
 * Pre-flight expectations are treated as **testable hypotheses**.
 * Claims of benefit are published only after **empirical operational data** verifies them.
-
-All four formal hypotheses (**H1**, **H2**, **H3**, **H4**) have been empirically confirmed. Gate 4 is **officially certified**.
+* In the $N = 30$ `v5.2.0` production-validation dataset, Hypotheses **H1–H4** met their predefined acceptance criteria. Gate 4 is **officially certified**.
 
 ---
 

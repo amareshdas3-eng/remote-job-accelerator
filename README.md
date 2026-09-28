@@ -1,9 +1,10 @@
-# Remote Job Accelerator (RJA) v5.1.0
-### Production-Grade Governed Multi-Agent AI System
+# Remote Job Accelerator (RJA) v5.2.0
+### Production-Grade Governed Multi-Agent AI System — Architecture Permanently Frozen
 
-[![Release](https://img.shields.io/badge/Release-v5.1.0-blue.svg)](docs/V5_1_0_RELEASE_CERTIFICATION.md)
+[![Release](https://img.shields.io/badge/Release-v5.2.0-blue.svg)](docs/RJA_FINAL_ARCHITECTURE_FREEZE.md)
+[![Architecture Freeze](https://img.shields.io/badge/Architecture-Frozen%20%5Bc970ce7%5D-blueviolet.svg)](docs/ARCHITECTURE_FREEZE_CERTIFICATE.md)
 [![Resilience Matrix](https://img.shields.io/badge/Resilience%20Matrix-157%2F157%20Passed-brightgreen.svg)](docs/V5_BETA2_RESILIENCE_MATRIX.md)
-[![Regression Suites](https://img.shields.io/badge/Regression-32%2F32%20Green-brightgreen.svg)](docs/V5_1_0_RELEASE_CERTIFICATION.md)
+[![Regression Suites](https://img.shields.io/badge/Regression-37%2F37%20Green-brightgreen.svg)](tests/v5_2_gate5_unified_audit.mjs)
 [![Substrate Drift](https://img.shields.io/badge/lib%2Fexecution-Zero%20Drift-brightgreen.svg)](docs/SECURITY_ARCHITECTURE_REVIEW_V4.6.1.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-0%20Errors-blue.svg)](package.json)
 [![Fingerprint Scheme](https://img.shields.io/badge/Scheme-rja--c14n--v1--sha256-blueviolet.svg)](lib/execution/fingerprint.ts)
@@ -12,12 +13,23 @@
 
 ## 🏆 System Invariant: Agent Intelligence $\neq$ Agent Authority
 
-**Remote Job Accelerator (RJA) v5.0.0** is an enterprise-grade career acceleration platform built upon a foundational principle of bounded autonomy:
+**Remote Job Accelerator (RJA) v5.2.0** is an enterprise-grade career acceleration platform built upon a foundational principle of bounded autonomy:
 
 > **Autonomous agents may formulate, analyze, evaluate, and learn.**  
 > **Only sovereign humans and sealed cryptographic substrates may approve and execute.**
 
-In RJA v5.0, autonomous AI agents operate under immutable **negative capability contracts** (`canExecute: false`, `canApprove: false`, `canMutateEvidence: false`). No real-world side effect or external application dispatch can ever occur without authenticated human sign-off, multi-layer policy gating, and byte-level cryptographic freezing.
+In RJA v5.2.0, autonomous AI agents operate under immutable **negative capability contracts** (`canExecute: false`, `canApprove: false`, `canMutateEvidence: false`). No real-world side effect or external application dispatch can ever occur without authenticated human sign-off, multi-layer policy gating, and byte-level cryptographic freezing.
+
+---
+
+## 🏛 Executive & Technical Documents
+
+* 📄 **[One-Page Executive Architecture Certificate](docs/RJA_ARCHITECTURE_CERTIFICATE.md)** — High-level architecture, threat model, and empirical scorecards.
+* 🔒 **[Technical Architecture Freeze Certificate](docs/ARCHITECTURE_FREEZE_CERTIFICATE.md)** — Permanent freeze anchors (`c970ce7`, `rja-c14n-v1-sha256`) and defect-only exception policy.
+* 🛠 **[Public Engineering Case Study](docs/CASE_STUDY_EVIDENCE_BOUNDED_AGENTIC_ARCHITECTURE.md)** — *Autonomous Reasoning Without Autonomous Authority: Architectural Principles for High-Assurance AI Systems*.
+* 👔 **[Leadership Portfolio Dossier](docs/LEADERSHIP_PORTFOLIO_DOSSIER.md)** — Translating RJA systems architecture and gate execution into Senior Project Manager / AI Leadership competencies.
+* ⚖️ **[Gate 5 Unified RJA Audit Report](docs/GATE_5_UNIFIED_RJA_AUDIT.md)** — Full-spectrum audit across all 7 pillars (Architecture, Security, Governance, Evidence, Economics, Resilience, Auditability).
+* 📊 **[Gate 4 Production Validation Report](docs/GATE_4_PRODUCTION_VALIDATION_REPORT.md)** — Empirical validation of Hypotheses H1–H4 against real production validation telemetry ($N=30$).
 
 ---
 
@@ -177,10 +189,10 @@ npm install
 # Run static typecheck (0 errors)
 npm run typecheck
 
-# Run full 29-suite regression & resilience test suite
+# Run full 37-suite regression & resilience test suite
 npm test
 ```
 
 ---
 
-*“v5.0 does not gain authority by being released. It demonstrates that authority has remained governed throughout the entire lifecycle.”*
+*“v5.2 does not gain authority by being released. It demonstrates that authority has remained governed throughout the entire lifecycle — permanently frozen.”*
