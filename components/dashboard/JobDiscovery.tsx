@@ -30,6 +30,7 @@ export default function JobDiscovery({
   const [minFit, setMinFit] = useState<number>(0);
   const [sort, setSort] = useState<'fit' | 'date' | 'company'>('fit');
   const [seniority, setSeniority] = useState<'all' | 'executive' | 'senior' | 'mid'>('all');
+  const [freshness, setFreshness] = useState<'24h' | '48h'>('48h');
   const [shortlistFilter, setShortlistFilter] = useState(false);
   const [shortlistedIds, setShortlistedIds] = useState<string[]>([]);
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export default function JobDiscovery({
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [syncing, setSyncing] = useState(false);
+  const [coverageMetrics, setCoverageMetrics] = useState<any>(null);
 
   // Evidence profile keyword detection
   const profileSignals = useMemo(() => {
@@ -68,6 +70,7 @@ export default function JobDiscovery({
     const params = new URLSearchParams({
       category,
       q: search,
+      freshness,
       page: String(page),
       limit: '8',
       min_fit: String(minFit),
@@ -84,11 +87,12 @@ export default function JobDiscovery({
           if (data.total !== undefined) setTotal(data.total);
           if (data.totalPages !== undefined) setTotalPages(data.totalPages);
           if (data.shortlisted_ids) setShortlistedIds(data.shortlisted_ids);
+          if (data.coverage_metrics) setCoverageMetrics(data.coverage_metrics);
         }
       })
       .catch(() => onNotice('Could not load remote opportunities.'))
       .finally(() => setLoading(false));
-  }, [category, search, page, minFit, sort, seniority, shortlistFilter, onNotice]);
+  }, [category, search, freshness, page, minFit, sort, seniority, shortlistFilter, onNotice]);
 
   const handleToggleShortlist = async (opp: RemoteJobOpportunity) => {
     const isCurrently = opp.is_shortlisted || shortlistedIds.includes(opp.id);
@@ -128,7 +132,7 @@ export default function JobDiscovery({
         onNotice(`Live remote feed sync complete. Ingested ${data.result?.inserted || 0} fresh opportunities.`);
         // Reload discovery page 1
         setPage(1);
-        fetch(`/api/jobs/discover?category=${category}&q=${encodeURIComponent(search)}&page=1&limit=8`)
+        fetch(`/api/jobs/discover?category=${category}&q=${encodeURIComponent(search)}&freshness=${freshness}&page=1&limit=8`)
           .then((r) => r.json())
           .then((d) => {
             if (d.jobs) {
@@ -275,6 +279,12 @@ export default function JobDiscovery({
             >
               {syncing ? 'Syncing Feeds...' : '⚡ Sync Live Feeds'}
             </button>
+            {coverageMetrics && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '10px', color: '#9af5cf', background: '#0e241a', border: '1px solid #1a4a34', padding: '4px 10px', borderRadius: '6px' }}>
+                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#34d399' }} />
+                <span>Fabric: {coverageMetrics.healthy_sources}/{coverageMetrics.total_sources_registered} Sources Healthy</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -356,6 +366,25 @@ export default function JobDiscovery({
               <span style={{ fontSize: '10px', color: '#687882', textTransform: 'uppercase', fontWeight: 700 }}>
                 Intelligent Filters:
               </span>
+
+              {/* Job Freshness Selector (Source-backed 24h / 48h Window) */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <label htmlFor="job-freshness-filter" style={{ fontSize: '11px', color: '#9af5cf', fontWeight: 600 }}>
+                  Job Freshness:
+                </label>
+                <select
+                  id="job-freshness-filter"
+                  value={freshness}
+                  onChange={(e) => {
+                    setFreshness(e.target.value as '24h' | '48h');
+                    setPage(1);
+                  }}
+                  style={{ background: '#0b141a', color: '#9af5cf', border: '1px solid #1a4a34', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', fontWeight: 700 }}
+                >
+                  <option value="48h">Last 48 hours</option>
+                  <option value="24h">Last 24 hours</option>
+                </select>
+              </div>
 
               {/* Min Fit Score */}
               <select
@@ -501,10 +530,21 @@ export default function JobDiscovery({
                         </div>
                       </div>
 
-                      {/* Location & Compensation */}
-                      <div style={{ display: 'flex', gap: '12px', margin: '8px 0 10px', fontSize: '11px', color: '#889ea8' }}>
+                      {/* Location & Compensation & Verified Posting Age & Discovery Latency */}
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', margin: '8px 0 10px', fontSize: '11px', color: '#889ea8' }}>
                         <span>📍 {opp.location}</span>
                         <span>💰 {opp.salary_range}</span>
+                        {opp.freshness_status !== 'POSTING_TIME_UNKNOWN' && opp.freshness_status !== 'POSTING_TIME_INVALID' && opp.posting_age_text && (
+                          <span style={{ color: '#38bdf8', fontWeight: 600, background: '#0a1d29', border: '1px solid #16364d', padding: '1px 6px', borderRadius: '4px' }}>
+                            🕒 {opp.posting_age_text}
+                            {opp.discovery_latency_text ? ` · ⚡ ${opp.discovery_latency_text}` : ''}
+                          </span>
+                        )}
+                        {Array.isArray(opp.observation_badges) && opp.observation_badges.length > 0 && (
+                          <span style={{ fontSize: '10px', color: '#a7f3d0', background: '#0a2318', border: '1px solid #194833', padding: '1px 6px', borderRadius: '4px' }}>
+                            ✓ {opp.observation_badges.join(' + ')}
+                          </span>
+                        )}
                       </div>
 
                       {/* Evidence Alignment Summary */}

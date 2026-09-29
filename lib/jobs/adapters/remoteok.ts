@@ -33,7 +33,7 @@ export class RemoteOKAdapter implements JobSourceAdapter {
 
         const published_at = item.epoch
           ? new Date(Number(item.epoch) * 1000).toISOString()
-          : item.date || new Date().toISOString();
+          : (item.date && !isNaN(Date.parse(item.date)) ? new Date(item.date).toISOString() : undefined);
 
         const normalized = normalizeJobRecord({
           native_id: item.id,

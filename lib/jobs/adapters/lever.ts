@@ -54,7 +54,7 @@ export class LeverAdapter implements JobSourceAdapter {
             location,
             remote_status: isRemote ? '100% Remote' : 'Hybrid',
             source: `Lever (${c.company})`,
-            published_at: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
+            published_at: p.createdAt && !isNaN(new Date(p.createdAt).getTime()) ? new Date(p.createdAt).toISOString() : undefined,
           });
 
           allJobs.push(normalized);
@@ -104,7 +104,7 @@ export class LeverAdapter implements JobSourceAdapter {
         location: p.categories?.location || '100% Remote',
         remote_status: '100% Remote',
         source: `Lever (${companyKey})`,
-        published_at: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
+        published_at: p.createdAt && !isNaN(new Date(p.createdAt).getTime()) ? new Date(p.createdAt).toISOString() : undefined,
       });
     } catch {
       return null;

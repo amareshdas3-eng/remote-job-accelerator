@@ -5,6 +5,14 @@ import { persistDiscoveredJobs } from '../../../../lib/jobs/ingestion';
 import { normalizeJobRecord } from '../../../../lib/jobs/normalizer';
 import type { CandidateMatchResult } from '../../../../lib/matching/types.ts';
 import { computeCandidateJobMatch } from '../../../../lib/matching/engine.ts';
+import {
+  classifyJobFreshness,
+  FreshnessWindow,
+  JobFreshnessClassification,
+  DEFAULT_FRESHNESS_WINDOW,
+} from '../../../../lib/jobs/freshness';
+import { calculateDiscoveryLatency } from '../../../../lib/jobs/latency';
+import { globalSourceRegistry } from '../../../../lib/jobs/registry';
 
 export interface RemoteJobOpportunity {
   id: string;
@@ -28,6 +36,12 @@ export interface RemoteJobOpportunity {
   key_requirements: string[];
   description: string;
   published_at?: string;
+  posted_at?: string;
+  freshness_status?: JobFreshnessClassification;
+  posting_age_text?: string;
+  discovery_latency_text?: string;
+  source_tier?: string;
+  observation_badges?: string[];
 }
 
 // Curated high-conviction remote roles aligned with electrical engineering, project management, commissioning, and AI operations
@@ -235,10 +249,16 @@ Responsibilities:
   },
 ];
 
+// Strict Truthfulness Boundary: Curated demonstration listings do not possess genuine source-backed
+// posting evidence. Under RJA policy, no synthetic or relative timestamps are assigned.
+// They evaluate to POSTING_TIME_UNKNOWN and are excluded from the active fresh-job discovery catalog.
+
 export async function GET(req: Request) {
   try {
     const user = await requireUser();
     const { searchParams } = new URL(req.url);
+    const freshnessParam = (searchParams.get('freshness') || '48h').toLowerCase();
+    const activeFreshnessWindow: FreshnessWindow = freshnessParam === '24h' ? '24h' : '48h';
     const query = (searchParams.get('q') || '').trim().toLowerCase();
     const category = searchParams.get('category') || 'all';
     const remoteOnly = searchParams.get('remote_only') !== 'false';
@@ -312,6 +332,12 @@ export async function GET(req: Request) {
 
         const isShortlisted = shortlistedIds.includes(row.id) || (row.external_id ? shortlistedIds.includes(row.external_id) : false);
 
+        // Deterministic freshness classification based strictly on source-backed postedAt / published_at
+        // Do NOT infer discoveredAt = postedAt. Reject missing/invalid source timestamps.
+        const sourcePostedAt = row.published_at || row.posted_at;
+        const freshnessEval = classifyJobFreshness(sourcePostedAt, activeFreshnessWindow);
+        const latency = calculateDiscoveryLatency(sourcePostedAt);
+
         return {
           id: row.id,
           external_id: row.external_id,
@@ -337,12 +363,21 @@ export async function GET(req: Request) {
           ],
           description: row.description || '',
           published_at: row.published_at,
+          posted_at: sourcePostedAt,
+          freshness_status: freshnessEval.status,
+          posting_age_text: freshnessEval.ageText,
+          discovery_latency_text: latency?.discoveryLatencyText,
+          source_tier: row.source_tier || 'tier1_direct_ats',
         };
       });
     } else {
-      // Auto-seed into Supabase in background for subsequent requests
+      // Curated demonstration listings have no genuine source-backed posting timestamp.
+      // Under Option A (Strict Truthfulness Boundary), their posted_at is undefined,
+      // classifying them as POSTING_TIME_UNKNOWN, strictly excluding them from the LIVE_FRESH view.
+      const curated = CURATED_REMOTE_JOBS;
+      // Auto-seed into Supabase in background for subsequent requests without fabricating dates
       persistDiscoveredJobs(
-        CURATED_REMOTE_JOBS.map((j) =>
+        curated.map((j) =>
           normalizeJobRecord({
             native_id: j.external_id,
             title: j.title,
@@ -356,11 +391,13 @@ export async function GET(req: Request) {
             source: j.source,
             category: j.category,
             skills: j.match_preview.aligned_skills,
+            published_at: undefined,
+            posted_at: undefined,
           })
         )
       ).catch(() => {});
 
-      let filtered = CURATED_REMOTE_JOBS;
+      let filtered = curated;
       if (category !== 'all') {
         filtered = filtered.filter((j) => j.category === category);
       }
@@ -391,8 +428,16 @@ export async function GET(req: Request) {
 
         const isShortlisted = shortlistedIds.includes(j.id) || (j.external_id ? shortlistedIds.includes(j.external_id) : false);
 
+        // Deterministic freshness classification based strictly on source-backed postedAt / published_at
+        const sourcePostedAt = j.published_at || j.posted_at;
+        const freshnessEval = classifyJobFreshness(sourcePostedAt, activeFreshnessWindow);
+
         return {
           ...j,
+          published_at: j.published_at,
+          posted_at: sourcePostedAt,
+          freshness_status: freshnessEval.status,
+          posting_age_text: freshnessEval.ageText,
           match_preview: {
             ...j.match_preview,
             fit_score: intel.fit_score,
@@ -407,6 +452,10 @@ export async function GET(req: Request) {
 
     // 3. Apply Multi-Criteria Filters
     let processed = allOpportunities;
+
+    // Freshness Filter: Enforce source-backed freshness window (LIVE_FRESH only)
+    // Exclude STALE, POSTING_TIME_UNKNOWN, and POSTING_TIME_INVALID
+    processed = processed.filter((o) => o.freshness_status === 'LIVE_FRESH');
 
     if (minFit > 0) {
       processed = processed.filter((o) => (o.candidate_intelligence?.fit_score || o.match_preview.fit_score) >= minFit);
@@ -432,10 +481,10 @@ export async function GET(req: Request) {
         const scoreA = a.candidate_intelligence?.fit_score ?? a.match_preview.fit_score;
         const scoreB = b.candidate_intelligence?.fit_score ?? b.match_preview.fit_score;
         if (scoreB !== scoreA) return scoreB - scoreA;
-        return (new Date(b.published_at || 0).getTime()) - (new Date(a.published_at || 0).getTime());
+        return (new Date(b.posted_at || b.published_at || 0).getTime()) - (new Date(a.posted_at || a.published_at || 0).getTime());
       });
     } else if (sort === 'date') {
-      processed.sort((a, b) => (new Date(b.published_at || 0).getTime()) - (new Date(a.published_at || 0).getTime()));
+      processed.sort((a, b) => (new Date(b.posted_at || b.published_at || 0).getTime()) - (new Date(a.posted_at || a.published_at || 0).getTime()));
     } else if (sort === 'company') {
       processed.sort((a, b) => a.company.localeCompare(b.company));
     }
@@ -468,6 +517,8 @@ export async function GET(req: Request) {
       hasMore: page < totalPages,
       shortlisted_ids: shortlistedIds,
       evidence_profile: structuredProfile?.headline || 'Electrical Engineering · Project Management · Commissioning · AI Operations',
+      freshness_window: activeFreshnessWindow,
+      coverage_metrics: globalSourceRegistry.computeGlobalCoverageMetrics(total, processed.length),
     });
   } catch (e: any) {
     return NextResponse.json(

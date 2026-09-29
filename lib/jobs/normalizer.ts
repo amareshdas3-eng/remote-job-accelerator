@@ -94,6 +94,7 @@ export function normalizeJobRecord(raw: {
   category?: JobCategory;
   skills?: string[];
   published_at?: string;
+  posted_at?: string;
   company_website?: string;
   employment_type?: string;
 }): NormalizedJob {
@@ -116,9 +117,15 @@ export function normalizeJobRecord(raw: {
     raw.source
   );
 
-  let published_at = raw.published_at;
-  if (!published_at || isNaN(Date.parse(published_at))) {
-    published_at = new Date().toISOString();
+  // Enforce source-backed posting evidence. Do NOT infer discoveredAt = postedAt.
+  // If source posting timestamp is unavailable or unparseable, leave undefined (classified POSTING_TIME_UNKNOWN).
+  const rawTimestamp = raw.posted_at || raw.published_at;
+  let normalizedPostedAt: string | undefined = undefined;
+  if (rawTimestamp && typeof rawTimestamp === 'string' && rawTimestamp.trim() !== '') {
+    const parsed = Date.parse(rawTimestamp.trim());
+    if (!isNaN(parsed)) {
+      normalizedPostedAt = new Date(parsed).toISOString();
+    }
   }
 
   return {
@@ -134,7 +141,8 @@ export function normalizeJobRecord(raw: {
     source: raw.source.trim(),
     category,
     skills,
-    published_at: new Date(published_at).toISOString(),
+    published_at: normalizedPostedAt,
+    posted_at: normalizedPostedAt,
     company_website: raw.company_website?.trim() || undefined,
     employment_type: raw.employment_type?.trim() || 'Full-time Remote',
   };

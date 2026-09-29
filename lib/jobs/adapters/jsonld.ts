@@ -18,7 +18,7 @@ export function extractJsonLdJob(html: string, pageUrl: string): NormalizedJob |
               ? candidate.hiringOrganization.name
               : candidate.hiringOrganization || new URL(pageUrl).hostname;
           const description = candidate.description || '';
-          const datePosted = candidate.datePosted || new Date().toISOString();
+          const datePosted = candidate.datePosted && !isNaN(Date.parse(candidate.datePosted)) ? candidate.datePosted : undefined;
 
           let salary: string | undefined;
           if (candidate.baseSalary) {
