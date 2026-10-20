@@ -1,198 +1,197 @@
-# Remote Job Accelerator (RJA) v5.2.0
-### Production-Grade Governed Multi-Agent AI System — Architecture Permanently Frozen
+# Remote Job Accelerator (RJA) ⚡
+> **Engineering-Grade Agentic System for Evidence-Grounded Career Orchestration**
 
-[![Release](https://img.shields.io/badge/Release-v5.2.0-blue.svg)](docs/RJA_FINAL_ARCHITECTURE_FREEZE.md)
-[![Architecture Freeze](https://img.shields.io/badge/Architecture-Frozen%20%5Bc970ce7%5D-blueviolet.svg)](docs/ARCHITECTURE_FREEZE_CERTIFICATE.md)
-[![Resilience Matrix](https://img.shields.io/badge/Resilience%20Matrix-157%2F157%20Passed-brightgreen.svg)](docs/V5_BETA2_RESILIENCE_MATRIX.md)
-[![Regression Suites](https://img.shields.io/badge/Regression-37%2F37%20Green-brightgreen.svg)](tests/v5_2_gate5_unified_audit.mjs)
-[![Substrate Drift](https://img.shields.io/badge/lib%2Fexecution-Zero%20Drift-brightgreen.svg)](docs/SECURITY_ARCHITECTURE_REVIEW_V4.6.1.md)
-[![TypeScript](https://img.shields.io/badge/TypeScript-0%20Errors-blue.svg)](package.json)
-[![Fingerprint Scheme](https://img.shields.io/badge/Scheme-rja--c14n--v1--sha256-blueviolet.svg)](lib/execution/fingerprint.ts)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/amareshdas3-eng/remote-job-accelerator?quickstart=1)
+[![CI / Security Audit](https://img.shields.io/github/actions/workflow/status/amareshdas3-eng/remote-job-accelerator/ci.yml?label=CI%20Verification&logo=github)](https://github.com/amareshdas3-eng/remote-job-accelerator/actions)
+[![TypeScript 5.x](https://img.shields.io/badge/TypeScript-5.x_Strict-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Audit Standard](https://img.shields.io/badge/Integrity-SHA--256_Snapshots-emerald)](#evidence-grounding--cryptographic-receipts)
+[![License: MIT](https://img.shields.io/badge/License-MIT-gray.svg)](LICENSE)
 
 ---
 
-## 🏆 System Invariant: Agent Intelligence $\neq$ Agent Authority
+RJA is a TypeScript/Next.js software system exploring a core governance question for high-stakes AI workflows:
 
-**Remote Job Accelerator (RJA) v5.2.0** is an enterprise-grade career acceleration platform built upon a foundational principle of bounded autonomy:
+> **How can AI agents reason, evaluate, and prepare complex work without being permitted to invent evidence, approve their own output, or independently authorize consequential actions?**
 
-> **Autonomous agents may formulate, analyze, evaluate, and learn.**  
-> **Only sovereign humans and sealed cryptographic substrates may approve and execute.**
+Built by **Amaresh Das, PMP®** — an electrical engineering and project-delivery professional with 23+ years across heavy industrial infrastructure, power systems, commissioning, and operations. RJA applies systems-engineering rigor—formal interface boundaries, immutable evidence snapshots, risk controls, cryptographic fingerprints, and verification gates—to an agentic AI workflow.
 
-In RJA v5.2.0, autonomous AI agents operate under immutable **negative capability contracts** (`canExecute: false`, `canApprove: false`, `canMutateEvidence: false`). No real-world side effect or external application dispatch can ever occur without authenticated human sign-off, multi-layer policy gating, and byte-level cryptographic freezing.
-
----
-
-## 🏛 Executive & Technical Documents
-
-* 📄 **[One-Page Executive Architecture Certificate](docs/RJA_ARCHITECTURE_CERTIFICATE.md)** — High-level architecture, threat model, and empirical scorecards.
-* 🔒 **[Technical Architecture Freeze Certificate](docs/ARCHITECTURE_FREEZE_CERTIFICATE.md)** — Permanent freeze anchors (`c970ce7`, `rja-c14n-v1-sha256`) and defect-only exception policy.
-* 🛠 **[Public Engineering Case Study](docs/CASE_STUDY_EVIDENCE_BOUNDED_AGENTIC_ARCHITECTURE.md)** — *Autonomous Reasoning Without Autonomous Authority: Architectural Principles for High-Assurance AI Systems*.
-* 👔 **[Leadership Portfolio Dossier](docs/LEADERSHIP_PORTFOLIO_DOSSIER.md)** — Translating RJA systems architecture and gate execution into Senior Project Manager / AI Leadership competencies.
-* ⚖️ **[Gate 5 Unified RJA Audit Report](docs/GATE_5_UNIFIED_RJA_AUDIT.md)** — Full-spectrum audit across all 7 pillars (Architecture, Security, Governance, Evidence, Economics, Resilience, Auditability).
-* 📊 **[Gate 4 Production Validation Report](docs/GATE_4_PRODUCTION_VALIDATION_REPORT.md)** — Empirical validation of Hypotheses H1–H4 against real production validation telemetry ($N=30$).
+**Repository baseline:** v5.2.0 architecture documentation  
+**Stack:** Next.js 16 · React 19 · TypeScript 5.9 (Strict) · Supabase · Zod · SHA-256 artifact fingerprinting  
+**Repository:** [amareshdas3-eng/remote-job-accelerator](https://github.com/amareshdas3-eng/remote-job-accelerator)
 
 ---
 
-## 🏛 Architectural Architecture
+## ⚡ 60-Second Reviewer Guide
 
-```
-                 ┌─────────────────────────────┐
-                 │      RJA v5.0.0             │
-                 │   GOVERNED AGENTIC SYSTEM   │
-                 └──────────────┬──────────────┘
-                                │
-        ┌───────────────────────┼───────────────────────┐
-        ▼                       ▼                       ▼
-   INTELLIGENCE             GOVERNANCE              EXECUTION
-        │                       │                       │
- Discovery                 Policy Guard            Human Gate
- Evaluation                Provenance              Freeze
- Planning                  Immutability             │
- Orchestration             Versioning               ▼
- Outcome                   Approval             v4.6.1 Substrate
- Feedback                  Activation                 │
- Learning                  Resilience                 ▼
- Experimentation                                   Execution
-```
+| If you are looking for... | Key Evidence & Implementation | Direct Source Reference |
+| :--- | :--- | :--- |
+| **System Architecture & Control Gates** | Human-in-the-loop (HITL) gate preventing execution without cryptographic sign-off. | [`lib/execution/`](lib/execution/) · [`docs/V5_AGENT_AUTHORITY_CONTRACT.md`](docs/V5_AGENT_AUTHORITY_CONTRACT.md) |
+| **Evidence Grounding Engine** | Vector & rule retrieval coupled with immutable candidate snapshots; zero hallucination tolerance. | [`lib/matching/`](lib/matching/) · [`lib/evidence/`](lib/evidence/) |
+| **Integrity & Receipts** | SHA-256 fingerprinting on match outputs and dispatch payloads for auditable traceability. | [`lib/execution/fingerprint.ts`](lib/execution/fingerprint.ts) · [`lib/execution/snapshot.ts`](lib/execution/snapshot.ts) |
+| **Industrial Lineage** | Built by an industrial lead (23+ yrs heavy infrastructure & project controls) applying mission-critical rigor to agentic software. | [Engineering Lineage & Principles](#engineering-lineage--principles) |
 
 ---
 
-## 🔄 The 14-Stage Unified Lifecycle (T0–T12 + T0')
+## Start here — 30-second overview
 
-Every application cycle traverses an unbroken, tamper-evident cryptographic DAG:
+| Engineering question | RJA approach |
+|---|---|
+| **What can agents do?** | Discover opportunities, evaluate fit, plan application steps, assemble draft packages, and propose controlled learning. |
+| **What can agents not do?** | Approve applications, mutate verified evidence, or independently authorize execution. |
+| **How is truth protected?** | Generated content is continuously validated against an immutable candidate evidence snapshot; unsupported claims are rejected. |
+| **How is an approved artifact protected?** | Canonicalization and a SHA-256 fingerprint enforce tamper-proof integrity checks before execution dispatch. |
+| **Who authorizes consequential action?** | The authenticated human remains the sole approval authority. |
+| **How can behavior be checked?** | Strict TypeScript compilation, regression scripts, security-oriented tests, and documented resilience scenarios. |
 
+---
+
+## Why this project matters
+
+Many AI demos focus on what a model can generate. RJA focuses on **what a governed system should permit**.
+
+Its core invariant is:
+
+$$\text{Agent Intelligence} \neq \text{Agent Authority}$$
+
+The system cleanly separates the **AI proposal workflow** from the **deterministic execution boundary**. Agents operate as non-authoritative proposing components; policy guards, evidence integrity, and explicit human approvals constrain all consequential side effects.
+
+This is a software portfolio project, not an electrical calculation tool. Its connection to industrial engineering is the discipline: define strict interfaces, identify failure modes, preserve evidence chains, enforce control boundaries, and independently verify outcomes.
+
+---
+
+## Architecture & Governance Lifecycle (Visual)
+
+### High-Level Workflow
 ```mermaid
-graph TD
-    T0["T0: Discovery (Job Market Ingestion)"] --> T1["T1: Evidence Snapshot (Verified Profile)"]
-    T1 --> T2["T2: Evaluation (4D Fit Scoring & Gaps)"]
-    T2 --> T3["T3: Planning (Grouping & Prioritization)"]
-    T3 --> T4["T4: Orchestration (Package Assembly)"]
-    T4 --> T5["T5: Policy Guard (Authenticity & Neg-Cap Audit)"]
-    T5 -->|ALLOW_REVIEW| T6["T6: Human Candidate Approval Gate"]
-    T6 --> T7["T7: Cryptographic Freeze Boundary (rja-c14n-v1-sha256)"]
-    T7 --> T8["T8: Substrate Dispatch & Execution Receipt"]
-    T8 --> T9["T9: Immutable Outcome Record"]
-    T9 --> T10["T10: Evidence Feedback & Sentiment"]
-    T10 --> T11["T11: Controlled Learning Proposal (Iv+1)"]
-    T11 --> T12["T12: Replay Experiment vs Golden Benchmark"]
-    T12 -->|PASS & Zero Regression| HAG["Human Activation Gate"]
-    HAG --> IV1["Intelligence Profile Iv+1 Activated"]
-    IV1 --> T0P["T0': Next Governed Discovery Cycle"]
+flowchart TD
+    A[Job discovery] --> B[Verified profile evidence snapshot]
+    B --> C[Fit evaluation and gap analysis]
+    C --> D[Planning and application package assembly]
+    D --> E[Policy and evidence checks]
+    E --> F{Human approval}
+    F -->|Not approved| G[Hold / revise / reject]
+    F -->|Approved| H[Canonicalization and fingerprint]
+    H --> I[Controlled execution boundary]
+    I --> J[Execution receipt and outcome record]
+    J --> K[Feedback and proposed learning]
+    K --> L[Benchmark / regression gate]
+    L -->|Pass + authorized activation| A
+```
+
+### Human-in-the-Loop Approval Sequence
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Candidate as Industrial Consultant / Candidate
+    participant Agent as RJA Agentic Pipeline
+    participant Ledger as Evidence Store (Immutable)
+    participant Gate as HITL Approval Boundary
+    participant Target as External Job / Recruiter Endpoint
+
+    Candidate->>Agent: Ingest Profile & Raw Credentials
+    Agent->>Ledger: Generate Snapshot & Compute SHA-256 Digest
+    Agent->>Agent: Evaluate Evidence Match & Draft Alignment
+    Agent->>Gate: Stash Proposed Execution Receipt (Pending)
+    Note over Gate: State: FROZEN until explicit human sign-off
+    Candidate->>Gate: Cryptographic Approval / Edit
+    Gate->>Target: Dispatch Verified Application Payload
+    Gate->>Ledger: Commit Final Execution Receipt
 ```
 
 ---
 
-## 🔒 Sealed Substrate & Cryptographic Guarantees
+<a id="evidence-grounding--cryptographic-receipts"></a>
+## Evidence Grounding & Cryptographic Receipts
 
-1. **Deterministic Canonicalization (`rja-c14n-v1-sha256`):**
-   Application packages are normalized to Unicode NFC, line endings standardized to Unix LF, and dictionary keys recursively sorted alphabetically. A single character mutation or formatting drift immediately alters the SHA-256 digest and blocks execution.
-2. **Single-Flight Execution Locks:**
-   Idempotent locks keyed by application ID and destination ensure that concurrent dispatch attempts can never produce duplicate applications.
-3. **Fail-Closed Agent Boundaries:**
-   All 8 agent contracts explicitly prohibit direct execution and human sign-off emulation.
-4. **Controlled Learning & Replay Experiments:**
-   Learned intelligence cannot self-activate. Updates must pass side-by-side replay tests against historical benchmark datasets to guarantee zero performance regression.
+RJA treats generative AI tokens as **untrusted proposals** until mathematically verified against an evidence baseline:
 
----
-
-## 📊 Production Certification & Operational Validation Scorecard
-
-| Verification Dimension | Metric | Status |
-| :--- | :--- | :---: |
-| **Beta2 Adversarial & Resilience Matrix** | 157 hostile scenarios across 8 zones | ✅ **157 / 157 Passed** |
-| **Full Regression Suite** | 29 automated test suites in `npm test` | ✅ **29 / 29 Passed (100%)** |
-| **Substrate Integrity** | `lib/execution/` zero-drift verification | ✅ **Zero Drift Verified** |
-| **Canonicalizer Fuzzing** | 250 randomized valid artifacts | ✅ **100% Invariant** |
-| **Golden Fixture Baseline** | 5 master fixtures against canonical digests | ✅ **5 / 5 Matched** |
-| **TypeScript Typecheck** | Strict mode compiler audit (`tsc --noEmit`) | ✅ **0 Errors** |
-| **Production Release Tag** | Git release tag `v5.0.0` (commit `43a4c43`) | 🏆 **Tagged & Shipped** |
-| **Phase P1 Telemetry** | 10 operational dimensions instrumented | ✅ **Empirically Verified** |
-| **Phase P2 50-Job Benchmark** | Track A Human vs Track B RJA double-blind | ✅ **20.42x Speedup / 100% Evidence** |
-| **Phase P2 Evidence Audit** | Independent reconciliation of all denominators | ✅ **Full Audit Passed** |
-| **Phase P3 Production Hardening** | 15 deterministic failure scenarios (Matrix A–O)| ✅ **15 / 15 Passed** |
-| **Phase P4 Controlled Pilot** | 5 real candidates × 25 real applications | 🚀 **Operated Product Certified** |
+1. **Immutable Evidence Snapshots:** Upon profile ingestion, credentials and claimed experiences are serialized, normalized, and hashed into a canonical SHA-256 snapshot (`lib/execution/snapshot.ts`).
+2. **Hallucination Prevention:** The matching and tailoring engines (`lib/matching/engine.ts`) cross-reference every claim against the verified snapshot. Any skill or qualification not present in the evidence baseline triggers a policy violation.
+3. **Canonical Fingerprints:** Approved application payloads undergo deterministic JSON key-sorting and whitespace normalization before computing the execution fingerprint (`lib/execution/fingerprint.ts`).
+4. **Execution Receipts:** Dispatches generate an immutable audit receipt containing the timestamp, candidate fingerprint, payload hash, and dispatch response status.
 
 ---
 
-## 🧭 Product Maturity Progression: Certified System $\to$ Operated Product
+## Engineering capabilities represented
 
-```
-ARCHITECTURE
-    │
-    ▼
-v5.0.0
-Certified Governance Substrate
-    │
-    ▼
-P1
-Production Telemetry & Operations
-    │
-    ▼
-P2
-Real-World Benchmark (50 Jobs, Blind Audit)
-    │
-    ▼
-P2 AUDIT
-Independent Evidence Integrity
-    │
-    ▼
-P3
-Production Hardening (15 Resilience Scenarios)
-    │
-    ▼
-P4
-Controlled Production Pilot (Real Users & Applications)
-    │
-    ▼
-P5  ◄ COMPLETE
-Production & Market Deployment (5 Operational Answers & Ledger)
-```
+- **Multi-agent orchestration:** Specialized discovery, evaluation, planning, orchestration, outcome, feedback, learning, and experimentation agents with bounded scopes.
+- **Evidence-grounded generation:** AI output is treated as a proposal, not proof. Verified candidate information remains the source of truth.
+- **Human approval boundary:** Agents have zero authority to approve or dispatch applications independently.
+- **Artifact integrity:** Canonicalization and SHA-256 fingerprints detect post-approval drift or tampering.
+- **Execution safeguards:** Idempotency, explicit policy checks, execution receipts, and outcome records are enforced at the runtime boundary.
+- **Security-minded ingestion:** Hardened document-extraction (PDF / Word) and input-sanitization guards prevent prompt injection and unauthorized mutations.
+- **Evaluation & controlled learning:** Workflow improvements are evaluated against benchmark fixtures before activation.
 
 ---
 
-## 🚀 Phase P5 Production & Market Deployment Highlights
+## Run it locally
 
-In Phase P5, RJA frozen v5.0.0 baseline was deployed and operated as a **governed agentic application system** answering five practical operational questions:
-1. **Unassisted Onboarding:** Candidates complete self-serve profile registration and evidence snapshot sealing in $< 1\text{ second}$ with **0 support interventions** and **0% configuration errors**.
-2. **Continuous Operations:** Certified 24/7 continuous workflow execution, fail-safe Policy Guard blocks, and resilient recovery from upstream provider failure.
-3. **Multi-User Isolation:** Enforced 6-layer isolation boundary (**Tenant, Candidate, Job, Artifact, Audit, Authority**) preventing cross-tenant leakage, profile contamination, and unauthorized agent execution.
-4. **Unit Economics:** Real observed cost of **$1.92–$2.28 USD per application** (AI: $0.042 + Review: $1.83–$2.23) vs $45.00 manual labor (**19.8x–23.5x economic leverage**).
-5. **Multi-Environment Replicability:** $100\%$ bit-for-bit canonical fingerprint parity (`3ea665bb...`) and identical audit chains across independent production environments (`prod-us-east-1` vs `prod-eu-west-1`) with strict zero substrate drift.
-- **Continuous Evidence Ledger:** Immutable audit ledger at `tests/fixtures/p5_production_evidence_ledger.json` storing cryptographically fingerprinted run records.
+### 1-Click Cloud Sandbox (No Local Setup Required)
+Launch an instant, pre-configured development environment with Node.js and dependencies pre-installed:
 
----
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/amareshdas3-eng/remote-job-accelerator?quickstart=1)
 
-## 📚 Key Technical Documentation
-
-- 📄 **[P5 Production Deployment Specification](docs/P5_PRODUCTION_DEPLOYMENT_SPECIFICATION.md)** — Architectural answers to the 5 practical deployment questions.
-- 📘 **[P5 Market Deployment Playbook](docs/P5_MARKET_DEPLOYMENT_PLAYBOOK.md)** — Value narrative, customer journey, support SLA, and subscription economics.
-- 📗 **[P5 Operations Runbook](docs/P5_OPERATIONS_RUNBOOK.md)** — SOPs for health checks, lock clearing, circuit-breakers, and incident triage.
-- 🔒 **[P5 Security Model](docs/P5_SECURITY_MODEL.md)** — 6-layer multi-user isolation architecture and negative capability boundary.
-- 📊 **[P5 Production Metrics](docs/P5_PRODUCTION_METRICS.md)** — Metrics framework, SLAs, and continuous production evidence ledger schema.
-- 📄 **[Architecture Whitepaper](docs/WHITE_PAPER_GOVERNED_AGENTIC_SYSTEM.md)** — Formal mathematical invariants and governance principles.
-- 🛠 **[Engineering Case Study](docs/CASE_STUDY_AGENTIC_SYSTEM_WITHOUT_EXECUTION_AUTHORITY.md)** — Building an agentic system without execution authority.
-- 📋 **[Production Release Certification](docs/V5_RELEASE_CERTIFICATION.md)** — Complete audit sign-off record across all 9 verification phases.
-- 🛡 **[Resilience Matrix Report](docs/V5_BETA2_RESILIENCE_MATRIX.md)** — Specification of 157 hostile and operational boundary scenarios.
-
----
-
-## 💻 Developer Quickstart
+### Local Environment Setup
+Requirements: Node.js 20+, npm, and basic environment configuration.
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/remote-job-accelerator.git
+git clone https://github.com/amareshdas3-eng/remote-job-accelerator.git
 cd remote-job-accelerator
 
 # Install dependencies
 npm install
 
-# Run static typecheck (0 errors)
+# Run static typecheck (TypeScript strict mode)
 npm run typecheck
 
-# Run full 37-suite regression & resilience test suite
+# Run test suite
 npm test
 ```
 
+To run the Next.js development server:
+
+```bash
+npm run dev
+```
+
+**Verification note:** These commands are instructions. Review `package.json`, environment example files, and test output before deployment. Never commit secrets, personal candidate data, production credentials, or real application artifacts.
+
 ---
 
-*“v5.2 does not gain authority by being released. It demonstrates that authority has remained governed throughout the entire lifecycle — permanently frozen.”*
+## Evidence and technical reading path
+
+Start with the short executive overview, then inspect the code and test suites:
+
+1. [Executive Architecture Certificate](docs/RJA_ARCHITECTURE_CERTIFICATE.md) — Core design and documented validation summary.
+2. [Architecture Freeze Certificate](docs/ARCHITECTURE_FREEZE_CERTIFICATE.md) — Documented baseline and change-control principles.
+3. [Evidence-Bounded Agentic Architecture Case Study](docs/CASE_STUDY_EVIDENCE_BOUNDED_AGENTIC_ARCHITECTURE.md) — Design rationale and governance model.
+4. [Gate 5 Unified Audit](docs/GATE_5_UNIFIED_RJA_AUDIT.md) — Documented audit dimensions.
+5. [Resilience Matrix](docs/V5_BETA2_RESILIENCE_MATRIX.md) — Hostile and failure-case test coverage.
+6. [Leadership Portfolio Dossier](docs/LEADERSHIP_PORTFOLIO_DOSSIER.md) — Project-management and systems-engineering narrative.
+
+For implementation-level review, inspect `lib/execution/`, the agent authority contracts in `docs/V5_AGENT_AUTHORITY_CONTRACT.md`, the policy checks, and the tests referenced by `package.json`.
+
+---
+
+<a id="engineering-lineage--principles"></a>
+## Engineering Lineage & Principles
+
+RJA translates 23+ years of industrial power systems, commissioning, and project leadership into the design of mission-critical AI software:
+
+- **Generation is never evidence.**
+- **Agents propose; authorized humans approve.**
+- **Fail closed when authority, evidence, or integrity checks fail.**
+- **Keep approval and execution responsibilities separate.**
+- **Make claims auditable, deterministic, and testable.**
+- **Measure outcomes; distinguish documented results from independently reproduced results.**
+
+### Project and professional context
+
+RJA demonstrates how an engineering-led delivery approach applies to AI systems: rigorous requirements, architecture boundaries, risk controls, test gates, release discipline, and operational feedback.
+
+For collaboration, technical review, or project-management / AI workflow opportunities, connect through [Amaresh Das on LinkedIn](https://www.linkedin.com/in/amaresh-das/).
+
+---
+
+*Portfolio project and engineering reference. Review the code, configuration, license, and security posture before reuse or deployment. No repository documentation substitutes for an independent security review or environment-specific validation.*
