@@ -7,4 +7,16 @@ npm-debug.log*
 .DS_Store
 .netlify
 *.tsbuildinfo
-deno.lock
+
+# Local Google OAuth credentials & secrets
+client_secret_*.json
+*.pem
+*.key
+
+# Local daemon runtime databases & caches
+.rja_*.json
+.rja_*.pid
+
+# Personal candidate & campaign files
+*Resume*.md
+*Campaign*.json
